@@ -3,8 +3,6 @@
 require_relative "lib/rails_dependency_explorer/version"
 
 Gem::Specification.new do |spec|
-
-
   spec.name = "rails_dependency_explorer"
   spec.version = RailsDependencyExplorer::VERSION
   spec.authors = ["Pablo"]
