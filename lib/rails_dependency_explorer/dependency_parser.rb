@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "parser/current"
+require_relative "dependency_collection"
 
 module RailsDependencyExplorer
   class DependencyParser
@@ -31,19 +32,68 @@ module RailsDependencyExplorer
     end
 
     def extract_dependencies(ast)
-      ast.children[1..-1].map do |child|
+      dependencies = ast.children[1..-1].map do |child|
         find_constants(child)
       end.flatten
+
+      group_dependencies(dependencies)
     end
 
     def find_constants(ast_node)
       return [] unless ast_node
       return [] if primitive_type?(ast_node)
 
-      if ast_node.type == :const
-        ast_node.children[1].to_s
+      case ast_node.type
+      when :const
+        handle_constant(ast_node)
+      when :send
+        handle_method_call(ast_node)
       else
         ast_node.children.map { |child_node| find_constants(child_node) }.flatten
+      end
+    end
+
+    def group_dependencies(dependencies)
+      collection = DependencyCollection.new
+
+      dependencies.each do |dep|
+        if dep.is_a?(Hash)
+          collection.merge_hash_dependency(dep)
+        else
+          # Handle plain string constants (shouldn't happen with new logic)
+          collection.add_method_call(dep, []) if dep.is_a?(String)
+        end
+      end
+
+      collection.to_grouped_array
+    end
+
+    def handle_constant(const_node)
+      if const_node.children[0]&.type == :const
+        # Handle nested constants like Config::MAX_HEALTH
+        parent_const = const_node.children[0].children[1].to_s
+        child_const = const_node.children[1].to_s
+        { parent_const => [child_const] }
+      else
+        # Plain constant - shouldn't happen in current context
+        const_node.children[1].to_s
+      end
+    end
+
+    def handle_method_call(send_node)
+      receiver = send_node.children[0]
+
+      if receiver&.type == :const
+        const_name = receiver.children[1].to_s
+        method_name = send_node.children[1].to_s
+        { const_name => [method_name] }
+      elsif receiver&.type == :send && receiver.children[0]&.type == :const
+        # Handle chained calls like GameState.current.update - only track first method
+        const_name = receiver.children[0].children[1].to_s
+        method_name = receiver.children[1].to_s
+        { const_name => [method_name] }
+      else
+        []
       end
     end
 
