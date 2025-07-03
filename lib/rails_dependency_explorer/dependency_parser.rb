@@ -2,6 +2,7 @@
 
 require "parser/current"
 require_relative "dependency_collection"
+require_relative "dependency_accumulator"
 
 module RailsDependencyExplorer
   class DependencyParser
@@ -32,11 +33,21 @@ module RailsDependencyExplorer
     end
 
     def extract_dependencies(ast)
-      dependencies = ast.children[1..-1].map do |child|
-        find_constants(child)
-      end.flatten
+      accumulator = DependencyAccumulator.new
 
-      group_dependencies(dependencies)
+      ast.children[1..-1].each do |child|
+        dependencies = find_constants(child)
+        dependencies.flatten.each do |dep|
+          if dep.is_a?(Hash)
+            accumulator.collection.merge_hash_dependency(dep)
+          elsif dep.is_a?(String)
+            # Handle plain string constants (shouldn't happen with current logic)
+            accumulator.record_method_call(dep, [])
+          end
+        end
+      end
+
+      accumulator.collection.to_grouped_array
     end
 
     def find_constants(ast_node)
@@ -53,20 +64,7 @@ module RailsDependencyExplorer
       end
     end
 
-    def group_dependencies(dependencies)
-      collection = DependencyCollection.new
 
-      dependencies.each do |dep|
-        if dep.is_a?(Hash)
-          collection.merge_hash_dependency(dep)
-        else
-          # Handle plain string constants (shouldn't happen with new logic)
-          collection.add_method_call(dep, []) if dep.is_a?(String)
-        end
-      end
-
-      collection.to_grouped_array
-    end
 
     def handle_constant(const_node)
       if const_node.children[0]&.type == :const
