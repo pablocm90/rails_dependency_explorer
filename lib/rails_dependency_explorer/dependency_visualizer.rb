@@ -14,6 +14,14 @@ module RailsDependencyExplorer
       }
     end
 
+    def to_dot(dependency_data)
+      edges = extract_edges(dependency_data)
+
+      dot_content = edges.map { |edge| "  \"#{edge[0]}\" -> \"#{edge[1]}\";" }.join("\n")
+
+      "digraph dependencies {\n#{dot_content}\n}"
+    end
+
     private
 
     def extract_nodes(dependency_data)
