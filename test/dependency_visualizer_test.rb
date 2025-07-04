@@ -1,0 +1,22 @@
+# frozen_string_literal: true
+
+require "minitest/autorun"
+require_relative "../lib/rails_dependency_explorer/dependency_visualizer"
+
+class DependencyVisualizerTest < Minitest::Test
+  def setup
+    @visualizer = RailsDependencyExplorer::DependencyVisualizer.new
+  end
+
+  def test_dependency_visualizer_converts_single_dependency_to_basic_graph_structure
+    dependency_data = {"Player" => [{"Enemy" => ["health"]}]}
+    
+    result = @visualizer.to_graph(dependency_data)
+    expected = {
+      nodes: ["Player", "Enemy"],
+      edges: [["Player", "Enemy"]]
+    }
+    
+    assert_equal expected, result
+  end
+end
