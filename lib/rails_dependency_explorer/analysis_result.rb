@@ -9,8 +9,17 @@ module RailsDependencyExplorer
     end
 
     def to_graph
-      visualizer = DependencyVisualizer.new
       visualizer.to_graph(@dependency_data)
+    end
+
+    def to_dot
+      visualizer.to_dot(@dependency_data)
+    end
+
+    private
+
+    def visualizer
+      @visualizer ||= DependencyVisualizer.new
     end
   end
 end

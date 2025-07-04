@@ -18,12 +18,27 @@ class DependencyExplorerTest < Minitest::Test
     RUBY
 
     result = @explorer.analyze_code(ruby_code)
-    
+
     expected_graph = {
       nodes: ["Player", "Enemy"],
       edges: [["Player", "Enemy"]]
     }
 
     assert_equal expected_graph, result.to_graph
+  end
+
+  def test_dependency_explorer_generates_dot_output_from_ruby_code
+    ruby_code = <<~RUBY
+      class Player
+        def attack
+          Enemy.health -= 10
+        end
+      end
+    RUBY
+
+    result = @explorer.analyze_code(ruby_code)
+    expected_dot = "digraph dependencies {\n  \"Player\" -> \"Enemy\";\n}"
+
+    assert_equal expected_dot, result.to_dot
   end
 end
