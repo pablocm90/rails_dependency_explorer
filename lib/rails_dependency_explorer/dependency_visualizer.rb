@@ -15,11 +15,8 @@ module RailsDependencyExplorer
     end
 
     def to_dot(dependency_data)
-      edges = extract_edges(dependency_data)
-
-      dot_content = edges.map { |edge| "  \"#{edge[0]}\" -> \"#{edge[1]}\";" }.join("\n")
-
-      "digraph dependencies {\n#{dot_content}\n}"
+      graph = to_graph(dependency_data)
+      format_as_dot(graph[:edges])
     end
 
     private
@@ -55,6 +52,11 @@ module RailsDependencyExplorer
       dependencies.each do |dependency_hash|
         dependency_hash.each_key { |dependent_class| edges.add([class_name, dependent_class]) }
       end
+    end
+
+    def format_as_dot(edges)
+      dot_content = edges.map { |edge| "  \"#{edge[0]}\" -> \"#{edge[1]}\";" }.join("\n")
+      "digraph dependencies {\n#{dot_content}\n}"
     end
   end
 end
