@@ -41,4 +41,19 @@ class DependencyExplorerTest < Minitest::Test
 
     assert_equal expected_dot, result.to_dot
   end
+
+  def test_dependency_explorer_handles_empty_code_gracefully
+    empty_code = ""
+    invalid_code = "invalid ruby syntax {"
+
+    # Test empty code
+    result_empty = @explorer.analyze_code(empty_code)
+    expected_empty_graph = { nodes: [], edges: [] }
+    assert_equal expected_empty_graph, result_empty.to_graph
+
+    # Test invalid code
+    result_invalid = @explorer.analyze_code(invalid_code)
+    expected_invalid_graph = { nodes: [], edges: [] }
+    assert_equal expected_invalid_graph, result_invalid.to_graph
+  end
 end

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "parser/current"
+require "stringio"
 require_relative "dependency_accumulator"
 require_relative "ast_visitor"
 
@@ -25,6 +26,8 @@ module RailsDependencyExplorer
     def build_ast
       parser = Parser::CurrentRuby
       parser.parse(@ruby_code)
+    rescue Parser::SyntaxError
+      nil
     end
 
     def extract_class_name(ast)
