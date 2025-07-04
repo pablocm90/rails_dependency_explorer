@@ -1,22 +1,33 @@
 # frozen_string_literal: true
 
+require_relative "node_handler_registry"
+
 module RailsDependencyExplorer
   class ASTVisitor
+    attr_reader :registry
+
+    def initialize
+      @registry = NodeHandlerRegistry.new
+      register_default_handlers
+    end
+
     def visit(node)
       return [] unless node
       return [] if primitive_type?(node)
 
-      case node.type
-      when :const
-        visit_const(node)
-      when :send
-        visit_send(node)
+      if @registry.registered?(node.type)
+        @registry.handle(node.type, node)
       else
         visit_children(node)
       end
     end
 
     private
+
+    def register_default_handlers
+      @registry.register(:const, method(:visit_const))
+      @registry.register(:send, method(:visit_send))
+    end
 
     def visit_const(node)
       if node.children[0]&.type == :const

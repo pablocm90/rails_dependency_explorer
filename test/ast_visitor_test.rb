@@ -69,4 +69,19 @@ class ASTVisitorTest < Minitest::Test
 
     assert_equal expected, result
   end
+
+  def test_registry_allows_custom_handler_registration
+    # Register a custom handler for a new node type
+    custom_handler = proc { |node| "custom: #{node.type}" }
+    @visitor.registry.register(:custom_type, custom_handler)
+
+    # Create a mock node with custom type
+    mock_node = Object.new
+    def mock_node.type; :custom_type; end
+
+    result = @visitor.visit(mock_node)
+    expected = "custom: custom_type"
+
+    assert_equal expected, result
+  end
 end
