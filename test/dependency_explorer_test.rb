@@ -130,4 +130,52 @@ class DependencyExplorerTest < Minitest::Test
       assert_equal expected_edges.sort, actual_graph[:edges].sort
     end
   end
+
+  def test_dependency_explorer_filters_files_by_pattern
+    # Create a temporary directory with Ruby files
+    require 'tmpdir'
+    require 'fileutils'
+
+    Dir.mktmpdir do |temp_dir|
+      # Create model files
+      user_model = File.join(temp_dir, "user_model.rb")
+      File.write(user_model, <<~RUBY)
+        class UserModel
+          def validate
+            Logger.info("Validating user")
+          end
+        end
+      RUBY
+
+      # Create controller files
+      user_controller = File.join(temp_dir, "user_controller.rb")
+      File.write(user_controller, <<~RUBY)
+        class UserController
+          def create
+            UserModel.new
+          end
+        end
+      RUBY
+
+      # Create service files
+      email_service = File.join(temp_dir, "email_service.rb")
+      File.write(email_service, <<~RUBY)
+        class EmailService
+          def send_email
+            Mailer.deliver
+          end
+        end
+      RUBY
+
+      # Test filtering for only model files
+      result = @explorer.analyze_directory(temp_dir, pattern: "*_model.rb")
+      actual_graph = result.to_graph
+
+      expected_nodes = ["UserModel", "Logger"]
+      expected_edges = [["UserModel", "Logger"]]
+
+      assert_equal expected_nodes.sort, actual_graph[:nodes].sort
+      assert_equal expected_edges.sort, actual_graph[:edges].sort
+    end
+  end
 end
