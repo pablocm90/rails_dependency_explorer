@@ -3,7 +3,7 @@
 module RailsDependencyExplorer
   class NodeHandlerRegistry
     attr_reader :handlers
-    
+
     def initialize
       @handlers = {}
     end
@@ -14,7 +14,7 @@ module RailsDependencyExplorer
 
     def handle(node_type, node)
       handler = @handlers[node_type]
-      handler.call(node) if handler
+      handler&.call(node)
     end
 
     def registered?(node_type)

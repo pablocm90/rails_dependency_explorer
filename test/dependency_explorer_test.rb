@@ -48,12 +48,45 @@ class DependencyExplorerTest < Minitest::Test
 
     # Test empty code
     result_empty = @explorer.analyze_code(empty_code)
-    expected_empty_graph = { nodes: [], edges: [] }
+    expected_empty_graph = {nodes: [], edges: []}
     assert_equal expected_empty_graph, result_empty.to_graph
 
     # Test invalid code
     result_invalid = @explorer.analyze_code(invalid_code)
-    expected_invalid_graph = { nodes: [], edges: [] }
+    expected_invalid_graph = {nodes: [], edges: []}
     assert_equal expected_invalid_graph, result_invalid.to_graph
+  end
+
+  def test_dependency_explorer_analyzes_multiple_files
+    player_code = <<~RUBY
+      class Player
+        def attack
+          Enemy.health -= 10
+        end
+      end
+    RUBY
+
+    game_code = <<~RUBY
+      class Game
+        def start
+          Player.new
+          Logger.info("Game started")
+        end
+      end
+    RUBY
+
+    files = {
+      "player.rb" => player_code,
+      "game.rb" => game_code
+    }
+
+    result = @explorer.analyze_files(files)
+
+    expected_graph = {
+      nodes: ["Player", "Enemy", "Game", "Logger"],
+      edges: [["Player", "Enemy"], ["Game", "Player"], ["Game", "Logger"]]
+    }
+
+    assert_equal expected_graph, result.to_graph
   end
 end

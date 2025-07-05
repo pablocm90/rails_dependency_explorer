@@ -17,7 +17,7 @@ module RailsDependencyExplorer
 
       class_name = extract_class_name(ast)
       dependencies = extract_dependencies(ast)
-      { class_name => dependencies }
+      {class_name => dependencies}
     end
 
     private
@@ -40,7 +40,7 @@ module RailsDependencyExplorer
       accumulator = DependencyAccumulator.new
       visitor = ASTVisitor.new
 
-      ast.children[1..-1].each do |child|
+      ast.children[1..].each do |child|
         dependencies = visitor.visit(child)
         accumulate_visited_dependencies(dependencies, accumulator)
       end
