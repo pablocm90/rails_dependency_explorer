@@ -77,7 +77,9 @@ class ASTVisitorTest < Minitest::Test
 
     # Create a mock node with custom type
     mock_node = Object.new
-    def mock_node.type; :custom_type; end
+    def mock_node.type
+      :custom_type
+    end
 
     result = @visitor.visit(mock_node)
     expected = "custom: custom_type"

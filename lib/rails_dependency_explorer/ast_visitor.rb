@@ -34,7 +34,7 @@ module RailsDependencyExplorer
         # Handle nested constants like Config::MAX_HEALTH
         parent_const = node.children[0].children[1].to_s
         child_const = node.children[1].to_s
-        { parent_const => [child_const] }
+        {parent_const => [child_const]}
       else
         # Plain constant
         node.children[1].to_s
@@ -47,12 +47,12 @@ module RailsDependencyExplorer
       if receiver&.type == :const
         const_name = receiver.children[1].to_s
         method_name = node.children[1].to_s
-        { const_name => [method_name] }
+        {const_name => [method_name]}
       elsif receiver&.type == :send && receiver.children[0]&.type == :const
         # Handle chained calls like GameState.current.update - only track first method
         const_name = receiver.children[0].children[1].to_s
         method_name = receiver.children[1].to_s
-        { const_name => [method_name] }
+        {const_name => [method_name]}
       else
         visit_children(node)
       end
