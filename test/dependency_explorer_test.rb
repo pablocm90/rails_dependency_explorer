@@ -89,4 +89,45 @@ class DependencyExplorerTest < Minitest::Test
 
     assert_equal expected_graph, result.to_graph
   end
+
+  def test_dependency_explorer_scans_directory_for_ruby_files
+    # Create a temporary directory with Ruby files
+    require 'tmpdir'
+    require 'fileutils'
+
+    Dir.mktmpdir do |temp_dir|
+      # Create test Ruby files
+      player_file = File.join(temp_dir, "player.rb")
+      File.write(player_file, <<~RUBY)
+        class Player
+          def attack
+            Enemy.health -= 10
+          end
+        end
+      RUBY
+
+      game_file = File.join(temp_dir, "game.rb")
+      File.write(game_file, <<~RUBY)
+        class Game
+          def start
+            Player.new
+            Logger.info("Game started")
+          end
+        end
+      RUBY
+
+      # Create a non-Ruby file that should be ignored
+      readme_file = File.join(temp_dir, "README.md")
+      File.write(readme_file, "# This is not Ruby code")
+
+      result = @explorer.analyze_directory(temp_dir)
+      actual_graph = result.to_graph
+
+      expected_nodes = ["Player", "Enemy", "Game", "Logger"]
+      expected_edges = [["Player", "Enemy"], ["Game", "Player"], ["Game", "Logger"]]
+
+      assert_equal expected_nodes.sort, actual_graph[:nodes].sort
+      assert_equal expected_edges.sort, actual_graph[:edges].sort
+    end
+  end
 end

@@ -21,6 +21,19 @@ module RailsDependencyExplorer
       AnalysisResult.new(combined_dependency_data)
     end
 
+    def analyze_directory(directory_path)
+      ruby_files = Dir.glob(File.join(directory_path, "*.rb"))
+      files_hash = {}
+
+      ruby_files.each do |file_path|
+        filename = File.basename(file_path)
+        ruby_code = File.read(file_path)
+        files_hash[filename] = ruby_code
+      end
+
+      analyze_files(files_hash)
+    end
+
     private
 
     def parse_ruby_code(ruby_code)
