@@ -178,4 +178,54 @@ class DependencyExplorerTest < Minitest::Test
       assert_equal expected_edges.sort, actual_graph[:edges].sort
     end
   end
+
+  def test_dependency_explorer_provides_dependency_statistics
+    player_code = <<~RUBY
+      class Player
+        def attack
+          Enemy.health -= 10
+          Logger.info("Player attacked")
+        end
+
+        def defend
+          Logger.info("Player defended")
+        end
+      end
+    RUBY
+
+    game_code = <<~RUBY
+      class Game
+        def start
+          Player.new
+          Logger.info("Game started")
+        end
+
+        def end_game
+          Player.reset
+          Enemy.cleanup
+        end
+      end
+    RUBY
+
+    files = {
+      "player.rb" => player_code,
+      "game.rb" => game_code
+    }
+
+    result = @explorer.analyze_files(files)
+    stats = result.statistics
+
+    expected_stats = {
+      total_classes: 2,
+      total_dependencies: 3,
+      most_used_dependency: "Enemy",
+      dependency_counts: {
+        "Enemy" => 2,
+        "Logger" => 2,
+        "Player" => 1
+      }
+    }
+
+    assert_equal expected_stats, stats
+  end
 end
