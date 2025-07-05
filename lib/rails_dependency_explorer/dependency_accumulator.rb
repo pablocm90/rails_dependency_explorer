@@ -17,5 +17,9 @@ module RailsDependencyExplorer
     def record_constant_access(constant_name, accessed_constant)
       @collection.add_constant_access(constant_name, accessed_constant)
     end
+
+    def record_hash_dependency(hash_dependency)
+      @collection.merge_hash_dependency(hash_dependency)
+    end
   end
 end
