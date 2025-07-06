@@ -140,4 +140,28 @@ class AnalysisResultTest < Minitest::Test
     }
     assert_equal expected_stats, stats
   end
+
+  def test_analysis_result_detects_circular_dependencies
+    dependency_data = {
+      "Player" => [{"Enemy" => ["take_damage"]}],
+      "Enemy" => [{"Player" => ["take_damage"]}],
+      "Game" => [{"Player" => ["new"]}]
+    }
+    result = RailsDependencyExplorer::AnalysisResult.new(dependency_data)
+    cycles = result.circular_dependencies
+
+    expected_cycles = [["Player", "Enemy", "Player"]]
+    assert_equal expected_cycles, cycles
+  end
+
+  def test_analysis_result_handles_no_circular_dependencies
+    dependency_data = {
+      "Player" => [{"Enemy" => ["take_damage"]}],
+      "Game" => [{"Player" => ["new"]}]
+    }
+    result = RailsDependencyExplorer::AnalysisResult.new(dependency_data)
+    cycles = result.circular_dependencies
+
+    assert_equal [], cycles
+  end
 end

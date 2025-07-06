@@ -228,4 +228,47 @@ class DependencyExplorerTest < Minitest::Test
 
     assert_equal expected_stats, stats
   end
+
+  def test_dependency_explorer_detects_circular_dependencies
+    # Create code with circular dependencies
+    player_code = <<~RUBY
+      class Player
+        def attack
+          Enemy.take_damage(10)
+        end
+      end
+    RUBY
+
+    enemy_code = <<~RUBY
+      class Enemy
+        def counter_attack
+          Player.take_damage(5)
+        end
+      end
+    RUBY
+
+    game_code = <<~RUBY
+      class Game
+        def start
+          Player.new
+          Enemy.spawn
+        end
+      end
+    RUBY
+
+    files = {
+      "player.rb" => player_code,
+      "enemy.rb" => enemy_code,
+      "game.rb" => game_code
+    }
+
+    result = @explorer.analyze_files(files)
+    circular_deps = result.circular_dependencies
+
+    expected_cycles = [
+      ["Player", "Enemy", "Player"]
+    ]
+
+    assert_equal expected_cycles, circular_deps
+  end
 end
