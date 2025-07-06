@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "minitest/autorun"
-require_relative "../lib/rails_dependency_explorer/analysis_result"
+require_relative "../test_helper"
 
 class AnalysisResultTest < Minitest::Test
   def test_analysis_result_converts_single_dependency_to_graph

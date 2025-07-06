@@ -2,7 +2,7 @@
 
 require "minitest/autorun"
 require "parser/current"
-require_relative "../lib/rails_dependency_explorer/ast_visitor"
+require_relative "../test_helper"
 
 class ASTVisitorTest < Minitest::Test
   def setup

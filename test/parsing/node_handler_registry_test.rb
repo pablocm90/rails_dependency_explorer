@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "minitest/autorun"
-require_relative "../lib/rails_dependency_explorer/node_handler_registry"
+require_relative "../test_helper"
 
 class NodeHandlerRegistryTest < Minitest::Test
   def setup

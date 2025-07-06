@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "minitest/autorun"
-require_relative "../lib/rails_dependency_explorer/dependency_parser"
+require_relative "../test_helper"
 
 class DependencyParserTest < Minitest::Test
   def test_it_parses_the_caller_class

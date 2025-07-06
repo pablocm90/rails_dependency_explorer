@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'set'
-require_relative "dependency_visualizer"
+require_relative "../output/dependency_visualizer"
 
 module RailsDependencyExplorer
   class AnalysisResult

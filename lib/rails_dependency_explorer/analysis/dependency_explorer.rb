@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "dependency_parser"
+require_relative "../parsing/dependency_parser"
 require_relative "analysis_result"
 
 module RailsDependencyExplorer

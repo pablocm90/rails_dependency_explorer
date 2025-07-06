@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "dependency_collection"
+require_relative "../analysis/dependency_collection"
 
 module RailsDependencyExplorer
   class DependencyAccumulator

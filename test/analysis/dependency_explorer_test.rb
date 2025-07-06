@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "minitest/autorun"
-require_relative "../lib/rails_dependency_explorer/dependency_explorer"
+require_relative "../test_helper"
 
 class DependencyExplorerTest < Minitest::Test
   def setup
