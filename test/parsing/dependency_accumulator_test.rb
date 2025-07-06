@@ -5,7 +5,7 @@ require_relative "../test_helper"
 
 class DependencyAccumulatorTest < Minitest::Test
   def setup
-    @accumulator = RailsDependencyExplorer::DependencyAccumulator.new
+    @accumulator = RailsDependencyExplorer::Parsing::DependencyAccumulator.new
   end
 
   def test_initialize_creates_empty_collection

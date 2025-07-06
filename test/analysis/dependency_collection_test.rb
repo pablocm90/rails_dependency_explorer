@@ -5,7 +5,7 @@ require_relative "../test_helper"
 
 class DependencyCollectionTest < Minitest::Test
   def setup
-    @collection = RailsDependencyExplorer::DependencyCollection.new
+    @collection = RailsDependencyExplorer::Analysis::DependencyCollection.new
   end
 
   def test_add_method_call_adds_new_constant_and_method

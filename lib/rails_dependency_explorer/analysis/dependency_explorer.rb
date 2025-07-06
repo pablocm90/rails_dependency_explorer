@@ -4,7 +4,8 @@ require_relative "../parsing/dependency_parser"
 require_relative "analysis_result"
 
 module RailsDependencyExplorer
-  class DependencyExplorer
+  module Analysis
+    class DependencyExplorer
     def analyze_code(ruby_code)
       dependency_data = parse_ruby_code(ruby_code)
       AnalysisResult.new(dependency_data)
@@ -37,8 +38,9 @@ module RailsDependencyExplorer
     private
 
     def parse_ruby_code(ruby_code)
-      parser = DependencyParser.new(ruby_code)
+      parser = Parsing::DependencyParser.new(ruby_code)
       parser.parse
+    end
     end
   end
 end

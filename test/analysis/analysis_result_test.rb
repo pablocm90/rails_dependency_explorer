@@ -6,7 +6,7 @@ require_relative "../test_helper"
 class AnalysisResultTest < Minitest::Test
   def test_analysis_result_converts_single_dependency_to_graph
     dependency_data = {"Player" => [{"Enemy" => ["health"]}]}
-    result = RailsDependencyExplorer::AnalysisResult.new(dependency_data)
+    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
 
     expected = {
       nodes: ["Player", "Enemy"],
@@ -24,7 +24,7 @@ class AnalysisResultTest < Minitest::Test
         {"Logger" => ["info"]}
       ]
     }
-    result = RailsDependencyExplorer::AnalysisResult.new(dependency_data)
+    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
 
     expected = {
       nodes: ["Player", "Enemy", "GameState", "Logger"],
@@ -36,7 +36,7 @@ class AnalysisResultTest < Minitest::Test
 
   def test_analysis_result_handles_empty_dependency_data
     dependency_data = {}
-    result = RailsDependencyExplorer::AnalysisResult.new(dependency_data)
+    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
 
     expected = {
       nodes: [],
@@ -48,7 +48,7 @@ class AnalysisResultTest < Minitest::Test
 
   def test_analysis_result_converts_to_dot_format
     dependency_data = {"Player" => [{"Enemy" => ["health"]}]}
-    result = RailsDependencyExplorer::AnalysisResult.new(dependency_data)
+    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
     dot_output = result.to_dot
 
     assert_instance_of String, dot_output
@@ -60,7 +60,7 @@ class AnalysisResultTest < Minitest::Test
 
   def test_analysis_result_provides_statistics_for_simple_case
     dependency_data = {"Player" => [{"Enemy" => ["health"]}]}
-    result = RailsDependencyExplorer::AnalysisResult.new(dependency_data)
+    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
     stats = result.statistics
 
     expected_stats = {
@@ -88,7 +88,7 @@ class AnalysisResultTest < Minitest::Test
         {"Logger" => ["warn"]}
       ]
     }
-    result = RailsDependencyExplorer::AnalysisResult.new(dependency_data)
+    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
     stats = result.statistics
 
     expected_stats = {
@@ -107,7 +107,7 @@ class AnalysisResultTest < Minitest::Test
 
   def test_analysis_result_handles_empty_statistics
     dependency_data = {}
-    result = RailsDependencyExplorer::AnalysisResult.new(dependency_data)
+    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
     stats = result.statistics
 
     expected_stats = {
@@ -122,7 +122,7 @@ class AnalysisResultTest < Minitest::Test
 
   def test_analysis_result_handles_class_with_no_dependencies
     dependency_data = {"Standalone" => []}
-    result = RailsDependencyExplorer::AnalysisResult.new(dependency_data)
+    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
 
     graph = result.to_graph
     expected_graph = {
@@ -147,7 +147,7 @@ class AnalysisResultTest < Minitest::Test
       "Enemy" => [{"Player" => ["take_damage"]}],
       "Game" => [{"Player" => ["new"]}]
     }
-    result = RailsDependencyExplorer::AnalysisResult.new(dependency_data)
+    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
     cycles = result.circular_dependencies
 
     expected_cycles = [["Player", "Enemy", "Player"]]
@@ -159,7 +159,7 @@ class AnalysisResultTest < Minitest::Test
       "Player" => [{"Enemy" => ["take_damage"]}],
       "Game" => [{"Player" => ["new"]}]
     }
-    result = RailsDependencyExplorer::AnalysisResult.new(dependency_data)
+    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
     cycles = result.circular_dependencies
 
     assert_equal [], cycles

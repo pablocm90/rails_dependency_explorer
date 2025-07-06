@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module RailsDependencyExplorer
-  class NodeHandlerRegistry
+  module Parsing
+    class NodeHandlerRegistry
     attr_reader :handlers
 
     def initialize
@@ -19,6 +20,7 @@ module RailsDependencyExplorer
 
     def registered?(node_type)
       @handlers.key?(node_type)
+    end
     end
   end
 end

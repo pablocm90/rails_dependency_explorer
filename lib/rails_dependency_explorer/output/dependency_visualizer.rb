@@ -3,7 +3,8 @@
 require "set"
 
 module RailsDependencyExplorer
-  class DependencyVisualizer
+  module Output
+    class DependencyVisualizer
     def to_graph(dependency_data)
       nodes = extract_nodes(dependency_data)
       edges = extract_edges(dependency_data)
@@ -57,6 +58,7 @@ module RailsDependencyExplorer
     def format_as_dot(edges)
       dot_content = edges.map { |edge| "  \"#{edge[0]}\" -> \"#{edge[1]}\";" }.join("\n")
       "digraph dependencies {\n#{dot_content}\n}"
+    end
     end
   end
 end

@@ -6,7 +6,7 @@ require_relative "../test_helper"
 
 class ASTVisitorTest < Minitest::Test
   def setup
-    @visitor = RailsDependencyExplorer::ASTVisitor.new
+    @visitor = RailsDependencyExplorer::Parsing::ASTVisitor.new
   end
 
   def test_visit_returns_empty_array_for_nil_node

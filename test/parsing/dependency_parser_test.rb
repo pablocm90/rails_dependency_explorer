@@ -15,7 +15,7 @@ class DependencyParserTest < Minitest::Test
     expected = {
       "Player" => [{"Enemy" => ["health"]}]
     }
-    assert_equal expected, RailsDependencyExplorer::DependencyParser.new(ruby_code).parse
+    assert_equal expected, RailsDependencyExplorer::Parsing::DependencyParser.new(ruby_code).parse
   end
 
   def test_it_parses_multiple_dependencies_with_various_patterns
@@ -40,6 +40,6 @@ class DependencyParserTest < Minitest::Test
       ]
     }
 
-    assert_equal expected, RailsDependencyExplorer::DependencyParser.new(ruby_code).parse
+    assert_equal expected, RailsDependencyExplorer::Parsing::DependencyParser.new(ruby_code).parse
   end
 end

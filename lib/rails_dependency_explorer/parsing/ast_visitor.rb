@@ -3,7 +3,8 @@
 require_relative "node_handler_registry"
 
 module RailsDependencyExplorer
-  class ASTVisitor
+  module Parsing
+    class ASTVisitor
     attr_reader :registry
 
     def initialize
@@ -64,6 +65,7 @@ module RailsDependencyExplorer
 
     def primitive_type?(node)
       node.is_a?(Symbol) || node.is_a?(String) || node.is_a?(Integer)
+    end
     end
   end
 end

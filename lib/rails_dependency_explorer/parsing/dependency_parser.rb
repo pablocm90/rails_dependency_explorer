@@ -5,7 +5,8 @@ require_relative "dependency_accumulator"
 require_relative "ast_visitor"
 
 module RailsDependencyExplorer
-  class DependencyParser
+  module Parsing
+    class DependencyParser
     def initialize(ruby_code)
       @ruby_code = ruby_code
     end
@@ -58,6 +59,7 @@ module RailsDependencyExplorer
           accumulator.record_method_call(dep, [])
         end
       end
+    end
     end
   end
 end

@@ -5,7 +5,7 @@ require_relative "../test_helper"
 
 class DependencyExplorerTest < Minitest::Test
   def setup
-    @explorer = RailsDependencyExplorer::DependencyExplorer.new
+    @explorer = RailsDependencyExplorer::Analysis::DependencyExplorer.new
   end
 
   def test_dependency_explorer_integrates_parser_and_visualizer_for_single_class

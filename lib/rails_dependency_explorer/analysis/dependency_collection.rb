@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module RailsDependencyExplorer
-  class DependencyCollection
+  module Analysis
+    class DependencyCollection
     def initialize
       @dependencies = {}
     end
@@ -23,6 +24,7 @@ module RailsDependencyExplorer
       hash_dep.each do |const_name, methods|
         methods.each { |method| add_method_call(const_name, method) }
       end
+    end
     end
   end
 end

@@ -5,7 +5,7 @@ require_relative "../test_helper"
 
 class DependencyVisualizerTest < Minitest::Test
   def setup
-    @visualizer = RailsDependencyExplorer::DependencyVisualizer.new
+    @visualizer = RailsDependencyExplorer::Output::DependencyVisualizer.new
   end
 
   def test_dependency_visualizer_converts_single_dependency_to_basic_graph_structure

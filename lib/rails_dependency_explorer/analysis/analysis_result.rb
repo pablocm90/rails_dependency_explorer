@@ -4,7 +4,8 @@ require 'set'
 require_relative "../output/dependency_visualizer"
 
 module RailsDependencyExplorer
-  class AnalysisResult
+  module Analysis
+    class AnalysisResult
     def initialize(dependency_data)
       @dependency_data = dependency_data
     end
@@ -36,7 +37,7 @@ module RailsDependencyExplorer
     private
 
     def visualizer
-      @visualizer ||= DependencyVisualizer.new
+      @visualizer ||= Output::DependencyVisualizer.new
     end
 
     def calculate_dependency_counts
@@ -109,6 +110,7 @@ module RailsDependencyExplorer
 
       rec_stack.delete(node)
       path.pop
+    end
     end
   end
 end

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require_relative "lib/rails_dependency_explorer/dependency_visualizer"
+require_relative "lib/rails_dependency_explorer"
 
 # Test with simple dependency data
 
@@ -21,7 +21,7 @@ complex_data = {
 
 dependency_data = complex_data
 
-visualizer = RailsDependencyExplorer::DependencyVisualizer.new
+visualizer = RailsDependencyExplorer::Output::DependencyVisualizer.new
 
 # Generate graph structure
 graph = visualizer.to_graph(dependency_data)

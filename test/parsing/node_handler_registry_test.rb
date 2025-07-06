@@ -5,7 +5,7 @@ require_relative "../test_helper"
 
 class NodeHandlerRegistryTest < Minitest::Test
   def setup
-    @registry = RailsDependencyExplorer::NodeHandlerRegistry.new
+    @registry = RailsDependencyExplorer::Parsing::NodeHandlerRegistry.new
   end
 
   def test_initialize_creates_empty_registry

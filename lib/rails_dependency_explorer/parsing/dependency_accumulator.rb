@@ -3,11 +3,12 @@
 require_relative "../analysis/dependency_collection"
 
 module RailsDependencyExplorer
-  class DependencyAccumulator
+  module Parsing
+    class DependencyAccumulator
     attr_reader :collection
 
     def initialize
-      @collection = DependencyCollection.new
+      @collection = Analysis::DependencyCollection.new
     end
 
     def record_method_call(constant_name, method_name)
@@ -20,6 +21,7 @@ module RailsDependencyExplorer
 
     def record_hash_dependency(hash_dependency)
       @collection.merge_hash_dependency(hash_dependency)
+    end
     end
   end
 end
