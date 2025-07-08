@@ -2,6 +2,7 @@
 
 require "set"
 require_relative "../output/dependency_visualizer"
+require_relative "circular_dependency_analyzer"
 
 module RailsDependencyExplorer
   module Analysis
@@ -31,13 +32,21 @@ module RailsDependencyExplorer
       end
 
       def circular_dependencies
-        find_cycles_in_dependency_graph
+        circular_analyzer.find_cycles
+      end
+
+      def dependency_depth
+        calculate_dependency_depth
       end
 
       private
 
       def visualizer
         @visualizer ||= Output::DependencyVisualizer.new
+      end
+
+      def circular_analyzer
+        @circular_analyzer ||= CircularDependencyAnalyzer.new(@dependency_data)
       end
 
       def calculate_dependency_counts
@@ -57,22 +66,7 @@ module RailsDependencyExplorer
         counts
       end
 
-      def find_cycles_in_dependency_graph
-        # Build adjacency list from dependency data
-        graph = build_adjacency_list
 
-        # Find cycles using DFS
-        visited = Set.new
-        rec_stack = Set.new
-        cycles = []
-
-        graph.keys.each do |node|
-          next if visited.include?(node)
-          find_cycles_dfs(node, graph, visited, rec_stack, [], cycles)
-        end
-
-        cycles
-      end
 
       def build_adjacency_list
         graph = Hash.new { |h, k| h[k] = [] }
@@ -90,26 +84,52 @@ module RailsDependencyExplorer
         graph
       end
 
-      def find_cycles_dfs(node, graph, visited, rec_stack, path, cycles)
-        visited.add(node)
-        rec_stack.add(node)
-        path.push(node)
 
-        graph[node].each do |neighbor|
-          if !visited.include?(neighbor)
-            find_cycles_dfs(neighbor, graph, visited, rec_stack, path, cycles)
-          elsif rec_stack.include?(neighbor)
-            # Found a cycle
-            cycle_start_index = path.index(neighbor)
-            if cycle_start_index
-              cycle = path[cycle_start_index..] + [neighbor]
-              cycles << cycle unless cycles.include?(cycle)
-            end
+
+      def calculate_dependency_depth
+        graph = build_adjacency_list
+        reverse_graph = build_reverse_adjacency_list(graph)
+        all_nodes = extract_all_nodes(graph)
+
+        # Calculate depth for each node from reverse perspective
+        memo = {}
+        all_nodes.each_with_object({}) do |node, depths|
+          depths[node] = calculate_node_depth(node, reverse_graph, memo)
+        end
+      end
+
+      def extract_all_nodes(graph)
+        all_nodes = Set.new(@dependency_data.keys)
+        graph.each { |node, neighbors| all_nodes.add(node); neighbors.each { |n| all_nodes.add(n) } }
+        all_nodes
+      end
+
+      def build_reverse_adjacency_list(graph)
+        reverse_graph = Hash.new { |h, k| h[k] = [] }
+
+        graph.each do |node, neighbors|
+          neighbors.each do |neighbor|
+            reverse_graph[neighbor] << node unless reverse_graph[neighbor].include?(node)
           end
         end
 
-        rec_stack.delete(node)
-        path.pop
+        reverse_graph
+      end
+
+      def calculate_node_depth(node, reverse_graph, memo)
+        return memo[node] if memo.key?(node)
+
+        # If no one depends on this node, depth is 0 (root level)
+        dependents = reverse_graph[node] || []
+        if dependents.empty?
+          memo[node] = 0
+          return 0
+        end
+
+        # Depth is 1 + max depth of dependents
+        max_dependent_depth = dependents.map { |dep| calculate_node_depth(dep, reverse_graph, memo) }.max || 0
+        memo[node] = max_dependent_depth + 1
+        memo[node]
       end
     end
   end
