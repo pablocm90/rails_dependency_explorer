@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "set"
-require "json"
 require_relative "dependency_graph_adapter"
 require_relative "dot_format_adapter"
+require_relative "json_format_adapter"
 
 module RailsDependencyExplorer
   module Output
@@ -18,11 +18,7 @@ module RailsDependencyExplorer
       end
 
       def to_json(dependency_data, statistics = nil)
-        json_data = {
-          "dependencies" => build_dependencies_hash(dependency_data),
-          "statistics" => statistics
-        }
-        JSON.generate(json_data)
+        json_adapter.format(dependency_data, statistics)
       end
 
       private
@@ -35,19 +31,8 @@ module RailsDependencyExplorer
         @dot_adapter ||= DotFormatAdapter.new
       end
 
-      def build_dependencies_hash(dependency_data)
-        result = {}
-        dependency_data.each do |class_name, dependencies|
-          result[class_name] = []
-          dependencies.each do |dep|
-            if dep.is_a?(Hash)
-              dep.each do |constant, _methods|
-                result[class_name] << constant unless result[class_name].include?(constant)
-              end
-            end
-          end
-        end
-        result
+      def json_adapter
+        @json_adapter ||= JsonFormatAdapter.new
       end
     end
   end

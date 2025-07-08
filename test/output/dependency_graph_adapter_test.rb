@@ -27,7 +27,7 @@ class DependencyGraphAdapterTest < Minitest::Test
     }
 
     result = @adapter.to_graph(dependency_data)
-    
+
     expected_nodes = ["Player", "Enemy", "Logger"]
     expected_edges = [["Player", "Enemy"], ["Player", "Logger"], ["Enemy", "Logger"]]
 
