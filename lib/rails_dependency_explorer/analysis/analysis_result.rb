@@ -4,6 +4,7 @@ require "set"
 require_relative "../output/dependency_visualizer"
 require_relative "circular_dependency_analyzer"
 require_relative "dependency_depth_analyzer"
+require_relative "dependency_statistics_calculator"
 
 module RailsDependencyExplorer
   module Analysis
@@ -21,15 +22,7 @@ module RailsDependencyExplorer
       end
 
       def statistics
-        dependency_counts = calculate_dependency_counts
-        most_used = dependency_counts.max_by { |_, count| count }
-
-        {
-          total_classes: @dependency_data.keys.count,
-          total_dependencies: dependency_counts.keys.count,
-          most_used_dependency: most_used ? most_used[0] : nil,
-          dependency_counts: dependency_counts
-        }
+        statistics_calculator.calculate_statistics
       end
 
       def circular_dependencies
@@ -54,22 +47,11 @@ module RailsDependencyExplorer
         @depth_analyzer ||= DependencyDepthAnalyzer.new(@dependency_data)
       end
 
-      def calculate_dependency_counts
-        counts = Hash.new(0)
-
-        @dependency_data.each do |class_name, dependencies|
-          dependencies.each do |dep|
-            if dep.is_a?(Hash)
-              dep.each do |constant, methods|
-                # Count each occurrence of the constant (once per dependency hash)
-                counts[constant] += 1
-              end
-            end
-          end
-        end
-
-        counts
+      def statistics_calculator
+        @statistics_calculator ||= DependencyStatisticsCalculator.new(@dependency_data)
       end
+
+
 
 
 
