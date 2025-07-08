@@ -9,10 +9,10 @@ class DependencyDepthAnalyzerTest < Minitest::Test
       "Player" => [{"Weapon" => ["damage"]}],
       "Weapon" => []
     }
-    
+
     analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(dependency_data)
     depths = analyzer.calculate_depth
-    
+
     expected_depths = {
       "Player" => 0,  # Root level - no one depends on it
       "Weapon" => 1   # One level deep - Player depends on it
@@ -27,10 +27,10 @@ class DependencyDepthAnalyzerTest < Minitest::Test
       "Material" => [{"Config" => ["base_hardness"]}],
       "Config" => []
     }
-    
+
     analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(dependency_data)
     depths = analyzer.calculate_depth
-    
+
     expected_depths = {
       "Player" => 0,    # Root level
       "Weapon" => 1,    # Player depends on it
@@ -46,10 +46,10 @@ class DependencyDepthAnalyzerTest < Minitest::Test
       "PlayerB" => [{"Weapon" => ["damage"]}],
       "Weapon" => []
     }
-    
+
     analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(dependency_data)
     depths = analyzer.calculate_depth
-    
+
     expected_depths = {
       "PlayerA" => 0,  # Root level
       "PlayerB" => 0,  # Root level
@@ -65,10 +65,10 @@ class DependencyDepthAnalyzerTest < Minitest::Test
       "Enemy" => [{"Weapon" => ["equip"]}],
       "Weapon" => []
     }
-    
+
     analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(dependency_data)
     depths = analyzer.calculate_depth
-    
+
     expected_depths = {
       "Game" => 0,     # Root level
       "Player" => 1,   # Game depends on it
@@ -80,10 +80,10 @@ class DependencyDepthAnalyzerTest < Minitest::Test
 
   def test_handles_empty_dependency_data
     dependency_data = {}
-    
+
     analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(dependency_data)
     depths = analyzer.calculate_depth
-    
+
     assert_equal({}, depths)
   end
 
@@ -91,10 +91,10 @@ class DependencyDepthAnalyzerTest < Minitest::Test
     dependency_data = {
       "Standalone" => []
     }
-    
+
     analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(dependency_data)
     depths = analyzer.calculate_depth
-    
+
     expected_depths = {
       "Standalone" => 0  # Root level - no dependencies
     }

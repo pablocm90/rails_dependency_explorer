@@ -50,8 +50,8 @@ class DependencyVisualizerTest < Minitest::Test
       "dependency_counts" => {"Enemy" => 1, "Logger" => 1}
     }
 
-    assert_equal expected_dependencies, parsed['dependencies']
-    assert_equal expected_statistics, parsed['statistics']
+    assert_equal expected_dependencies, parsed["dependencies"]
+    assert_equal expected_statistics, parsed["statistics"]
   end
 
   def test_dependency_visualizer_generates_json_format_without_statistics
@@ -61,7 +61,7 @@ class DependencyVisualizerTest < Minitest::Test
     parsed = JSON.parse(result)
 
     expected_dependencies = {"Player" => ["Enemy"]}
-    assert_equal expected_dependencies, parsed['dependencies']
-    assert_nil parsed['statistics']
+    assert_equal expected_dependencies, parsed["dependencies"]
+    assert_nil parsed["statistics"]
   end
 end

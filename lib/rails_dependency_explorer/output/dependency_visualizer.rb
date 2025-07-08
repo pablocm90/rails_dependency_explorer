@@ -23,8 +23,8 @@ module RailsDependencyExplorer
 
       def to_json(dependency_data, statistics = nil)
         json_data = {
-          'dependencies' => build_dependencies_hash(dependency_data),
-          'statistics' => statistics
+          "dependencies" => build_dependencies_hash(dependency_data),
+          "statistics" => statistics
         }
         JSON.generate(json_data)
       end

@@ -56,7 +56,7 @@ module RailsDependencyExplorer
             # Found a cycle
             cycle_start_index = path.index(neighbor)
             if cycle_start_index
-              cycle = path[cycle_start_index..-1] + [neighbor]
+              cycle = path[cycle_start_index..] + [neighbor]
               cycles << cycle unless cycles.include?(cycle)
             end
           end

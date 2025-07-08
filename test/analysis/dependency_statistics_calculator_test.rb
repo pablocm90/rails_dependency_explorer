@@ -9,14 +9,14 @@ class DependencyStatisticsCalculatorTest < Minitest::Test
       "Player" => [{"Weapon" => ["damage"]}, {"Health" => ["decrease"]}],
       "Enemy" => [{"Weapon" => ["damage"]}]
     }
-    
+
     calculator = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(dependency_data)
     stats = calculator.calculate_statistics
-    
+
     assert_equal 2, stats[:total_classes]
     assert_equal 2, stats[:total_dependencies]
     assert_equal "Weapon", stats[:most_used_dependency]
-    
+
     expected_counts = {"Weapon" => 2, "Health" => 1}
     assert_equal expected_counts, stats[:dependency_counts]
   end
@@ -25,14 +25,14 @@ class DependencyStatisticsCalculatorTest < Minitest::Test
     dependency_data = {
       "Player" => [{"Weapon" => ["damage"]}]
     }
-    
+
     calculator = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(dependency_data)
     stats = calculator.calculate_statistics
-    
+
     assert_equal 1, stats[:total_classes]
     assert_equal 1, stats[:total_dependencies]
     assert_equal "Weapon", stats[:most_used_dependency]
-    
+
     expected_counts = {"Weapon" => 1}
     assert_equal expected_counts, stats[:dependency_counts]
   end
@@ -41,14 +41,14 @@ class DependencyStatisticsCalculatorTest < Minitest::Test
     dependency_data = {
       "Player" => [{"Weapon" => ["damage", "reload", "aim"]}]
     }
-    
+
     calculator = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(dependency_data)
     stats = calculator.calculate_statistics
-    
+
     assert_equal 1, stats[:total_classes]
     assert_equal 1, stats[:total_dependencies]
     assert_equal "Weapon", stats[:most_used_dependency]
-    
+
     # Should count Weapon only once even with multiple methods
     expected_counts = {"Weapon" => 1}
     assert_equal expected_counts, stats[:dependency_counts]
@@ -61,24 +61,24 @@ class DependencyStatisticsCalculatorTest < Minitest::Test
       "PlayerC" => [{"Common" => ["method3"]}],
       "Enemy" => [{"Rare" => ["method"]}]
     }
-    
+
     calculator = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(dependency_data)
     stats = calculator.calculate_statistics
-    
+
     assert_equal 4, stats[:total_classes]
     assert_equal 2, stats[:total_dependencies]
     assert_equal "Common", stats[:most_used_dependency]
-    
+
     expected_counts = {"Common" => 3, "Rare" => 1}
     assert_equal expected_counts, stats[:dependency_counts]
   end
 
   def test_handles_empty_dependency_data
     dependency_data = {}
-    
+
     calculator = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(dependency_data)
     stats = calculator.calculate_statistics
-    
+
     assert_equal 0, stats[:total_classes]
     assert_equal 0, stats[:total_dependencies]
     assert_nil stats[:most_used_dependency]
@@ -89,10 +89,10 @@ class DependencyStatisticsCalculatorTest < Minitest::Test
     dependency_data = {
       "Standalone" => []
     }
-    
+
     calculator = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(dependency_data)
     stats = calculator.calculate_statistics
-    
+
     assert_equal 1, stats[:total_classes]
     assert_equal 0, stats[:total_dependencies]
     assert_nil stats[:most_used_dependency]
@@ -104,14 +104,14 @@ class DependencyStatisticsCalculatorTest < Minitest::Test
       "Active" => [{"Helper" => ["method"]}],
       "Standalone" => []
     }
-    
+
     calculator = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(dependency_data)
     stats = calculator.calculate_statistics
-    
+
     assert_equal 2, stats[:total_classes]
     assert_equal 1, stats[:total_dependencies]
     assert_equal "Helper", stats[:most_used_dependency]
-    
+
     expected_counts = {"Helper" => 1}
     assert_equal expected_counts, stats[:dependency_counts]
   end

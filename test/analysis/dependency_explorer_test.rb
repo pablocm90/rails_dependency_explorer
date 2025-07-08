@@ -349,10 +349,10 @@ class DependencyExplorerTest < Minitest::Test
     parsed = JSON.parse(json_output)
 
     # Verify it contains expected dependency structure
-    assert parsed.key?('dependencies')
-    assert parsed.key?('statistics')
-    assert parsed['dependencies'].key?('UserService')
-    assert_includes parsed['dependencies']['UserService'], 'UserRepository'
-    assert_includes parsed['dependencies']['UserService'], 'EmailService'
+    assert parsed.key?("dependencies")
+    assert parsed.key?("statistics")
+    assert parsed["dependencies"].key?("UserService")
+    assert_includes parsed["dependencies"]["UserService"], "UserRepository"
+    assert_includes parsed["dependencies"]["UserService"], "EmailService"
   end
 end

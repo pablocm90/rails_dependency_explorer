@@ -13,7 +13,7 @@ module RailsDependencyExplorer
         graph = build_adjacency_list
         reverse_graph = build_reverse_adjacency_list(graph)
         all_nodes = extract_all_nodes(graph)
-        
+
         # Calculate depth for each node from reverse perspective
         memo = {}
         all_nodes.each_with_object({}) do |node, depths|
@@ -41,32 +41,35 @@ module RailsDependencyExplorer
 
       def extract_all_nodes(graph)
         all_nodes = Set.new(@dependency_data.keys)
-        graph.each { |node, neighbors| all_nodes.add(node); neighbors.each { |n| all_nodes.add(n) } }
+        graph.each { |node, neighbors|
+          all_nodes.add(node)
+          neighbors.each { |n| all_nodes.add(n) }
+        }
         all_nodes
       end
 
       def build_reverse_adjacency_list(graph)
         reverse_graph = Hash.new { |h, k| h[k] = [] }
-        
+
         graph.each do |node, neighbors|
           neighbors.each do |neighbor|
             reverse_graph[neighbor] << node unless reverse_graph[neighbor].include?(node)
           end
         end
-        
+
         reverse_graph
       end
 
       def calculate_node_depth(node, reverse_graph, memo)
         return memo[node] if memo.key?(node)
-        
+
         # If no one depends on this node, depth is 0 (root level)
         dependents = reverse_graph[node] || []
         if dependents.empty?
           memo[node] = 0
           return 0
         end
-        
+
         # Depth is 1 + max depth of dependents
         max_dependent_depth = dependents.map { |dep| calculate_node_depth(dep, reverse_graph, memo) }.max || 0
         memo[node] = max_dependent_depth + 1

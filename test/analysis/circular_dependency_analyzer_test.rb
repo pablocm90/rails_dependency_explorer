@@ -9,10 +9,10 @@ class CircularDependencyAnalyzerTest < Minitest::Test
       "Player" => [{"Enemy" => ["take_damage"]}],
       "Enemy" => [{"Player" => ["take_damage"]}]
     }
-    
+
     analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(dependency_data)
     cycles = analyzer.find_cycles
-    
+
     expected_cycles = [["Player", "Enemy", "Player"]]
     assert_equal expected_cycles, cycles
   end
@@ -22,10 +22,10 @@ class CircularDependencyAnalyzerTest < Minitest::Test
       "Player" => [{"Enemy" => ["take_damage"]}],
       "Game" => [{"Player" => ["new"]}]
     }
-    
+
     analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(dependency_data)
     cycles = analyzer.find_cycles
-    
+
     assert_equal [], cycles
   end
 
@@ -35,25 +35,25 @@ class CircularDependencyAnalyzerTest < Minitest::Test
       "B" => [{"C" => ["method"]}],
       "C" => [{"A" => ["method"]}]
     }
-    
+
     analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(dependency_data)
     cycles = analyzer.find_cycles
-    
+
     # Should find the cycle A -> B -> C -> A
     assert_equal 1, cycles.length
     cycle = cycles.first
     assert_includes cycle, "A"
-    assert_includes cycle, "B" 
+    assert_includes cycle, "B"
     assert_includes cycle, "C"
     assert_equal 4, cycle.length # A -> B -> C -> A
   end
 
   def test_handles_empty_dependency_data
     dependency_data = {}
-    
+
     analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(dependency_data)
     cycles = analyzer.find_cycles
-    
+
     assert_equal [], cycles
   end
 
@@ -61,10 +61,10 @@ class CircularDependencyAnalyzerTest < Minitest::Test
     dependency_data = {
       "Standalone" => []
     }
-    
+
     analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(dependency_data)
     cycles = analyzer.find_cycles
-    
+
     assert_equal [], cycles
   end
 end
