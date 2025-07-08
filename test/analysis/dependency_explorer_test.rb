@@ -355,4 +355,34 @@ class DependencyExplorerTest < Minitest::Test
     assert_includes parsed["dependencies"]["UserService"], "UserRepository"
     assert_includes parsed["dependencies"]["UserService"], "EmailService"
   end
+
+  def test_dependency_explorer_generates_html_report
+    ruby_code = <<~RUBY
+      class UserService
+        def initialize
+          @user_repo = UserRepository.new
+          @email_service = EmailService.new
+        end
+      end
+    RUBY
+
+    result = @explorer.analyze_code(ruby_code)
+    html_output = result.to_html
+
+    # Should be valid HTML structure
+    assert_includes html_output, "<html>"
+    assert_includes html_output, "</html>"
+    assert_includes html_output, "<head>"
+    assert_includes html_output, "<body>"
+
+    # Should include dependency information
+    assert_includes html_output, "UserService"
+    assert_includes html_output, "UserRepository"
+    assert_includes html_output, "EmailService"
+
+    # Should include statistics
+    assert_includes html_output, "Dependencies Report"
+    assert_includes html_output, "Total Classes"
+    assert_includes html_output, "Total Dependencies"
+  end
 end

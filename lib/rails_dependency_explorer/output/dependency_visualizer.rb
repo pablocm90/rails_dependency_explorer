@@ -4,6 +4,7 @@ require "set"
 require_relative "dependency_graph_adapter"
 require_relative "dot_format_adapter"
 require_relative "json_format_adapter"
+require_relative "html_format_adapter"
 
 module RailsDependencyExplorer
   module Output
@@ -21,6 +22,10 @@ module RailsDependencyExplorer
         json_adapter.format(dependency_data, statistics)
       end
 
+      def to_html(dependency_data, statistics = nil)
+        html_adapter.format(dependency_data, statistics)
+      end
+
       private
 
       def graph_adapter
@@ -33,6 +38,10 @@ module RailsDependencyExplorer
 
       def json_adapter
         @json_adapter ||= JsonFormatAdapter.new
+      end
+
+      def html_adapter
+        @html_adapter ||= HtmlFormatAdapter.new
       end
     end
   end
