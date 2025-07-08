@@ -3,6 +3,7 @@
 require "set"
 require "json"
 require_relative "dependency_graph_adapter"
+require_relative "dot_format_adapter"
 
 module RailsDependencyExplorer
   module Output
@@ -13,7 +14,7 @@ module RailsDependencyExplorer
 
       def to_dot(dependency_data)
         graph = to_graph(dependency_data)
-        format_as_dot(graph[:edges])
+        dot_adapter.format(graph)
       end
 
       def to_json(dependency_data, statistics = nil)
@@ -30,9 +31,8 @@ module RailsDependencyExplorer
         @graph_adapter ||= DependencyGraphAdapter.new
       end
 
-      def format_as_dot(edges)
-        dot_content = edges.map { |edge| "  \"#{edge[0]}\" -> \"#{edge[1]}\";" }.join("\n")
-        "digraph dependencies {\n#{dot_content}\n}"
+      def dot_adapter
+        @dot_adapter ||= DotFormatAdapter.new
       end
 
       def build_dependencies_hash(dependency_data)
