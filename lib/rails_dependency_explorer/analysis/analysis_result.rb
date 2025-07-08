@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "set"
+require "forwardable"
 require_relative "../output/dependency_visualizer"
 require_relative "circular_dependency_analyzer"
 require_relative "dependency_depth_analyzer"
@@ -9,6 +10,12 @@ require_relative "dependency_statistics_calculator"
 module RailsDependencyExplorer
   module Analysis
     class AnalysisResult
+      extend Forwardable
+
+      def_delegator :statistics_calculator, :calculate_statistics, :statistics
+      def_delegator :circular_analyzer, :find_cycles, :circular_dependencies
+      def_delegator :depth_analyzer, :calculate_depth, :dependency_depth
+
       def initialize(dependency_data)
         @dependency_data = dependency_data
       end
@@ -21,16 +28,8 @@ module RailsDependencyExplorer
         visualizer.to_dot(@dependency_data)
       end
 
-      def statistics
-        statistics_calculator.calculate_statistics
-      end
-
-      def circular_dependencies
-        circular_analyzer.find_cycles
-      end
-
-      def dependency_depth
-        depth_analyzer.calculate_depth
+      def to_json
+        visualizer.to_json(@dependency_data, statistics)
       end
 
       private
@@ -50,12 +49,6 @@ module RailsDependencyExplorer
       def statistics_calculator
         @statistics_calculator ||= DependencyStatisticsCalculator.new(@dependency_data)
       end
-
-
-
-
-
-
     end
   end
 end

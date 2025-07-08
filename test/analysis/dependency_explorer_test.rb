@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "minitest/autorun"
+require "json"
 require_relative "../test_helper"
 
 class DependencyExplorerTest < Minitest::Test
@@ -324,5 +325,34 @@ class DependencyExplorerTest < Minitest::Test
     }
 
     assert_equal expected_depth, depth_analysis
+  end
+
+  def test_dependency_explorer_exports_to_json
+    ruby_code = <<~RUBY
+      class UserService
+        def initialize
+          @user_repo = UserRepository.new
+          @email_service = EmailService.new
+        end
+
+        def create_user(params)
+          user = @user_repo.create(params)
+          @email_service.send_welcome_email(user)
+        end
+      end
+    RUBY
+
+    result = @explorer.analyze_code(ruby_code)
+    json_output = result.to_json
+
+    # Verify it's valid JSON
+    parsed = JSON.parse(json_output)
+
+    # Verify it contains expected dependency structure
+    assert parsed.key?('dependencies')
+    assert parsed.key?('statistics')
+    assert parsed['dependencies'].key?('UserService')
+    assert_includes parsed['dependencies']['UserService'], 'UserRepository'
+    assert_includes parsed['dependencies']['UserService'], 'EmailService'
   end
 end
