@@ -92,8 +92,8 @@ class DependencyExplorerTest < Minitest::Test
 
   def test_dependency_explorer_scans_directory_for_ruby_files
     # Create a temporary directory with Ruby files
-    require 'tmpdir'
-    require 'fileutils'
+    require "tmpdir"
+    require "fileutils"
 
     Dir.mktmpdir do |temp_dir|
       # Create test Ruby files
@@ -133,8 +133,8 @@ class DependencyExplorerTest < Minitest::Test
 
   def test_dependency_explorer_filters_files_by_pattern
     # Create a temporary directory with Ruby files
-    require 'tmpdir'
-    require 'fileutils'
+    require "tmpdir"
+    require "fileutils"
 
     Dir.mktmpdir do |temp_dir|
       # Create model files

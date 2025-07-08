@@ -6,41 +6,41 @@ require_relative "analysis_result"
 module RailsDependencyExplorer
   module Analysis
     class DependencyExplorer
-    def analyze_code(ruby_code)
-      dependency_data = parse_ruby_code(ruby_code)
-      AnalysisResult.new(dependency_data)
-    end
-
-    def analyze_files(files)
-      combined_dependency_data = {}
-
-      files.each do |_filename, ruby_code|
-        file_dependencies = parse_ruby_code(ruby_code)
-        combined_dependency_data.merge!(file_dependencies)
+      def analyze_code(ruby_code)
+        dependency_data = parse_ruby_code(ruby_code)
+        AnalysisResult.new(dependency_data)
       end
 
-      AnalysisResult.new(combined_dependency_data)
-    end
+      def analyze_files(files)
+        combined_dependency_data = {}
 
-    def analyze_directory(directory_path, pattern: "*.rb")
-      ruby_files = Dir.glob(File.join(directory_path, pattern))
-      files_hash = {}
+        files.each do |_filename, ruby_code|
+          file_dependencies = parse_ruby_code(ruby_code)
+          combined_dependency_data.merge!(file_dependencies)
+        end
 
-      ruby_files.each do |file_path|
-        filename = File.basename(file_path)
-        ruby_code = File.read(file_path)
-        files_hash[filename] = ruby_code
+        AnalysisResult.new(combined_dependency_data)
       end
 
-      analyze_files(files_hash)
-    end
+      def analyze_directory(directory_path, pattern: "*.rb")
+        ruby_files = Dir.glob(File.join(directory_path, pattern))
+        files_hash = {}
 
-    private
+        ruby_files.each do |file_path|
+          filename = File.basename(file_path)
+          ruby_code = File.read(file_path)
+          files_hash[filename] = ruby_code
+        end
 
-    def parse_ruby_code(ruby_code)
-      parser = Parsing::DependencyParser.new(ruby_code)
-      parser.parse
-    end
+        analyze_files(files_hash)
+      end
+
+      private
+
+      def parse_ruby_code(ruby_code)
+        parser = Parsing::DependencyParser.new(ruby_code)
+        parser.parse
+      end
     end
   end
 end
