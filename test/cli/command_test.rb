@@ -302,4 +302,139 @@ class CommandTest < Minitest::Test
       assert_equal 1, exit_code
     end
   end
+
+  def test_cli_supports_output_to_file
+    require "tmpdir"
+    require "json"
+
+    Dir.mktmpdir do |temp_dir|
+      # Create a test Ruby file with dependencies
+      test_file = File.join(temp_dir, "test_class.rb")
+      File.write(test_file, <<~RUBY)
+        class TestClass
+          def process
+            Logger.info("Processing")
+            DataProcessor.transform(data)
+          end
+        end
+      RUBY
+
+      # Test DOT format output to file
+      dot_output_file = File.join(temp_dir, "output.dot")
+
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--format", "dot", "--output", dot_output_file])
+      exit_code = cli.run
+      stdout_content = @stdout.string
+
+      # Should write to file, not stdout
+      assert_equal "", stdout_content.strip
+      assert_equal 0, exit_code
+      assert File.exist?(dot_output_file)
+
+      dot_content = File.read(dot_output_file)
+      assert_includes dot_content, "digraph"
+      assert_includes dot_content, "TestClass"
+      assert_includes dot_content, "Logger"
+
+      # Test JSON format output to file
+      json_output_file = File.join(temp_dir, "output.json")
+
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--format", "json", "--output", json_output_file])
+      exit_code = cli.run
+      stdout_content = @stdout.string
+
+      # Should write to file, not stdout
+      assert_equal "", stdout_content.strip
+      assert_equal 0, exit_code
+      assert File.exist?(json_output_file)
+
+      json_content = File.read(json_output_file)
+      parsed_json = JSON.parse(json_content)
+      assert parsed_json.key?("dependencies")
+      assert parsed_json.key?("statistics")
+
+      # Test HTML format output to file
+      html_output_file = File.join(temp_dir, "output.html")
+
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--format", "html", "--output", html_output_file])
+      exit_code = cli.run
+      stdout_content = @stdout.string
+
+      # Should write to file, not stdout
+      assert_equal "", stdout_content.strip
+      assert_equal 0, exit_code
+      assert File.exist?(html_output_file)
+
+      html_content = File.read(html_output_file)
+      assert_includes html_content, "<html>"
+      assert_includes html_content, "TestClass"
+
+      # Test graph format output to file
+      graph_output_file = File.join(temp_dir, "output.txt")
+
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--format", "graph", "--output", graph_output_file])
+      exit_code = cli.run
+      stdout_content = @stdout.string
+
+      # Should write to file, not stdout
+      assert_equal "", stdout_content.strip
+      assert_equal 0, exit_code
+      assert File.exist?(graph_output_file)
+
+      graph_content = File.read(graph_output_file)
+      assert_includes graph_content, "Dependencies found:"
+      assert_includes graph_content, "TestClass"
+
+      # Test file overwrite behavior
+      File.write(dot_output_file, "existing content")
+
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--format", "dot", "--output", dot_output_file])
+      exit_code = cli.run
+
+      assert_equal 0, exit_code
+      new_content = File.read(dot_output_file)
+      assert_includes new_content, "digraph"
+      refute_includes new_content, "existing content"
+
+      # Test invalid output path
+      invalid_output_file = "/invalid/path/output.txt"
+
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--output", invalid_output_file])
+      exit_code = cli.run
+      error_output = @stdout.string
+
+      assert_includes error_output, "Error"
+      assert_equal 1, exit_code
+    end
+  end
 end

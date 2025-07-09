@@ -55,13 +55,18 @@ module RailsDependencyExplorer
         format = parse_format_option
         return 1 if format.nil?
 
+        # Parse output option
+        output_file = parse_output_option
+        return 1 if output_file == :error
+
         begin
           ruby_code = File.read(file_path)
           explorer = Analysis::DependencyExplorer.new
           result = explorer.analyze_code(ruby_code)
 
           # Output in specified format
-          puts format_output(result, format)
+          output_content = format_output(result, format)
+          write_output(output_content, output_file)
 
           return 0
         rescue => e
@@ -89,12 +94,17 @@ module RailsDependencyExplorer
         format = parse_format_option
         return 1 if format.nil?
 
+        # Parse output option
+        output_file = parse_output_option
+        return 1 if output_file == :error
+
         begin
           explorer = Analysis::DependencyExplorer.new
           result = explorer.analyze_directory(directory_path)
 
           # Output in specified format
-          puts format_output(result, format)
+          output_content = format_output(result, format)
+          write_output(output_content, output_file)
 
           return 0
         rescue => e
@@ -126,6 +136,36 @@ module RailsDependencyExplorer
         end
 
         format
+      end
+
+      def parse_output_option
+        output_index = @args.index("--output")
+
+        # No output file specified, use stdout
+        return nil if output_index.nil?
+
+        # Check if output file path is provided
+        if output_index + 1 >= @args.length
+          puts "Error: --output option requires a file path"
+          return :error
+        end
+
+        @args[output_index + 1]
+      end
+
+      def write_output(content, output_file)
+        if output_file.nil?
+          # Write to stdout
+          puts content
+        else
+          # Write to file
+          begin
+            File.write(output_file, content)
+          rescue => e
+            puts "Error writing to file '#{output_file}': #{e.message}"
+            raise e
+          end
+        end
       end
 
       def format_output(result, format)
