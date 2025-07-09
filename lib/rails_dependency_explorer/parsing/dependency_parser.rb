@@ -37,10 +37,10 @@ module RailsDependencyExplorer
 
         class_nodes = []
 
-        # If this node is a class, add it
-        class_nodes << node if node.type == :class
+        # If this node is a class or module, add it
+        class_nodes << node if node.type == :class || node.type == :module
 
-        # Recursively search children for class nodes
+        # Recursively search children for class and module nodes
         if node.respond_to?(:children) && node.children
           node.children.each do |child|
             class_nodes.concat(find_class_nodes(child))

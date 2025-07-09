@@ -23,7 +23,7 @@ module RailsDependencyExplorer
       end
 
       def analyze_directory(directory_path, pattern: "*.rb")
-        ruby_files = Dir.glob(File.join(directory_path, pattern))
+        ruby_files = Dir.glob(File.join(directory_path, "**", pattern))
         files_hash = {}
 
         ruby_files.each do |file_path|

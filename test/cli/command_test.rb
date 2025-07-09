@@ -106,4 +106,106 @@ class CommandTest < Minitest::Test
 
     temp_file.unlink
   end
+
+  def test_cli_analyzes_directory_with_pattern_filtering
+    require "tmpdir"
+    require "fileutils"
+
+    Dir.mktmpdir do |temp_dir|
+      # Create Ruby files in the directory
+      user_model = File.join(temp_dir, "user_model.rb")
+      File.write(user_model, <<~RUBY)
+        class UserModel
+          def validate
+            Logger.info("Validating user")
+          end
+        end
+      RUBY
+
+      user_controller = File.join(temp_dir, "user_controller.rb")
+      File.write(user_controller, <<~RUBY)
+        class UserController
+          def create
+            UserModel.new
+          end
+        end
+      RUBY
+
+      # Create a non-Ruby file that should be ignored
+      readme_file = File.join(temp_dir, "README.md")
+      File.write(readme_file, "# This is not Ruby code")
+
+      # Capture output
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      # Test directory analysis with default pattern
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", "--directory", temp_dir])
+      exit_code = cli.run
+
+      output = @stdout.string
+
+      # Should analyze all Ruby files in directory
+      assert_includes output, "UserModel"
+      assert_includes output, "UserController"
+      assert_includes output, "Logger"
+      assert_includes output, "UserModel -> Logger"
+      assert_includes output, "UserController -> UserModel"
+      assert_equal 0, exit_code
+    end
+  end
+
+  def test_cli_analyzes_directory_recursively
+    require "tmpdir"
+    require "fileutils"
+
+    Dir.mktmpdir do |temp_dir|
+      # Create nested directory structure
+      models_dir = File.join(temp_dir, "models")
+      concerns_dir = File.join(models_dir, "concerns")
+      FileUtils.mkdir_p(concerns_dir)
+
+      # Create Ruby file in root directory
+      user_model = File.join(models_dir, "user.rb")
+      File.write(user_model, <<~RUBY)
+        class User
+          def validate
+            Validatable.check(self)
+          end
+        end
+      RUBY
+
+      # Create Ruby file in subdirectory
+      validatable_concern = File.join(concerns_dir, "validatable.rb")
+      File.write(validatable_concern, <<~RUBY)
+        module Validatable
+          def self.check(object)
+            Logger.info("Checking object")
+          end
+        end
+      RUBY
+
+      # Capture output
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      # Test recursive directory analysis
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", "--directory", models_dir])
+      exit_code = cli.run
+
+      output = @stdout.string
+
+      # Should find classes in both root and subdirectories
+      assert_includes output, "User"
+      assert_includes output, "Validatable"
+      assert_includes output, "Logger"
+      assert_includes output, "User -> Validatable"
+      assert_includes output, "Validatable -> Logger"
+      assert_equal 0, exit_code
+    end
+  end
 end

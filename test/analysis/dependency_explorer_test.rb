@@ -444,4 +444,60 @@ class DependencyExplorerTest < Minitest::Test
     assert_includes graph[:nodes], "OtherClass"
     assert_includes graph[:edges], ["SimpleClass", "OtherClass"]
   end
+
+  def test_analyze_directory_traverses_subdirectories_recursively
+    require "tmpdir"
+    require "fileutils"
+
+    Dir.mktmpdir do |temp_dir|
+      # Create nested directory structure
+      models_dir = File.join(temp_dir, "models")
+      concerns_dir = File.join(models_dir, "concerns")
+      services_dir = File.join(temp_dir, "services")
+      FileUtils.mkdir_p([models_dir, concerns_dir, services_dir])
+
+      # Create files in root directory
+      File.write(File.join(models_dir, "user.rb"), <<~RUBY)
+        class User
+          def validate
+            UserValidator.check(self)
+          end
+        end
+      RUBY
+
+      # Create files in subdirectory
+      File.write(File.join(concerns_dir, "user_validator.rb"), <<~RUBY)
+        module UserValidator
+          def self.check(user)
+            Logger.info("Validating user")
+          end
+        end
+      RUBY
+
+      # Create files in different subdirectory
+      File.write(File.join(services_dir, "email_service.rb"), <<~RUBY)
+        class EmailService
+          def send_notification
+            Mailer.deliver_now
+          end
+        end
+      RUBY
+
+      # Analyze the entire directory structure
+      result = @explorer.analyze_directory(temp_dir)
+      graph = result.to_graph
+
+      # Should find classes/modules from all subdirectories
+      assert_includes graph[:nodes], "User"
+      assert_includes graph[:nodes], "UserValidator"
+      assert_includes graph[:nodes], "EmailService"
+      assert_includes graph[:nodes], "Logger"
+      assert_includes graph[:nodes], "Mailer"
+
+      # Should detect dependencies across subdirectories
+      assert_includes graph[:edges], ["User", "UserValidator"]
+      assert_includes graph[:edges], ["UserValidator", "Logger"]
+      assert_includes graph[:edges], ["EmailService", "Mailer"]
+    end
+  end
 end

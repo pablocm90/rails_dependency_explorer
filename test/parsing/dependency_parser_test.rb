@@ -42,4 +42,54 @@ class DependencyParserTest < Minitest::Test
 
     assert_equal expected, RailsDependencyExplorer::Parsing::DependencyParser.new(ruby_code).parse
   end
+
+  def test_it_parses_modules_with_dependencies
+    ruby_code = <<~RUBY
+      module Validatable
+        def self.check(object)
+          Logger.info("Validating object")
+          ErrorHandler.handle_errors
+        end
+      end
+    RUBY
+
+    expected = {
+      "Validatable" => [
+        {"Logger" => ["info"]},
+        {"ErrorHandler" => ["handle_errors"]}
+      ]
+    }
+
+    assert_equal expected, RailsDependencyExplorer::Parsing::DependencyParser.new(ruby_code).parse
+  end
+
+  def test_it_parses_mixed_classes_and_modules
+    ruby_code = <<~RUBY
+      module UserHelpers
+        def format_name
+          StringUtils.capitalize(name)
+        end
+      end
+
+      class User
+        def initialize
+          UserHelpers.format_name
+        end
+
+        def validate
+          Validator.check(self)
+        end
+      end
+    RUBY
+
+    expected = {
+      "UserHelpers" => [{"StringUtils" => ["capitalize"]}],
+      "User" => [
+        {"UserHelpers" => ["format_name"]},
+        {"Validator" => ["check"]}
+      ]
+    }
+
+    assert_equal expected, RailsDependencyExplorer::Parsing::DependencyParser.new(ruby_code).parse
+  end
 end

@@ -33,6 +33,11 @@ module RailsDependencyExplorer
       private
 
       def analyze_command
+        # Check for directory analysis option
+        if @args.include?("--directory")
+          return analyze_directory_command
+        end
+
         if @args.length < 2
           puts "Error: analyze command requires a file path"
           puts "Usage: rails_dependency_explorer analyze <path>"
@@ -57,6 +62,35 @@ module RailsDependencyExplorer
           return 0
         rescue => e
           puts "Error analyzing file: #{e.message}"
+          return 1
+        end
+      end
+
+      def analyze_directory_command
+        directory_index = @args.index("--directory")
+
+        if directory_index.nil? || directory_index + 1 >= @args.length
+          puts "Error: --directory option requires a directory path"
+          return 1
+        end
+
+        directory_path = @args[directory_index + 1]
+
+        unless File.directory?(directory_path)
+          puts "Error: Directory not found: #{directory_path}"
+          return 1
+        end
+
+        begin
+          explorer = Analysis::DependencyExplorer.new
+          result = explorer.analyze_directory(directory_path)
+
+          # Output in default format (console)
+          puts result.to_console
+
+          return 0
+        rescue => e
+          puts "Error analyzing directory: #{e.message}"
           return 1
         end
       end
