@@ -36,6 +36,10 @@ module RailsDependencyExplorer
         visualizer.to_html(@dependency_data, statistics)
       end
 
+      def to_console
+        visualizer.to_console(@dependency_data)
+      end
+
       private
 
       def visualizer

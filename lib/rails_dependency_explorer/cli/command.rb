@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../version"
+require_relative "../analysis/dependency_explorer"
 
 module RailsDependencyExplorer
   module CLI
@@ -20,12 +21,45 @@ module RailsDependencyExplorer
           return 0
         end
 
-        # Default case - for now just show help
+        if @args[0] == "analyze"
+          return analyze_command
+        end
+
+        # Default case - show help for unknown commands
         display_help
         0
       end
 
       private
+
+      def analyze_command
+        if @args.length < 2
+          puts "Error: analyze command requires a file path"
+          puts "Usage: rails_dependency_explorer analyze <path>"
+          return 1
+        end
+
+        file_path = @args[1]
+
+        unless File.exist?(file_path)
+          puts "Error: File not found: #{file_path}"
+          return 1
+        end
+
+        begin
+          ruby_code = File.read(file_path)
+          explorer = Analysis::DependencyExplorer.new
+          result = explorer.analyze_code(ruby_code)
+
+          # Output in default format (console)
+          puts result.to_console
+
+          return 0
+        rescue => e
+          puts "Error analyzing file: #{e.message}"
+          return 1
+        end
+      end
 
       def display_help
         puts <<~HELP

@@ -5,6 +5,7 @@ require_relative "dependency_graph_adapter"
 require_relative "dot_format_adapter"
 require_relative "json_format_adapter"
 require_relative "html_format_adapter"
+require_relative "console_format_adapter"
 
 module RailsDependencyExplorer
   module Output
@@ -26,6 +27,11 @@ module RailsDependencyExplorer
         html_adapter.format(dependency_data, statistics)
       end
 
+      def to_console(dependency_data)
+        graph = to_graph(dependency_data)
+        console_adapter.format(graph)
+      end
+
       private
 
       def graph_adapter
@@ -42,6 +48,10 @@ module RailsDependencyExplorer
 
       def html_adapter
         @html_adapter ||= HtmlFormatAdapter.new
+      end
+
+      def console_adapter
+        @console_adapter ||= ConsoleFormatAdapter.new
       end
     end
   end

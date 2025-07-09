@@ -69,7 +69,41 @@ class CommandTest < Minitest::Test
 
     # Should display version information
     assert_includes output, RailsDependencyExplorer::VERSION
-    
+
     assert_equal 0, exit_code
+  end
+
+  def test_cli_analyzes_single_file_with_default_output
+    # Create a temporary Ruby file for testing
+    require "tempfile"
+
+    temp_file = Tempfile.new(["test_class", ".rb"])
+    temp_file.write(<<~RUBY)
+      class UserService
+        def initialize
+          @user_repo = UserRepository.new
+          @email_service = EmailService.new
+        end
+      end
+    RUBY
+    temp_file.close
+
+    $stdout = @stdout
+    $stderr = @stderr
+
+    cli = RailsDependencyExplorer::CLI::Command.new(["analyze", temp_file.path])
+    exit_code = cli.run
+
+    output = @stdout.string
+
+    # Should analyze the file and output dependency information in default format (graph)
+    assert_includes output, "UserService"
+    assert_includes output, "UserRepository"
+    assert_includes output, "EmailService"
+
+    # Should exit successfully
+    assert_equal 0, exit_code
+
+    temp_file.unlink
   end
 end
