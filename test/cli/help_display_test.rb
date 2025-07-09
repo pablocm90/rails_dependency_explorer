@@ -58,8 +58,6 @@ class HelpDisplayTest < Minitest::Test
     assert_includes help_text, "--stats, -s"
     assert_includes help_text, "--circular, -c"
     assert_includes help_text, "--depth"
-    assert_includes help_text, "--verbose, -v"
-    assert_includes help_text, "--quiet, -q"
     assert_includes help_text, "--config CONFIG_FILE"
   end
 
@@ -88,7 +86,7 @@ class HelpDisplayTest < Minitest::Test
     assert_includes help_text, "app/models/user.rb"
     assert_includes help_text, "--format html --output report.html"
     assert_includes help_text, "--pattern \"*_service.rb\" --stats --circular"
-    assert_includes help_text, "--format dot --output dependencies.dot --verbose"
+    assert_includes help_text, "--format dot --output dependencies.dot"
   end
 
   def test_display_help_output_is_well_formatted

@@ -153,7 +153,7 @@ class AnalyzeCommandTest < Minitest::Test
         assert_equal 1, result
       end
 
-      assert_includes output[0], "Error: Unsupported format 'invalid'"
+      assert_includes output[0], "Error: Invalid format 'invalid'"
     end
   end
 

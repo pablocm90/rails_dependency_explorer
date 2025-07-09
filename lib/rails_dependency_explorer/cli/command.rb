@@ -26,14 +26,25 @@ module RailsDependencyExplorer
           return 0
         end
 
-        if @parser.get_command == "analyze"
-          analyze_cmd = AnalyzeCommand.new(@parser, @output_writer)
-          return analyze_cmd.execute
-        end
+        command = @parser.get_command
 
-        # Default case - show help for unknown commands
-        @help_display.display_help
-        0
+        case command
+        when "analyze"
+          analyze_cmd = AnalyzeCommand.new(@parser, @output_writer)
+          analyze_cmd.execute
+        when nil
+          @help_display.display_help
+          0
+        else
+          display_error("Unknown command '#{command}'")
+          1
+        end
+      end
+
+      private
+
+      def display_error(message)
+        puts "Error: #{message}"
       end
     end
   end

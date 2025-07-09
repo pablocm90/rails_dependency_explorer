@@ -20,8 +20,6 @@ module RailsDependencyExplorer
             --stats, -s              Include dependency statistics
             --circular, -c           Include circular dependency analysis
             --depth                  Include dependency depth analysis
-            --verbose, -v            Verbose output
-            --quiet, -q              Quiet mode (minimal output)
             --config CONFIG_FILE     Load configuration from file
             --help, -h               Show this help message
             --version                Show version information
@@ -30,7 +28,7 @@ module RailsDependencyExplorer
             rails_dependency_explorer analyze app/models/user.rb
             rails_dependency_explorer analyze app/ --format html --output report.html
             rails_dependency_explorer analyze app/models --pattern "*_service.rb" --stats --circular
-            rails_dependency_explorer analyze . --format dot --output dependencies.dot --verbose
+            rails_dependency_explorer analyze . --format dot --output dependencies.dot
         HELP
       end
 

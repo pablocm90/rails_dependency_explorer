@@ -24,8 +24,8 @@ module RailsDependencyExplorer
         valid_formats = ["dot", "json", "html", "graph"]
 
         unless valid_formats.include?(format)
-          puts "Error: Unsupported format '#{format}'"
-          puts "Supported formats: #{valid_formats.join(", ")}"
+          puts "Error: Invalid format '#{format}'"
+          puts "Supported formats: #{valid_formats.join(', ')}"
           return nil
         end
 

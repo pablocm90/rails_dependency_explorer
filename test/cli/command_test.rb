@@ -494,4 +494,70 @@ class CommandTest < Minitest::Test
       assert_equal 0, exit_code
     end
   end
+
+  def test_cli_handles_invalid_inputs_gracefully
+    require "tmpdir"
+
+    Dir.mktmpdir do |temp_dir|
+      # Test non-existent file
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", "/non/existent/file.rb"])
+      exit_code = cli.run
+      error_output = @stdout.string
+
+      assert_includes error_output, "Error"
+      assert_includes error_output, "not found"
+      assert_equal 1, exit_code
+
+      # Test invalid output format
+      test_file = File.join(temp_dir, "test.rb")
+      File.write(test_file, "class Test; end")
+
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--format", "invalid"])
+      exit_code = cli.run
+      error_output = @stdout.string
+
+      assert_includes error_output, "Error"
+      assert_includes error_output, "invalid"
+      assert_includes error_output, "format"
+      assert_equal 1, exit_code
+
+      # Test non-existent directory
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", "--directory", "/non/existent/directory"])
+      exit_code = cli.run
+      error_output = @stdout.string
+
+      assert_includes error_output, "Error"
+      assert_includes error_output, "Directory not found"
+      assert_equal 1, exit_code
+
+      # Test invalid command
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["invalid_command"])
+      exit_code = cli.run
+      error_output = @stdout.string
+
+      assert_includes error_output, "Error"
+      assert_includes error_output, "Unknown command"
+      assert_equal 1, exit_code
+    end
+  end
 end

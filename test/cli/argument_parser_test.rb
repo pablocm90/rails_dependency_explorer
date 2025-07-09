@@ -22,7 +22,7 @@ class ArgumentParserTest < Minitest::Test
       assert_nil result
     end
 
-    assert_includes output[0], "Error: Unsupported format 'invalid'"
+    assert_includes output[0], "Error: Invalid format 'invalid'"
     assert_includes output[0], "Supported formats: dot, json, html, graph"
   end
 
