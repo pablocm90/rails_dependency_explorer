@@ -68,10 +68,10 @@ module RailsDependencyExplorer
           output_content = format_output(result, format)
           write_output(output_content, output_file)
 
-          return 0
+          0
         rescue => e
           puts "Error analyzing file: #{e.message}"
-          return 1
+          1
         end
       end
 
@@ -106,10 +106,10 @@ module RailsDependencyExplorer
           output_content = format_output(result, format)
           write_output(output_content, output_file)
 
-          return 0
+          0
         rescue => e
           puts "Error analyzing directory: #{e.message}"
-          return 1
+          1
         end
       end
 
@@ -131,7 +131,7 @@ module RailsDependencyExplorer
 
         unless valid_formats.include?(format)
           puts "Error: Unsupported format '#{format}'"
-          puts "Supported formats: #{valid_formats.join(', ')}"
+          puts "Supported formats: #{valid_formats.join(", ")}"
           return nil
         end
 
