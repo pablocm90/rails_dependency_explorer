@@ -135,17 +135,8 @@ class CommandTest < Minitest::Test
       readme_file = File.join(temp_dir, "README.md")
       File.write(readme_file, "# This is not Ruby code")
 
-      # Capture output
-      @stdout = StringIO.new
-      @stderr = StringIO.new
-      $stdout = @stdout
-      $stderr = @stderr
-
       # Test directory analysis with default pattern
-      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", "--directory", temp_dir])
-      exit_code = cli.run
-
-      output = @stdout.string
+      output, exit_code = run_cli_command(["analyze", "--directory", temp_dir])
 
       # Should analyze all Ruby files in directory
       assert_includes output, "UserModel"
@@ -187,17 +178,8 @@ class CommandTest < Minitest::Test
         end
       RUBY
 
-      # Capture output
-      @stdout = StringIO.new
-      @stderr = StringIO.new
-      $stdout = @stdout
-      $stderr = @stderr
-
       # Test recursive directory analysis
-      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", "--directory", models_dir])
-      exit_code = cli.run
-
-      output = @stdout.string
+      output, exit_code = run_cli_command(["analyze", "--directory", models_dir])
 
       # Should find classes in both root and subdirectories
       assert_includes output, "User"
@@ -372,148 +354,75 @@ class CommandTest < Minitest::Test
     end
   end
 
-  def test_cli_supports_analysis_options
-    require "tmpdir"
+  def test_cli_supports_stats_analysis_option
+    with_test_file do |test_file|
+      output, exit_code = run_cli_command(["analyze", test_file, "--stats"])
 
-    Dir.mktmpdir do |temp_dir|
-      # Create a test Ruby file with dependencies
-      test_file = File.join(temp_dir, "test_class.rb")
-      File.write(test_file, <<~RUBY)
-        class TestClass
-          def initialize
-            @logger = Logger.new
-          end
-        end
-      RUBY
-
-      # Test --stats flag
-      @stdout = StringIO.new
-      @stderr = StringIO.new
-      $stdout = @stdout
-      $stderr = @stderr
-
-      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--stats"])
-      exit_code = cli.run
-      stats_output = @stdout.string
-
-      assert_includes stats_output, "Statistics:"
-      assert_includes stats_output, "Total Classes:"
-      assert_includes stats_output, "Total Dependencies:"
-      assert_equal 0, exit_code
-
-      # Test --circular flag
-      @stdout = StringIO.new
-      @stderr = StringIO.new
-      $stdout = @stdout
-      $stderr = @stderr
-
-      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--circular"])
-      exit_code = cli.run
-      circular_output = @stdout.string
-
-      assert_includes circular_output, "Circular Dependencies:"
-      assert_equal 0, exit_code
-
-      # Test --depth flag
-      @stdout = StringIO.new
-      @stderr = StringIO.new
-      $stdout = @stdout
-      $stderr = @stderr
-
-      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--depth"])
-      exit_code = cli.run
-      depth_output = @stdout.string
-
-      assert_includes depth_output, "Dependency Depth:"
+      assert_includes output, "Statistics:"
+      assert_includes output, "Total Classes:"
+      assert_includes output, "Total Dependencies:"
       assert_equal 0, exit_code
     end
   end
 
-  def test_cli_handles_invalid_inputs_gracefully
-    require "tmpdir"
+  def test_cli_supports_circular_analysis_option
+    with_test_file do |test_file|
+      output, exit_code = run_cli_command(["analyze", test_file, "--circular"])
 
-    Dir.mktmpdir do |temp_dir|
-      # Test non-existent file
-      @stdout = StringIO.new
-      @stderr = StringIO.new
-      $stdout = @stdout
-      $stderr = @stderr
+      assert_includes output, "Circular Dependencies:"
+      assert_equal 0, exit_code
+    end
+  end
 
-      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", "/non/existent/file.rb"])
-      exit_code = cli.run
-      error_output = @stdout.string
+  def test_cli_supports_depth_analysis_option
+    with_test_file do |test_file|
+      output, exit_code = run_cli_command(["analyze", test_file, "--depth"])
 
-      assert_includes error_output, "Error"
-      assert_includes error_output, "not found"
-      assert_equal 1, exit_code
+      assert_includes output, "Dependency Depth:"
+      assert_equal 0, exit_code
+    end
+  end
 
-      # Test invalid output format
-      test_file = File.join(temp_dir, "test.rb")
-      File.write(test_file, "class Test; end")
+  def test_cli_handles_non_existent_file_error
+    output, exit_code = run_cli_command(["analyze", "/non/existent/file.rb"])
 
-      @stdout = StringIO.new
-      @stderr = StringIO.new
-      $stdout = @stdout
-      $stderr = @stderr
+    assert_includes output, "Error"
+    assert_includes output, "not found"
+    assert_equal 1, exit_code
+  end
 
-      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--format", "invalid"])
-      exit_code = cli.run
-      error_output = @stdout.string
+  def test_cli_handles_invalid_format_error
+    with_test_file do |test_file|
+      output, exit_code = run_cli_command(["analyze", test_file, "--format", "invalid"])
 
-      assert_includes error_output, "Error"
-      assert_includes error_output, "invalid"
-      assert_includes error_output, "format"
-      assert_equal 1, exit_code
-
-      # Test non-existent directory
-      @stdout = StringIO.new
-      @stderr = StringIO.new
-      $stdout = @stdout
-      $stderr = @stderr
-
-      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", "--directory", "/non/existent/directory"])
-      exit_code = cli.run
-      error_output = @stdout.string
-
-      assert_includes error_output, "Error"
-      assert_includes error_output, "Directory not found"
-      assert_equal 1, exit_code
-
-      # Test invalid command
-      @stdout = StringIO.new
-      @stderr = StringIO.new
-      $stdout = @stdout
-      $stderr = @stderr
-
-      cli = RailsDependencyExplorer::CLI::Command.new(["invalid_command"])
-      exit_code = cli.run
-      error_output = @stdout.string
-
-      assert_includes error_output, "Error"
-      assert_includes error_output, "Unknown command"
+      assert_includes output, "Error"
+      assert_includes output, "invalid"
+      assert_includes output, "format"
       assert_equal 1, exit_code
     end
+  end
+
+  def test_cli_handles_non_existent_directory_error
+    output, exit_code = run_cli_command(["analyze", "--directory", "/non/existent/directory"])
+
+    assert_includes output, "Error"
+    assert_includes output, "Directory not found"
+    assert_equal 1, exit_code
+  end
+
+  def test_cli_handles_invalid_command_error
+    output, exit_code = run_cli_command(["invalid_command"])
+
+    assert_includes output, "Error"
+    assert_includes output, "Unknown command"
+    assert_equal 1, exit_code
   end
 
   private
 
   # Helper method to create a test file with dependencies
   def with_test_file
-    require "tmpdir"
-
-    Dir.mktmpdir do |temp_dir|
-      test_file = File.join(temp_dir, "test_class.rb")
-      File.write(test_file, <<~RUBY)
-        class TestClass
-          def process
-            Logger.info("Processing")
-            DataProcessor.transform(data)
-          end
-        end
-      RUBY
-
-      yield test_file
-    end
+    with_test_file_and_output { |test_file, _temp_dir| yield test_file }
   end
 
   # Helper method to create a test file and output directory
@@ -521,43 +430,40 @@ class CommandTest < Minitest::Test
     require "tmpdir"
 
     Dir.mktmpdir do |temp_dir|
-      test_file = File.join(temp_dir, "test_class.rb")
-      File.write(test_file, <<~RUBY)
-        class TestClass
-          def process
-            Logger.info("Processing")
-            DataProcessor.transform(data)
-          end
-        end
-      RUBY
-
+      test_file = create_test_file(temp_dir)
       yield test_file, temp_dir
     end
   end
 
+  # Helper method to create a test file with standard content
+  def create_test_file(temp_dir)
+    test_file = File.join(temp_dir, "test_class.rb")
+    File.write(test_file, <<~RUBY)
+      class TestClass
+        def process
+          Logger.info("Processing")
+          DataProcessor.transform(data)
+        end
+      end
+    RUBY
+    test_file
+  end
+
   # Helper method to run CLI command and capture output
   def run_cli_command(args)
-    stdout = StringIO.new
-    stderr = StringIO.new
-    original_stdout = $stdout
-    original_stderr = $stderr
-
-    begin
-      $stdout = stdout
-      $stderr = stderr
-
+    capture_output do
       cli = RailsDependencyExplorer::CLI::Command.new(args)
-      exit_code = cli.run
-
-      [stdout.string, exit_code]
-    ensure
-      $stdout = original_stdout
-      $stderr = original_stderr
+      cli.run
     end
   end
 
   # Helper method to run CLI command with file output and capture stdout
   def run_cli_command_with_file_output(args)
+    run_cli_command(args)
+  end
+
+  # Helper method to capture stdout and stderr during command execution
+  def capture_output
     stdout = StringIO.new
     stderr = StringIO.new
     original_stdout = $stdout
@@ -566,10 +472,7 @@ class CommandTest < Minitest::Test
     begin
       $stdout = stdout
       $stderr = stderr
-
-      cli = RailsDependencyExplorer::CLI::Command.new(args)
-      exit_code = cli.run
-
+      exit_code = yield
       [stdout.string, exit_code]
     ensure
       $stdout = original_stdout
