@@ -51,7 +51,7 @@ module RailsDependencyExplorer
         if direct_constant_call?(receiver)
           extract_direct_constant_call(receiver, node)
         elsif chained_constant_call?(receiver)
-          extract_chained_constant_call(receiver, node)
+          extract_chained_constant_call(receiver)
         else
           visit_children(node)
         end
