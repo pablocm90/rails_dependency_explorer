@@ -16,24 +16,24 @@ class ArgumentParserTest < Minitest::Test
 
   def test_parse_format_option_returns_nil_for_invalid_format
     parser = RailsDependencyExplorer::CLI::ArgumentParser.new(["analyze", "file.rb", "--format", "invalid"])
-    
+
     output = capture_io do
       result = parser.parse_format_option
       assert_nil result
     end
-    
+
     assert_includes output[0], "Error: Unsupported format 'invalid'"
     assert_includes output[0], "Supported formats: dot, json, html, graph"
   end
 
   def test_parse_format_option_returns_nil_when_format_value_missing
     parser = RailsDependencyExplorer::CLI::ArgumentParser.new(["analyze", "file.rb", "--format"])
-    
+
     output = capture_io do
       result = parser.parse_format_option
       assert_nil result
     end
-    
+
     assert_includes output[0], "Error: --format option requires a format value"
   end
 
@@ -49,12 +49,12 @@ class ArgumentParserTest < Minitest::Test
 
   def test_parse_output_option_returns_error_when_file_path_missing
     parser = RailsDependencyExplorer::CLI::ArgumentParser.new(["analyze", "file.rb", "--output"])
-    
+
     output = capture_io do
       result = parser.parse_output_option
       assert_equal :error, result
     end
-    
+
     assert_includes output[0], "Error: --output option requires a file path"
   end
 
@@ -140,9 +140,9 @@ class ArgumentParserTest < Minitest::Test
     original_stderr = $stderr
     $stdout = StringIO.new
     $stderr = StringIO.new
-    
+
     yield
-    
+
     [$stdout.string, $stderr.string]
   ensure
     $stdout = original_stdout

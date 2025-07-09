@@ -15,14 +15,14 @@ class OutputWriterTest < Minitest::Test
     output = capture_io do
       @writer.write_output("test content", nil)
     end
-    
+
     assert_equal "test content\n", output[0]
   end
 
   def test_write_output_to_file_when_file_specified
     Tempfile.create("test_output") do |file|
       @writer.write_output("test content", file.path)
-      
+
       assert_equal "test content", File.read(file.path)
     end
   end
@@ -33,7 +33,7 @@ class OutputWriterTest < Minitest::Test
         @writer.write_output("test content", "/invalid/path/file.txt")
       end
     end
-    
+
     assert_includes output[0], "Error writing to file '/invalid/path/file.txt'"
   end
 
@@ -69,7 +69,7 @@ class OutputWriterTest < Minitest::Test
 
   def test_format_output_handles_all_supported_formats
     formats = ["dot", "json", "html", "graph"]
-    
+
     formats.each do |format|
       result = @writer.format_output(@result, format)
       refute_empty result
@@ -95,9 +95,9 @@ class OutputWriterTest < Minitest::Test
     original_stderr = $stderr
     $stdout = StringIO.new
     $stderr = StringIO.new
-    
+
     yield
-    
+
     [$stdout.string, $stderr.string]
   ensure
     $stdout = original_stdout
