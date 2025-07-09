@@ -208,4 +208,98 @@ class CommandTest < Minitest::Test
       assert_equal 0, exit_code
     end
   end
+
+  def test_cli_supports_multiple_output_formats
+    require "tmpdir"
+    require "json"
+
+    Dir.mktmpdir do |temp_dir|
+      # Create a test Ruby file with dependencies
+      test_file = File.join(temp_dir, "test_class.rb")
+      File.write(test_file, <<~RUBY)
+        class TestClass
+          def process
+            Logger.info("Processing")
+            DataProcessor.transform(data)
+          end
+        end
+      RUBY
+
+      # Test DOT format
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--format", "dot"])
+      exit_code = cli.run
+      dot_output = @stdout.string
+
+      assert_includes dot_output, "digraph"
+      assert_includes dot_output, "TestClass"
+      assert_includes dot_output, "Logger"
+      assert_includes dot_output, "DataProcessor"
+      assert_equal 0, exit_code
+
+      # Test JSON format
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--format", "json"])
+      exit_code = cli.run
+      json_output = @stdout.string
+
+      # Should be valid JSON
+      parsed_json = JSON.parse(json_output)
+      assert parsed_json.key?("dependencies")
+      assert parsed_json.key?("statistics")
+      assert_equal 0, exit_code
+
+      # Test HTML format
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--format", "html"])
+      exit_code = cli.run
+      html_output = @stdout.string
+
+      assert_includes html_output, "<html>"
+      assert_includes html_output, "TestClass"
+      assert_includes html_output, "Dependencies"
+      assert_equal 0, exit_code
+
+      # Test graph format (default)
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--format", "graph"])
+      exit_code = cli.run
+      graph_output = @stdout.string
+
+      assert_includes graph_output, "Dependencies found:"
+      assert_includes graph_output, "Classes:"
+      assert_includes graph_output, "TestClass"
+      assert_equal 0, exit_code
+
+      # Test invalid format
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--format", "invalid"])
+      exit_code = cli.run
+      error_output = @stdout.string
+
+      assert_includes error_output, "Error"
+      assert_includes error_output, "invalid"
+      assert_equal 1, exit_code
+    end
+  end
 end

@@ -51,13 +51,17 @@ module RailsDependencyExplorer
           return 1
         end
 
+        # Parse format option
+        format = parse_format_option
+        return 1 if format.nil?
+
         begin
           ruby_code = File.read(file_path)
           explorer = Analysis::DependencyExplorer.new
           result = explorer.analyze_code(ruby_code)
 
-          # Output in default format (console)
-          puts result.to_console
+          # Output in specified format
+          puts format_output(result, format)
 
           return 0
         rescue => e
@@ -81,17 +85,61 @@ module RailsDependencyExplorer
           return 1
         end
 
+        # Parse format option
+        format = parse_format_option
+        return 1 if format.nil?
+
         begin
           explorer = Analysis::DependencyExplorer.new
           result = explorer.analyze_directory(directory_path)
 
-          # Output in default format (console)
-          puts result.to_console
+          # Output in specified format
+          puts format_output(result, format)
 
           return 0
         rescue => e
           puts "Error analyzing directory: #{e.message}"
           return 1
+        end
+      end
+
+      def parse_format_option
+        format_index = @args.index("--format")
+
+        # Default format if no --format option provided
+        return "graph" if format_index.nil?
+
+        # Check if format value is provided
+        if format_index + 1 >= @args.length
+          puts "Error: --format option requires a format value"
+          puts "Supported formats: dot, json, html, graph"
+          return nil
+        end
+
+        format = @args[format_index + 1]
+        valid_formats = ["dot", "json", "html", "graph"]
+
+        unless valid_formats.include?(format)
+          puts "Error: Unsupported format '#{format}'"
+          puts "Supported formats: #{valid_formats.join(', ')}"
+          return nil
+        end
+
+        format
+      end
+
+      def format_output(result, format)
+        case format
+        when "dot"
+          result.to_dot
+        when "json"
+          result.to_json
+        when "html"
+          result.to_html
+        when "graph"
+          result.to_console
+        else
+          result.to_console
         end
       end
 
