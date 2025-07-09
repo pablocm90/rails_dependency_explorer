@@ -20,7 +20,7 @@ class OutputWriterTest < Minitest::Test
   end
 
   def test_write_output_to_file_when_file_specified
-    Tempfile.create("test_output") do |file|
+    with_temp_file do |file|
       @writer.write_output("test content", file.path)
 
       assert_equal "test content", File.read(file.path)
@@ -38,33 +38,23 @@ class OutputWriterTest < Minitest::Test
   end
 
   def test_format_output_returns_dot_format
-    result = @writer.format_output(@result, "dot")
-    assert_includes result, "digraph"
-    assert_includes result, "SampleClass"
+    assert_format_output_includes("dot", ["digraph", "SampleClass"])
   end
 
   def test_format_output_returns_json_format
-    result = @writer.format_output(@result, "json")
-    assert_includes result, '"dependencies"'
-    assert_includes result, '"SampleClass"'
+    assert_format_output_includes("json", ['"dependencies"', '"SampleClass"'])
   end
 
   def test_format_output_returns_html_format
-    result = @writer.format_output(@result, "html")
-    assert_includes result, "<!DOCTYPE html>"
-    assert_includes result, "Dependencies Report"
+    assert_format_output_includes("html", ["<!DOCTYPE html>", "Dependencies Report"])
   end
 
   def test_format_output_returns_graph_format
-    result = @writer.format_output(@result, "graph")
-    assert_includes result, "Dependencies found:"
-    assert_includes result, "SampleClass"
+    assert_format_output_includes("graph", ["Dependencies found:", "SampleClass"])
   end
 
   def test_format_output_returns_graph_format_for_unknown_format
-    result = @writer.format_output(@result, "unknown")
-    assert_includes result, "Dependencies found:"
-    assert_includes result, "SampleClass"
+    assert_format_output_includes("unknown", ["Dependencies found:", "SampleClass"])
   end
 
   def test_format_output_handles_all_supported_formats
@@ -88,6 +78,21 @@ class OutputWriterTest < Minitest::Test
       ]
     }
     RailsDependencyExplorer::Analysis::AnalysisResult.new(dependencies)
+  end
+
+  def with_temp_file
+    Tempfile.create("test_output") do |file|
+      yield file
+    end
+  end
+
+  def assert_format_output_includes(format, expected_content)
+    result = @writer.format_output(@result, format)
+    if expected_content.is_a?(Array)
+      expected_content.each { |content| assert_includes result, content }
+    else
+      assert_includes result, expected_content
+    end
   end
 
   def capture_io

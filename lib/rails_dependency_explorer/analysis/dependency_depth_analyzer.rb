@@ -2,6 +2,7 @@
 
 require "set"
 require_relative "graph_builder"
+require_relative "depth_calculation_state"
 
 module RailsDependencyExplorer
   module Analysis
@@ -15,10 +16,10 @@ module RailsDependencyExplorer
         reverse_graph = build_reverse_adjacency_list(graph)
         all_nodes = extract_all_nodes(graph)
 
-        # Calculate depth for each node from reverse perspective
-        memo = {}
+        # Calculate depth for each node using state object
+        state = DepthCalculationState.new(reverse_graph)
         all_nodes.each_with_object({}) do |node, depths|
-          depths[node] = calculate_node_depth(node, reverse_graph, memo)
+          depths[node] = state.calculate_node_depth(node)
         end
       end
 
@@ -67,25 +68,7 @@ module RailsDependencyExplorer
         reverse_graph[neighbor] << node unless reverse_graph[neighbor].include?(node)
       end
 
-      def calculate_node_depth(node, reverse_graph, memo)
-        return memo[node] if memo.key?(node)
 
-        dependents = reverse_graph[node] || []
-        depth = calculate_depth_from_dependents(dependents, reverse_graph, memo)
-        memo[node] = depth
-        depth
-      end
-
-      def calculate_depth_from_dependents(dependents, reverse_graph, memo)
-        return 0 if dependents.empty?
-
-        max_dependent_depth = find_max_dependent_depth(dependents, reverse_graph, memo)
-        max_dependent_depth + 1
-      end
-
-      def find_max_dependent_depth(dependents, reverse_graph, memo)
-        dependents.map { |dep| calculate_node_depth(dep, reverse_graph, memo) }.max || 0
-      end
     end
   end
 end

@@ -12,15 +12,10 @@ class AnalyzeCommandTest < Minitest::Test
   end
 
   def test_execute_analyzes_single_file_successfully
-    Tempfile.create(["test", ".rb"]) do |file|
-      file.write("class TestClass\n  def initialize\n    @logger = Logger.new\n  end\nend")
-      file.flush
+    with_test_file do |file|
+      command = create_analyze_command(["analyze", file.path])
 
-      parser = RailsDependencyExplorer::CLI::ArgumentParser.new(["analyze", file.path])
-      command = RailsDependencyExplorer::CLI::AnalyzeCommand.new(parser, @output_writer)
-
-      output = capture_io do
-        result = command.execute
+      output = execute_command_with_capture(command) do |result|
         assert_equal 0, result
       end
 
@@ -30,11 +25,9 @@ class AnalyzeCommandTest < Minitest::Test
   end
 
   def test_execute_returns_error_for_missing_file_path
-    parser = RailsDependencyExplorer::CLI::ArgumentParser.new(["analyze"])
-    command = RailsDependencyExplorer::CLI::AnalyzeCommand.new(parser, @output_writer)
+    command = create_analyze_command(["analyze"])
 
-    output = capture_io do
-      result = command.execute
+    output = execute_command_with_capture(command) do |result|
       assert_equal 1, result
     end
 
@@ -42,11 +35,9 @@ class AnalyzeCommandTest < Minitest::Test
   end
 
   def test_execute_returns_error_for_nonexistent_file
-    parser = RailsDependencyExplorer::CLI::ArgumentParser.new(["analyze", "/nonexistent/file.rb"])
-    command = RailsDependencyExplorer::CLI::AnalyzeCommand.new(parser, @output_writer)
+    command = create_analyze_command(["analyze", "/nonexistent/file.rb"])
 
-    output = capture_io do
-      result = command.execute
+    output = execute_command_with_capture(command) do |result|
       assert_equal 1, result
     end
 
@@ -54,16 +45,10 @@ class AnalyzeCommandTest < Minitest::Test
   end
 
   def test_execute_analyzes_directory_when_directory_option_present
-    Dir.mktmpdir do |dir|
-      # Create a test Ruby file in the directory
-      test_file = File.join(dir, "test_class.rb")
-      File.write(test_file, "class TestClass\n  def initialize\n    @logger = Logger.new\n  end\nend")
+    with_test_directory do |dir|
+      command = create_analyze_command(["analyze", "--directory", dir])
 
-      parser = RailsDependencyExplorer::CLI::ArgumentParser.new(["analyze", "--directory", dir])
-      command = RailsDependencyExplorer::CLI::AnalyzeCommand.new(parser, @output_writer)
-
-      output = capture_io do
-        result = command.execute
+      output = execute_command_with_capture(command) do |result|
         assert_equal 0, result
       end
 
@@ -72,11 +57,9 @@ class AnalyzeCommandTest < Minitest::Test
   end
 
   def test_execute_returns_error_for_missing_directory_path
-    parser = RailsDependencyExplorer::CLI::ArgumentParser.new(["analyze", "--directory"])
-    command = RailsDependencyExplorer::CLI::AnalyzeCommand.new(parser, @output_writer)
+    command = create_analyze_command(["analyze", "--directory"])
 
-    output = capture_io do
-      result = command.execute
+    output = execute_command_with_capture(command) do |result|
       assert_equal 1, result
     end
 
@@ -84,11 +67,9 @@ class AnalyzeCommandTest < Minitest::Test
   end
 
   def test_execute_returns_error_for_nonexistent_directory
-    parser = RailsDependencyExplorer::CLI::ArgumentParser.new(["analyze", "--directory", "/nonexistent/dir"])
-    command = RailsDependencyExplorer::CLI::AnalyzeCommand.new(parser, @output_writer)
+    command = create_analyze_command(["analyze", "--directory", "/nonexistent/dir"])
 
-    output = capture_io do
-      result = command.execute
+    output = execute_command_with_capture(command) do |result|
       assert_equal 1, result
     end
 
@@ -96,15 +77,10 @@ class AnalyzeCommandTest < Minitest::Test
   end
 
   def test_execute_respects_format_option
-    Tempfile.create(["test", ".rb"]) do |file|
-      file.write("class TestClass\n  def initialize\n    @logger = Logger.new\n  end\nend")
-      file.flush
+    with_test_file do |file|
+      command = create_analyze_command(["analyze", file.path, "--format", "json"])
 
-      parser = RailsDependencyExplorer::CLI::ArgumentParser.new(["analyze", file.path, "--format", "json"])
-      command = RailsDependencyExplorer::CLI::AnalyzeCommand.new(parser, @output_writer)
-
-      output = capture_io do
-        result = command.execute
+      output = execute_command_with_capture(command) do |result|
         assert_equal 0, result
       end
 
@@ -114,18 +90,13 @@ class AnalyzeCommandTest < Minitest::Test
   end
 
   def test_execute_writes_to_output_file_when_specified
-    Tempfile.create(["test", ".rb"]) do |file|
-      file.write("class TestClass\n  def initialize\n    @logger = Logger.new\n  end\nend")
-      file.flush
-
-      Tempfile.create("output") do |output_file|
-        parser = RailsDependencyExplorer::CLI::ArgumentParser.new([
+    with_test_file do |file|
+      with_output_file do |output_file|
+        command = create_analyze_command([
           "analyze", file.path, "--format", "json", "--output", output_file.path
         ])
-        command = RailsDependencyExplorer::CLI::AnalyzeCommand.new(parser, @output_writer)
 
-        output = capture_io do
-          result = command.execute
+        output = execute_command_with_capture(command) do |result|
           assert_equal 0, result
         end
 
@@ -141,15 +112,10 @@ class AnalyzeCommandTest < Minitest::Test
   end
 
   def test_execute_returns_error_for_invalid_format
-    Tempfile.create(["test", ".rb"]) do |file|
-      file.write("class TestClass\nend")
-      file.flush
+    with_test_file("class TestClass\nend") do |file|
+      command = create_analyze_command(["analyze", file.path, "--format", "invalid"])
 
-      parser = RailsDependencyExplorer::CLI::ArgumentParser.new(["analyze", file.path, "--format", "invalid"])
-      command = RailsDependencyExplorer::CLI::AnalyzeCommand.new(parser, @output_writer)
-
-      output = capture_io do
-        result = command.execute
+      output = execute_command_with_capture(command) do |result|
         assert_equal 1, result
       end
 
@@ -158,15 +124,10 @@ class AnalyzeCommandTest < Minitest::Test
   end
 
   def test_execute_returns_error_for_invalid_output_option
-    Tempfile.create(["test", ".rb"]) do |file|
-      file.write("class TestClass\nend")
-      file.flush
+    with_test_file("class TestClass\nend") do |file|
+      command = create_analyze_command(["analyze", file.path, "--output"])
 
-      parser = RailsDependencyExplorer::CLI::ArgumentParser.new(["analyze", file.path, "--output"])
-      command = RailsDependencyExplorer::CLI::AnalyzeCommand.new(parser, @output_writer)
-
-      output = capture_io do
-        result = command.execute
+      output = execute_command_with_capture(command) do |result|
         assert_equal 1, result
       end
 
@@ -175,6 +136,42 @@ class AnalyzeCommandTest < Minitest::Test
   end
 
   private
+
+  def with_test_file(content = "class TestClass\n  def initialize\n    @logger = Logger.new\n  end\nend")
+    Tempfile.create(["test", ".rb"]) do |file|
+      file.write(content)
+      file.flush
+      yield file
+    end
+  end
+
+  def with_test_directory
+    Dir.mktmpdir do |dir|
+      # Create a test Ruby file in the directory
+      test_file = File.join(dir, "test_class.rb")
+      File.write(test_file, "class TestClass\n  def initialize\n    @logger = Logger.new\n  end\nend")
+      yield dir
+    end
+  end
+
+  def with_output_file
+    Tempfile.create("output") do |output_file|
+      yield output_file
+    end
+  end
+
+  def create_analyze_command(args)
+    parser = RailsDependencyExplorer::CLI::ArgumentParser.new(args)
+    RailsDependencyExplorer::CLI::AnalyzeCommand.new(parser, @output_writer)
+  end
+
+  def execute_command_with_capture(command)
+    output = capture_io do
+      result = command.execute
+      yield result if block_given?
+    end
+    output
+  end
 
   def capture_io
     original_stdout = $stdout

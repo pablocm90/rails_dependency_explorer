@@ -9,64 +9,37 @@ class HelpDisplayTest < Minitest::Test
   end
 
   def test_display_help_shows_usage_information
-    output = capture_io do
-      @help_display.display_help
-    end
-
-    help_text = output[0]
-
-    # Check for main usage line
-    assert_includes help_text, "Usage: rails_dependency_explorer analyze <path> [options]"
-
-    # Check for commands section
-    assert_includes help_text, "Commands:"
-    assert_includes help_text, "analyze <path>"
-
-    # Check for options section
-    assert_includes help_text, "Options:"
-    assert_includes help_text, "--format, -f FORMAT"
-    assert_includes help_text, "--output, -o FILE"
-    assert_includes help_text, "--directory, -d"
-    assert_includes help_text, "--help, -h"
-    assert_includes help_text, "--version"
-
-    # Check for examples section
-    assert_includes help_text, "Examples:"
-    assert_includes help_text, "rails_dependency_explorer analyze app/models/user.rb"
-    assert_includes help_text, "rails_dependency_explorer analyze app/ --format html --output report.html"
+    assert_help_includes([
+      "Usage: rails_dependency_explorer analyze <path> [options]",
+      "Commands:",
+      "analyze <path>",
+      "Options:",
+      "--format, -f FORMAT",
+      "--output, -o FILE",
+      "--directory, -d",
+      "--help, -h",
+      "--version",
+      "Examples:",
+      "rails_dependency_explorer analyze app/models/user.rb",
+      "rails_dependency_explorer analyze app/ --format html --output report.html"
+    ])
   end
 
   def test_display_help_includes_all_format_options
-    output = capture_io do
-      @help_display.display_help
-    end
-
-    help_text = output[0]
-
-    # Check that all supported formats are mentioned
-    assert_includes help_text, "dot, json, html, graph"
+    assert_help_includes("dot, json, html, graph")
   end
 
   def test_display_help_includes_future_options
-    output = capture_io do
-      @help_display.display_help
-    end
-
-    help_text = output[0]
-
-    # Check for future CLI options that are planned
-    assert_includes help_text, "--stats, -s"
-    assert_includes help_text, "--circular, -c"
-    assert_includes help_text, "--depth"
-    assert_includes help_text, "--config CONFIG_FILE"
+    assert_help_includes([
+      "--stats, -s",
+      "--circular, -c",
+      "--depth",
+      "--config CONFIG_FILE"
+    ])
   end
 
   def test_display_version_shows_version_number
-    output = capture_io do
-      @help_display.display_version
-    end
-
-    version_text = output[0].strip
+    version_text = capture_version_output.strip
 
     # Should show the version number
     assert_match(/\d+\.\d+\.\d+/, version_text)
@@ -76,33 +49,50 @@ class HelpDisplayTest < Minitest::Test
   end
 
   def test_display_help_shows_comprehensive_examples
-    output = capture_io do
-      @help_display.display_help
-    end
-
-    help_text = output[0]
-
-    # Check for various example patterns
-    assert_includes help_text, "app/models/user.rb"
-    assert_includes help_text, "--format html --output report.html"
-    assert_includes help_text, "--pattern \"*_service.rb\" --stats --circular"
-    assert_includes help_text, "--format dot --output dependencies.dot"
+    assert_help_includes([
+      "app/models/user.rb",
+      "--format html --output report.html",
+      "--pattern \"*_service.rb\" --stats --circular",
+      "--format dot --output dependencies.dot"
+    ])
   end
 
   def test_display_help_output_is_well_formatted
+    help_text = capture_help_output
+
+    # Should have proper sections
+    assert_help_includes(["Usage:", "Commands:", "Options:", "Examples:"])
+
+    # Should have proper indentation (at least some spaces for options)
+    assert_proper_option_indentation(help_text)
+  end
+
+  private
+
+  def capture_help_output
     output = capture_io do
       @help_display.display_help
     end
+    output[0]
+  end
 
-    help_text = output[0]
-
-    # Should have proper sections
-    sections = ["Usage:", "Commands:", "Options:", "Examples:"]
-    sections.each do |section|
-      assert_includes help_text, section
+  def capture_version_output
+    output = capture_io do
+      @help_display.display_version
     end
+    output[0]
+  end
 
-    # Should have proper indentation (at least some spaces for options)
+  def assert_help_includes(expected_content)
+    help_text = capture_help_output
+    if expected_content.is_a?(Array)
+      expected_content.each { |content| assert_includes help_text, content }
+    else
+      assert_includes help_text, expected_content
+    end
+  end
+
+  def assert_proper_option_indentation(help_text)
     lines = help_text.split("\n")
     option_lines = lines.select { |line| line.include?("--") && !line.include?("Usage:") && !line.include?("Examples:") }
 
@@ -111,8 +101,6 @@ class HelpDisplayTest < Minitest::Test
       assert line.start_with?("  "), "Option line should be indented: #{line}"
     end
   end
-
-  private
 
   def capture_io
     original_stdout = $stdout

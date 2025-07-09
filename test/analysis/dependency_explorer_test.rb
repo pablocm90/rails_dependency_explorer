@@ -97,38 +97,15 @@ class DependencyExplorerTest < Minitest::Test
     require "fileutils"
 
     Dir.mktmpdir do |temp_dir|
-      # Create test Ruby files
-      player_file = File.join(temp_dir, "player.rb")
-      File.write(player_file, <<~RUBY)
-        class Player
-          def attack
-            Enemy.health -= 10
-          end
-        end
-      RUBY
-
-      game_file = File.join(temp_dir, "game.rb")
-      File.write(game_file, <<~RUBY)
-        class Game
-          def start
-            Player.new
-            Logger.info("Game started")
-          end
-        end
-      RUBY
-
-      # Create a non-Ruby file that should be ignored
-      readme_file = File.join(temp_dir, "README.md")
-      File.write(readme_file, "# This is not Ruby code")
+      # Create test files
+      create_player_file(temp_dir)
+      create_game_file(temp_dir)
+      create_non_ruby_file(temp_dir)
 
       result = @explorer.analyze_directory(temp_dir)
       actual_graph = result.to_graph
 
-      expected_nodes = ["Player", "Enemy", "Game", "Logger"]
-      expected_edges = [["Player", "Enemy"], ["Game", "Player"], ["Game", "Logger"]]
-
-      assert_equal expected_nodes.sort, actual_graph[:nodes].sort
-      assert_equal expected_edges.sort, actual_graph[:edges].sort
+      assert_directory_scan_results(actual_graph)
     end
   end
 
@@ -138,45 +115,16 @@ class DependencyExplorerTest < Minitest::Test
     require "fileutils"
 
     Dir.mktmpdir do |temp_dir|
-      # Create model files
-      user_model = File.join(temp_dir, "user_model.rb")
-      File.write(user_model, <<~RUBY)
-        class UserModel
-          def validate
-            Logger.info("Validating user")
-          end
-        end
-      RUBY
-
-      # Create controller files
-      user_controller = File.join(temp_dir, "user_controller.rb")
-      File.write(user_controller, <<~RUBY)
-        class UserController
-          def create
-            UserModel.new
-          end
-        end
-      RUBY
-
-      # Create service files
-      email_service = File.join(temp_dir, "email_service.rb")
-      File.write(email_service, <<~RUBY)
-        class EmailService
-          def send_email
-            Mailer.deliver
-          end
-        end
-      RUBY
+      # Create test files
+      create_user_model_file(temp_dir)
+      create_user_controller_file(temp_dir)
+      create_email_service_file_for_pattern_test(temp_dir)
 
       # Test filtering for only model files
       result = @explorer.analyze_directory(temp_dir, pattern: "*_model.rb")
       actual_graph = result.to_graph
 
-      expected_nodes = ["UserModel", "Logger"]
-      expected_edges = [["UserModel", "Logger"]]
-
-      assert_equal expected_nodes.sort, actual_graph[:nodes].sort
-      assert_equal expected_edges.sort, actual_graph[:edges].sort
+      assert_pattern_filter_results(actual_graph)
     end
   end
 
@@ -450,54 +398,145 @@ class DependencyExplorerTest < Minitest::Test
     require "fileutils"
 
     Dir.mktmpdir do |temp_dir|
-      # Create nested directory structure
-      models_dir = File.join(temp_dir, "models")
-      concerns_dir = File.join(models_dir, "concerns")
-      services_dir = File.join(temp_dir, "services")
-      FileUtils.mkdir_p([models_dir, concerns_dir, services_dir])
-
-      # Create files in root directory
-      File.write(File.join(models_dir, "user.rb"), <<~RUBY)
-        class User
-          def validate
-            UserValidator.check(self)
-          end
-        end
-      RUBY
-
-      # Create files in subdirectory
-      File.write(File.join(concerns_dir, "user_validator.rb"), <<~RUBY)
-        module UserValidator
-          def self.check(user)
-            Logger.info("Validating user")
-          end
-        end
-      RUBY
-
-      # Create files in different subdirectory
-      File.write(File.join(services_dir, "email_service.rb"), <<~RUBY)
-        class EmailService
-          def send_notification
-            Mailer.deliver_now
-          end
-        end
-      RUBY
+      # Create nested directory structure and files
+      dirs = create_nested_directory_structure(temp_dir)
+      create_user_file(dirs[:models])
+      create_user_validator_file(dirs[:concerns])
+      create_email_service_file(dirs[:services])
 
       # Analyze the entire directory structure
       result = @explorer.analyze_directory(temp_dir)
       graph = result.to_graph
 
-      # Should find classes/modules from all subdirectories
-      assert_includes graph[:nodes], "User"
-      assert_includes graph[:nodes], "UserValidator"
-      assert_includes graph[:nodes], "EmailService"
-      assert_includes graph[:nodes], "Logger"
-      assert_includes graph[:nodes], "Mailer"
-
-      # Should detect dependencies across subdirectories
-      assert_includes graph[:edges], ["User", "UserValidator"]
-      assert_includes graph[:edges], ["UserValidator", "Logger"]
-      assert_includes graph[:edges], ["EmailService", "Mailer"]
+      # Verify recursive analysis results
+      assert_recursive_analysis_results(graph)
     end
+  end
+
+  private
+
+  def create_nested_directory_structure(temp_dir)
+    models_dir = File.join(temp_dir, "models")
+    concerns_dir = File.join(models_dir, "concerns")
+    services_dir = File.join(temp_dir, "services")
+    FileUtils.mkdir_p([models_dir, concerns_dir, services_dir])
+    { models: models_dir, concerns: concerns_dir, services: services_dir }
+  end
+
+  def create_user_file(models_dir)
+    File.write(File.join(models_dir, "user.rb"), <<~RUBY)
+      class User
+        def validate
+          UserValidator.check(self)
+        end
+      end
+    RUBY
+  end
+
+  def create_user_validator_file(concerns_dir)
+    File.write(File.join(concerns_dir, "user_validator.rb"), <<~RUBY)
+      module UserValidator
+        def self.check(user)
+          Logger.info("Validating user")
+        end
+      end
+    RUBY
+  end
+
+  def create_email_service_file(services_dir)
+    File.write(File.join(services_dir, "email_service.rb"), <<~RUBY)
+      class EmailService
+        def send_notification
+          Mailer.deliver_now
+        end
+      end
+    RUBY
+  end
+
+  def assert_recursive_analysis_results(graph)
+    # Should find classes/modules from all subdirectories
+    expected_nodes = ["User", "UserValidator", "EmailService", "Logger", "Mailer"]
+    expected_nodes.each { |node| assert_includes graph[:nodes], node }
+
+    # Should detect dependencies across subdirectories
+    expected_edges = [["User", "UserValidator"], ["UserValidator", "Logger"], ["EmailService", "Mailer"]]
+    expected_edges.each { |edge| assert_includes graph[:edges], edge }
+  end
+
+  def create_player_file(temp_dir)
+    player_file = File.join(temp_dir, "player.rb")
+    File.write(player_file, <<~RUBY)
+      class Player
+        def attack
+          Enemy.health -= 10
+        end
+      end
+    RUBY
+  end
+
+  def create_game_file(temp_dir)
+    game_file = File.join(temp_dir, "game.rb")
+    File.write(game_file, <<~RUBY)
+      class Game
+        def start
+          Player.new
+          Logger.info("Game started")
+        end
+      end
+    RUBY
+  end
+
+  def create_non_ruby_file(temp_dir)
+    readme_file = File.join(temp_dir, "README.md")
+    File.write(readme_file, "# This is not Ruby code")
+  end
+
+  def assert_directory_scan_results(graph)
+    expected_nodes = ["Player", "Enemy", "Game", "Logger"]
+    expected_edges = [["Player", "Enemy"], ["Game", "Player"], ["Game", "Logger"]]
+
+    assert_equal expected_nodes.sort, graph[:nodes].sort
+    assert_equal expected_edges.sort, graph[:edges].sort
+  end
+
+  def create_user_model_file(temp_dir)
+    user_model = File.join(temp_dir, "user_model.rb")
+    File.write(user_model, <<~RUBY)
+      class UserModel
+        def validate
+          Logger.info("Validating user")
+        end
+      end
+    RUBY
+  end
+
+  def create_user_controller_file(temp_dir)
+    user_controller = File.join(temp_dir, "user_controller.rb")
+    File.write(user_controller, <<~RUBY)
+      class UserController
+        def create
+          UserModel.new
+        end
+      end
+    RUBY
+  end
+
+  def create_email_service_file_for_pattern_test(temp_dir)
+    email_service = File.join(temp_dir, "email_service.rb")
+    File.write(email_service, <<~RUBY)
+      class EmailService
+        def send_email
+          Mailer.deliver
+        end
+      end
+    RUBY
+  end
+
+  def assert_pattern_filter_results(graph)
+    expected_nodes = ["UserModel", "Logger"]
+    expected_edges = [["UserModel", "Logger"]]
+
+    assert_equal expected_nodes.sort, graph[:nodes].sort
+    assert_equal expected_edges.sort, graph[:edges].sort
   end
 end
