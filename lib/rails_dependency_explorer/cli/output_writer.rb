@@ -18,7 +18,7 @@ module RailsDependencyExplorer
         end
       end
 
-      def format_output(result, format)
+      def format_output(result, format, options = {})
         case format
         when "dot"
           result.to_dot
@@ -27,10 +27,57 @@ module RailsDependencyExplorer
         when "html"
           result.to_html
         when "graph"
-          result.to_console
+          format_console_output(result, options)
         else
-          result.to_console
+          format_console_output(result, options)
         end
+      end
+
+      private
+
+      def format_console_output(result, options)
+        output = result.to_console
+
+        if options[:include_stats]
+          output += format_statistics(result.statistics)
+        end
+
+        if options[:include_circular]
+          output += format_circular_dependencies(result.circular_dependencies)
+        end
+
+        if options[:include_depth]
+          output += format_dependency_depth(result.dependency_depth)
+        end
+
+        output
+      end
+
+      def format_statistics(stats)
+        "\n\nStatistics:\n" +
+        "  Total Classes: #{stats[:total_classes]}\n" +
+        "  Total Dependencies: #{stats[:total_dependencies]}\n" +
+        "  Most Used Dependency: #{stats[:most_used_dependency]}\n"
+      end
+
+      def format_circular_dependencies(cycles)
+        output = "\n\nCircular Dependencies:\n"
+        if cycles.empty?
+          output += "  None detected\n"
+        else
+          cycles.each do |cycle|
+            output += "  #{cycle.join(' -> ')}\n"
+          end
+        end
+        output
+      end
+
+      def format_dependency_depth(depths)
+        output = "\n\nDependency Depth:\n"
+        depths.each do |class_name, depth|
+          output += "  #{class_name}: #{depth}\n"
+        end
+        output
       end
     end
   end

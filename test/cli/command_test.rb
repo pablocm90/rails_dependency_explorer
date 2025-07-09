@@ -437,4 +437,61 @@ class CommandTest < Minitest::Test
       assert_equal 1, exit_code
     end
   end
+
+  def test_cli_supports_analysis_options
+    require "tmpdir"
+
+    Dir.mktmpdir do |temp_dir|
+      # Create a test Ruby file with dependencies
+      test_file = File.join(temp_dir, "test_class.rb")
+      File.write(test_file, <<~RUBY)
+        class TestClass
+          def initialize
+            @logger = Logger.new
+          end
+        end
+      RUBY
+
+      # Test --stats flag
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--stats"])
+      exit_code = cli.run
+      stats_output = @stdout.string
+
+      assert_includes stats_output, "Statistics:"
+      assert_includes stats_output, "Total Classes:"
+      assert_includes stats_output, "Total Dependencies:"
+      assert_equal 0, exit_code
+
+      # Test --circular flag
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--circular"])
+      exit_code = cli.run
+      circular_output = @stdout.string
+
+      assert_includes circular_output, "Circular Dependencies:"
+      assert_equal 0, exit_code
+
+      # Test --depth flag
+      @stdout = StringIO.new
+      @stderr = StringIO.new
+      $stdout = @stdout
+      $stderr = @stderr
+
+      cli = RailsDependencyExplorer::CLI::Command.new(["analyze", test_file, "--depth"])
+      exit_code = cli.run
+      depth_output = @stdout.string
+
+      assert_includes depth_output, "Dependency Depth:"
+      assert_equal 0, exit_code
+    end
+  end
 end

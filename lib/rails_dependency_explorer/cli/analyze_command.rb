@@ -48,7 +48,7 @@ module RailsDependencyExplorer
           result = explorer.analyze_code(ruby_code)
 
           # Output in specified format
-          output_content = @output_writer.format_output(result, format)
+          output_content = @output_writer.format_output(result, format, build_output_options)
           @output_writer.write_output(output_content, output_file)
 
           0
@@ -84,7 +84,7 @@ module RailsDependencyExplorer
           result = explorer.analyze_directory(directory_path)
 
           # Output in specified format
-          output_content = @output_writer.format_output(result, format)
+          output_content = @output_writer.format_output(result, format, build_output_options)
           @output_writer.write_output(output_content, output_file)
 
           0
@@ -92,6 +92,16 @@ module RailsDependencyExplorer
           puts "Error analyzing directory: #{e.message}"
           1
         end
+      end
+
+      private
+
+      def build_output_options
+        {
+          include_stats: @parser.has_stats_option?,
+          include_circular: @parser.has_circular_option?,
+          include_depth: @parser.has_depth_option?
+        }
       end
     end
   end

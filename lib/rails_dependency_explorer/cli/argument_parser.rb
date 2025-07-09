@@ -74,6 +74,18 @@ module RailsDependencyExplorer
         return nil if @args.empty?
         @args[0]
       end
+
+      def has_stats_option?
+        @args.include?("--stats") || @args.include?("-s")
+      end
+
+      def has_circular_option?
+        @args.include?("--circular") || @args.include?("-c")
+      end
+
+      def has_depth_option?
+        @args.include?("--depth")
+      end
     end
   end
 end
