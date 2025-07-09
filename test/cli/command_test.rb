@@ -18,15 +18,7 @@ class CommandTest < Minitest::Test
   end
 
   def test_cli_displays_help_when_no_arguments_provided
-    # Capture output
-    $stdout = @stdout
-    $stderr = @stderr
-
-    # This should trigger help display when no arguments are provided
-    cli = RailsDependencyExplorer::CLI::Command.new([])
-    exit_code = cli.run
-
-    output = @stdout.string
+    output, exit_code = run_cli_command([])
 
     # Should display help information
     assert_includes output, "Usage:"
@@ -41,13 +33,7 @@ class CommandTest < Minitest::Test
   end
 
   def test_cli_displays_help_with_help_flag
-    $stdout = @stdout
-    $stderr = @stderr
-
-    cli = RailsDependencyExplorer::CLI::Command.new(["--help"])
-    exit_code = cli.run
-
-    output = @stdout.string
+    output, exit_code = run_cli_command(["--help"])
 
     # Should display same help information
     assert_includes output, "Usage:"
@@ -59,13 +45,7 @@ class CommandTest < Minitest::Test
   end
 
   def test_cli_displays_version_with_version_flag
-    $stdout = @stdout
-    $stderr = @stderr
-
-    cli = RailsDependencyExplorer::CLI::Command.new(["--version"])
-    exit_code = cli.run
-
-    output = @stdout.string
+    output, exit_code = run_cli_command(["--version"])
 
     # Should display version information
     assert_includes output, RailsDependencyExplorer::VERSION
@@ -74,7 +54,6 @@ class CommandTest < Minitest::Test
   end
 
   def test_cli_analyzes_single_file_with_default_output
-    # Create a temporary Ruby file for testing
     require "tempfile"
 
     temp_file = Tempfile.new(["test_class", ".rb"])
@@ -88,23 +67,19 @@ class CommandTest < Minitest::Test
     RUBY
     temp_file.close
 
-    $stdout = @stdout
-    $stderr = @stderr
+    begin
+      output, exit_code = run_cli_command(["analyze", temp_file.path])
 
-    cli = RailsDependencyExplorer::CLI::Command.new(["analyze", temp_file.path])
-    exit_code = cli.run
+      # Should analyze the file and output dependency information in default format (graph)
+      assert_includes output, "UserService"
+      assert_includes output, "UserRepository"
+      assert_includes output, "EmailService"
 
-    output = @stdout.string
-
-    # Should analyze the file and output dependency information in default format (graph)
-    assert_includes output, "UserService"
-    assert_includes output, "UserRepository"
-    assert_includes output, "EmailService"
-
-    # Should exit successfully
-    assert_equal 0, exit_code
-
-    temp_file.unlink
+      # Should exit successfully
+      assert_equal 0, exit_code
+    ensure
+      temp_file.unlink
+    end
   end
 
   def test_cli_analyzes_directory_with_pattern_filtering
@@ -192,50 +167,38 @@ class CommandTest < Minitest::Test
   end
 
   def test_cli_supports_dot_format
-    with_test_file do |test_file|
-      output, exit_code = run_cli_command(["analyze", test_file, "--format", "dot"])
-
+    assert_output_format("dot") do |output|
       assert_includes output, "digraph"
       assert_includes output, "TestClass"
       assert_includes output, "Logger"
       assert_includes output, "DataProcessor"
-      assert_equal 0, exit_code
     end
   end
 
   def test_cli_supports_json_format
     require "json"
 
-    with_test_file do |test_file|
-      output, exit_code = run_cli_command(["analyze", test_file, "--format", "json"])
-
+    assert_output_format("json") do |output|
       # Should be valid JSON
       parsed_json = JSON.parse(output)
       assert parsed_json.key?("dependencies")
       assert parsed_json.key?("statistics")
-      assert_equal 0, exit_code
     end
   end
 
   def test_cli_supports_html_format
-    with_test_file do |test_file|
-      output, exit_code = run_cli_command(["analyze", test_file, "--format", "html"])
-
+    assert_output_format("html") do |output|
       assert_includes output, "<html>"
       assert_includes output, "TestClass"
       assert_includes output, "Dependencies"
-      assert_equal 0, exit_code
     end
   end
 
   def test_cli_supports_graph_format
-    with_test_file do |test_file|
-      output, exit_code = run_cli_command(["analyze", test_file, "--format", "graph"])
-
+    assert_output_format("graph") do |output|
       assert_includes output, "Dependencies found:"
       assert_includes output, "Classes:"
       assert_includes output, "TestClass"
-      assert_equal 0, exit_code
     end
   end
 
@@ -250,78 +213,34 @@ class CommandTest < Minitest::Test
   end
 
   def test_cli_outputs_dot_format_to_file
-    with_test_file_and_output do |test_file, temp_dir|
-      output_file = File.join(temp_dir, "output.dot")
-      stdout_output, exit_code = run_cli_command_with_file_output(
-        ["analyze", test_file, "--format", "dot", "--output", output_file]
-      )
-
-      # Should write to file, not stdout
-      assert_equal "", stdout_output.strip
-      assert_equal 0, exit_code
-      assert File.exist?(output_file)
-
-      file_content = File.read(output_file)
-      assert_includes file_content, "digraph"
-      assert_includes file_content, "TestClass"
-      assert_includes file_content, "Logger"
+    assert_file_output_format("dot", "output.dot") do |content|
+      assert_includes content, "digraph"
+      assert_includes content, "TestClass"
+      assert_includes content, "Logger"
     end
   end
 
   def test_cli_outputs_json_format_to_file
     require "json"
 
-    with_test_file_and_output do |test_file, temp_dir|
-      output_file = File.join(temp_dir, "output.json")
-      stdout_output, exit_code = run_cli_command_with_file_output(
-        ["analyze", test_file, "--format", "json", "--output", output_file]
-      )
-
-      # Should write to file, not stdout
-      assert_equal "", stdout_output.strip
-      assert_equal 0, exit_code
-      assert File.exist?(output_file)
-
-      file_content = File.read(output_file)
-      parsed_json = JSON.parse(file_content)
+    assert_file_output_format("json", "output.json") do |content|
+      parsed_json = JSON.parse(content)
       assert parsed_json.key?("dependencies")
       assert parsed_json.key?("statistics")
     end
   end
 
   def test_cli_outputs_html_format_to_file
-    with_test_file_and_output do |test_file, temp_dir|
-      output_file = File.join(temp_dir, "output.html")
-      stdout_output, exit_code = run_cli_command_with_file_output(
-        ["analyze", test_file, "--format", "html", "--output", output_file]
-      )
-
-      # Should write to file, not stdout
-      assert_equal "", stdout_output.strip
-      assert_equal 0, exit_code
-      assert File.exist?(output_file)
-
-      file_content = File.read(output_file)
-      assert_includes file_content, "<html>"
-      assert_includes file_content, "TestClass"
+    assert_file_output_format("html", "output.html") do |content|
+      assert_includes content, "<html>"
+      assert_includes content, "TestClass"
     end
   end
 
   def test_cli_outputs_graph_format_to_file
-    with_test_file_and_output do |test_file, temp_dir|
-      output_file = File.join(temp_dir, "output.txt")
-      stdout_output, exit_code = run_cli_command_with_file_output(
-        ["analyze", test_file, "--format", "graph", "--output", output_file]
-      )
-
-      # Should write to file, not stdout
-      assert_equal "", stdout_output.strip
-      assert_equal 0, exit_code
-      assert File.exist?(output_file)
-
-      file_content = File.read(output_file)
-      assert_includes file_content, "Dependencies found:"
-      assert_includes file_content, "TestClass"
+    assert_file_output_format("graph", "output.txt") do |content|
+      assert_includes content, "Dependencies found:"
+      assert_includes content, "TestClass"
     end
   end
 
@@ -477,6 +396,33 @@ class CommandTest < Minitest::Test
     ensure
       $stdout = original_stdout
       $stderr = original_stderr
+    end
+  end
+
+  # Helper method to test output formats
+  def assert_output_format(format)
+    with_test_file do |test_file|
+      output, exit_code = run_cli_command(["analyze", test_file, "--format", format])
+      assert_equal 0, exit_code
+      yield output
+    end
+  end
+
+  # Helper method to test file output formats
+  def assert_file_output_format(format, filename)
+    with_test_file_and_output do |test_file, temp_dir|
+      output_file = File.join(temp_dir, filename)
+      stdout_output, exit_code = run_cli_command_with_file_output(
+        ["analyze", test_file, "--format", format, "--output", output_file]
+      )
+
+      # Should write to file, not stdout
+      assert_equal "", stdout_output.strip
+      assert_equal 0, exit_code
+      assert File.exist?(output_file)
+
+      file_content = File.read(output_file)
+      yield file_content
     end
   end
 end
