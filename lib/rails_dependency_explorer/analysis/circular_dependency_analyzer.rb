@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "set"
+require_relative "graph_builder"
 
 module RailsDependencyExplorer
   module Analysis
@@ -29,19 +30,7 @@ module RailsDependencyExplorer
       private
 
       def build_adjacency_list
-        graph = Hash.new { |h, k| h[k] = [] }
-
-        @dependency_data.each do |class_name, dependencies|
-          dependencies.each do |dep|
-            if dep.is_a?(Hash)
-              dep.each do |constant, methods|
-                graph[class_name] << constant unless graph[class_name].include?(constant)
-              end
-            end
-          end
-        end
-
-        graph
+        GraphBuilder.build_adjacency_list(@dependency_data)
       end
 
       def find_cycles_dfs(node, graph, visited, rec_stack, path, cycles)
