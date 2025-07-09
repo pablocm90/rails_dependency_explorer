@@ -13,15 +13,42 @@ module RailsDependencyExplorer
 
       def parse
         ast = build_ast
+        return {} unless ast
 
-        return {} unless ast&.type == :class
+        # Find all class definitions in the AST
+        class_nodes = find_class_nodes(ast)
+        return {} if class_nodes.empty?
 
-        class_name = extract_class_name(ast)
-        dependencies = extract_dependencies(ast)
-        {class_name => dependencies}
+        # Process each class and merge results
+        result = {}
+        class_nodes.each do |class_node|
+          class_name = extract_class_name(class_node)
+          dependencies = extract_dependencies(class_node)
+          result[class_name] = dependencies if class_name && !class_name.empty?
+        end
+
+        result
       end
 
       private
+
+      def find_class_nodes(node)
+        return [] unless node.respond_to?(:type)
+
+        class_nodes = []
+
+        # If this node is a class, add it
+        class_nodes << node if node.type == :class
+
+        # Recursively search children for class nodes
+        if node.respond_to?(:children) && node.children
+          node.children.each do |child|
+            class_nodes.concat(find_class_nodes(child))
+          end
+        end
+
+        class_nodes
+      end
 
       def build_ast
         parser = Parser::CurrentRuby
