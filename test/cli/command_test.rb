@@ -83,34 +83,9 @@ class CommandTest < Minitest::Test
   end
 
   def test_cli_analyzes_directory_with_pattern_filtering
-    require "tmpdir"
-    require "fileutils"
+    with_test_directory do |temp_dir|
+      create_directory_test_files(temp_dir)
 
-    Dir.mktmpdir do |temp_dir|
-      # Create Ruby files in the directory
-      user_model = File.join(temp_dir, "user_model.rb")
-      File.write(user_model, <<~RUBY)
-        class UserModel
-          def validate
-            Logger.info("Validating user")
-          end
-        end
-      RUBY
-
-      user_controller = File.join(temp_dir, "user_controller.rb")
-      File.write(user_controller, <<~RUBY)
-        class UserController
-          def create
-            UserModel.new
-          end
-        end
-      RUBY
-
-      # Create a non-Ruby file that should be ignored
-      readme_file = File.join(temp_dir, "README.md")
-      File.write(readme_file, "# This is not Ruby code")
-
-      # Test directory analysis with default pattern
       output, exit_code = run_cli_command(["analyze", "--directory", temp_dir])
 
       # Should analyze all Ruby files in directory
@@ -124,36 +99,7 @@ class CommandTest < Minitest::Test
   end
 
   def test_cli_analyzes_directory_recursively
-    require "tmpdir"
-    require "fileutils"
-
-    Dir.mktmpdir do |temp_dir|
-      # Create nested directory structure
-      models_dir = File.join(temp_dir, "models")
-      concerns_dir = File.join(models_dir, "concerns")
-      FileUtils.mkdir_p(concerns_dir)
-
-      # Create Ruby file in root directory
-      user_model = File.join(models_dir, "user.rb")
-      File.write(user_model, <<~RUBY)
-        class User
-          def validate
-            Validatable.check(self)
-          end
-        end
-      RUBY
-
-      # Create Ruby file in subdirectory
-      validatable_concern = File.join(concerns_dir, "validatable.rb")
-      File.write(validatable_concern, <<~RUBY)
-        module Validatable
-          def self.check(object)
-            Logger.info("Checking object")
-          end
-        end
-      RUBY
-
-      # Test recursive directory analysis
+    with_nested_test_directory do |models_dir|
       output, exit_code = run_cli_command(["analyze", "--directory", models_dir])
 
       # Should find classes in both root and subdirectories
@@ -285,20 +231,14 @@ class CommandTest < Minitest::Test
   end
 
   def test_cli_supports_circular_analysis_option
-    with_test_file do |test_file|
-      output, exit_code = run_cli_command(["analyze", test_file, "--circular"])
-
+    assert_analysis_option("--circular") do |output|
       assert_includes output, "Circular Dependencies:"
-      assert_equal 0, exit_code
     end
   end
 
   def test_cli_supports_depth_analysis_option
-    with_test_file do |test_file|
-      output, exit_code = run_cli_command(["analyze", test_file, "--depth"])
-
+    assert_analysis_option("--depth") do |output|
       assert_includes output, "Dependency Depth:"
-      assert_equal 0, exit_code
     end
   end
 
@@ -408,6 +348,15 @@ class CommandTest < Minitest::Test
     end
   end
 
+  # Helper method to test analysis options
+  def assert_analysis_option(option)
+    with_test_file do |test_file|
+      output, exit_code = run_cli_command(["analyze", test_file, option])
+      assert_equal 0, exit_code
+      yield output
+    end
+  end
+
   # Helper method to test file output formats
   def assert_file_output_format(format, filename)
     with_test_file_and_output do |test_file, temp_dir|
@@ -423,6 +372,73 @@ class CommandTest < Minitest::Test
 
       file_content = File.read(output_file)
       yield file_content
+    end
+  end
+
+  # Helper method to create directory with test files
+  def with_test_directory
+    require "tmpdir"
+    Dir.mktmpdir do |temp_dir|
+      yield temp_dir
+    end
+  end
+
+  # Helper method to create test files in a directory
+  def create_directory_test_files(temp_dir)
+    user_model = File.join(temp_dir, "user_model.rb")
+    File.write(user_model, <<~RUBY)
+      class UserModel
+        def validate
+          Logger.info("Validating user")
+        end
+      end
+    RUBY
+
+    user_controller = File.join(temp_dir, "user_controller.rb")
+    File.write(user_controller, <<~RUBY)
+      class UserController
+        def create
+          UserModel.new
+        end
+      end
+    RUBY
+
+    # Create a non-Ruby file that should be ignored
+    readme_file = File.join(temp_dir, "README.md")
+    File.write(readme_file, "# This is not Ruby code")
+  end
+
+  # Helper method to create nested directory structure for testing
+  def with_nested_test_directory
+    require "tmpdir"
+    require "fileutils"
+
+    Dir.mktmpdir do |temp_dir|
+      models_dir = File.join(temp_dir, "models")
+      concerns_dir = File.join(models_dir, "concerns")
+      FileUtils.mkdir_p(concerns_dir)
+
+      # Create Ruby file in root directory
+      user_model = File.join(models_dir, "user.rb")
+      File.write(user_model, <<~RUBY)
+        class User
+          def validate
+            Validatable.check(self)
+          end
+        end
+      RUBY
+
+      # Create Ruby file in subdirectory
+      validatable_concern = File.join(concerns_dir, "validatable.rb")
+      File.write(validatable_concern, <<~RUBY)
+        module Validatable
+          def self.check(object)
+            Logger.info("Checking object")
+          end
+        end
+      RUBY
+
+      yield models_dir
     end
   end
 end
