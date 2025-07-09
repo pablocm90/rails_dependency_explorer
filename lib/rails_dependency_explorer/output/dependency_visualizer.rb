@@ -32,7 +32,7 @@ module RailsDependencyExplorer
 
       def to_console(dependency_data)
         graph = to_graph(dependency_data)
-        console_adapter.format(graph)
+        ConsoleFormatAdapter.format(graph)
       end
 
       private
@@ -53,9 +53,7 @@ module RailsDependencyExplorer
         @html_adapter ||= HtmlFormatAdapter.new
       end
 
-      def console_adapter
-        @console_adapter ||= ConsoleFormatAdapter.new
-      end
+
     end
   end
 end

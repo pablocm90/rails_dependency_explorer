@@ -68,7 +68,20 @@ module RailsDependencyExplorer
 
       def analyze_directory
         directory_path = @parser.get_directory_path
+        return validate_directory_path(directory_path) unless directory_path && File.directory?(directory_path)
 
+        format = @parser.parse_format_option
+        return 1 if format.nil?
+
+        output_file = @parser.parse_output_option
+        return 1 if output_file == :error
+
+        perform_directory_analysis(directory_path, format, output_file)
+      end
+
+      private
+
+      def validate_directory_path(directory_path)
         if directory_path.nil?
           puts "Error: --directory option requires a directory path"
           return 1
@@ -78,31 +91,20 @@ module RailsDependencyExplorer
           puts "Error: Directory not found: #{directory_path}"
           return 1
         end
-
-        # Parse format option
-        format = @parser.parse_format_option
-        return 1 if format.nil?
-
-        # Parse output option
-        output_file = @parser.parse_output_option
-        return 1 if output_file == :error
-
-        begin
-          explorer = Analysis::DependencyExplorer.new
-          result = explorer.analyze_directory(directory_path)
-
-          # Output in specified format
-          output_content = @output_writer.format_output(result, format, build_output_options)
-          @output_writer.write_output(output_content, output_file)
-
-          0
-        rescue => e
-          puts "Error analyzing directory: #{e.message}"
-          1
-        end
       end
 
-      private
+      def perform_directory_analysis(directory_path, format, output_file)
+        explorer = Analysis::DependencyExplorer.new
+        result = explorer.analyze_directory(directory_path)
+
+        output_content = @output_writer.format_output(result, format, build_output_options)
+        @output_writer.write_output(output_content, output_file)
+
+        0
+      rescue => e
+        puts "Error analyzing directory: #{e.message}"
+        1
+      end
 
       def build_output_options
         {

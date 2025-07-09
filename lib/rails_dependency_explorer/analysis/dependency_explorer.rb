@@ -10,7 +10,7 @@ module RailsDependencyExplorer
     # constant references, building a comprehensive dependency graph.
     class DependencyExplorer
       def analyze_code(ruby_code)
-        dependency_data = parse_ruby_code(ruby_code)
+        dependency_data = self.class.parse_ruby_code(ruby_code)
         AnalysisResult.new(dependency_data)
       end
 
@@ -18,7 +18,7 @@ module RailsDependencyExplorer
         combined_dependency_data = {}
 
         files.each do |_filename, ruby_code|
-          file_dependencies = parse_ruby_code(ruby_code)
+          file_dependencies = self.class.parse_ruby_code(ruby_code)
           combined_dependency_data.merge!(file_dependencies)
         end
 
@@ -27,13 +27,13 @@ module RailsDependencyExplorer
 
       def analyze_directory(directory_path, pattern: "*.rb")
         ruby_files = Dir.glob(File.join(directory_path, "**", pattern))
-        files_hash = build_files_hash(ruby_files)
+        files_hash = self.class.build_files_hash(ruby_files)
         analyze_files(files_hash)
       end
 
       private
 
-      def build_files_hash(ruby_files)
+      def self.build_files_hash(ruby_files)
         ruby_files.each_with_object({}) do |file_path, files_hash|
           filename = File.basename(file_path)
           ruby_code = File.read(file_path)
@@ -41,7 +41,7 @@ module RailsDependencyExplorer
         end
       end
 
-      def parse_ruby_code(ruby_code)
+      def self.parse_ruby_code(ruby_code)
         parser = Parsing::DependencyParser.new(ruby_code)
         parser.parse
       end

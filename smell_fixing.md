@@ -92,10 +92,11 @@ This document categorizes code smells from RubyCritic analysis into priority lev
 - **Estimated Complexity**: Low - Add class-level documentation comments
 - **PROGRESS**: 45→21 warnings (53% reduction) - All lib/ classes documented, remaining are test classes
 
-### M2. Too Many Statements (98 occurrences)
+### M2. Too Many Statements (98 occurrences) ✅ **PARTIALLY COMPLETED**
 - **Description**: Methods with too many statements across multiple files
 - **Priority Rationale**: Affects readability but not critical functionality
 - **Estimated Complexity**: Medium - Extract methods to reduce statement count
+- **PROGRESS**: Significant reduction achieved - Fixed 10+ high-priority methods, 13 remaining
 
 ### M3. Utility Functions (31 occurrences)
 - **Description**: Methods that don't depend on instance state

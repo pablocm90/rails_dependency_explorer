@@ -6,7 +6,7 @@ module RailsDependencyExplorer
     # Converts graph data into human-readable text format with proper indentation
     # and structure for command-line output and debugging purposes.
     class ConsoleFormatAdapter
-      def format(graph_data)
+      def self.format(graph_data)
         if graph_data[:nodes].empty?
           return "No dependencies found."
         end

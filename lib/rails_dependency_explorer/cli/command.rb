@@ -19,18 +19,26 @@ module RailsDependencyExplorer
       end
 
       def run
-        if @parser.has_help_option?
-          @help_display.display_help
-          return 0
-        end
-
-        if @parser.has_version_option?
-          @help_display.display_version
-          return 0
-        end
+        return handle_help_option if @parser.has_help_option?
+        return handle_version_option if @parser.has_version_option?
 
         command = @parser.get_command
+        execute_command(command)
+      end
 
+      private
+
+      def handle_help_option
+        @help_display.display_help
+        0
+      end
+
+      def handle_version_option
+        @help_display.display_version
+        0
+      end
+
+      def execute_command(command)
         case command
         when "analyze"
           analyze_cmd = AnalyzeCommand.new(@parser, @output_writer)
@@ -43,8 +51,6 @@ module RailsDependencyExplorer
           1
         end
       end
-
-      private
 
       def display_error(message)
         puts "Error: #{message}"

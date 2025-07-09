@@ -5,7 +5,7 @@ require_relative "../test_helper"
 
 class ConsoleFormatAdapterTest < Minitest::Test
   def setup
-    @adapter = RailsDependencyExplorer::Output::ConsoleFormatAdapter.new
+    # ConsoleFormatAdapter is now a class method, no instantiation needed
   end
 
   def test_console_format_adapter_formats_single_dependency
@@ -14,7 +14,7 @@ class ConsoleFormatAdapterTest < Minitest::Test
       edges: [["Player", "Enemy"]]
     }
 
-    result = @adapter.format(graph_data)
+    result = RailsDependencyExplorer::Output::ConsoleFormatAdapter.format(graph_data)
     expected = <<~OUTPUT.chomp
       Dependencies found:
 
@@ -33,7 +33,7 @@ class ConsoleFormatAdapterTest < Minitest::Test
       edges: [["Player", "Enemy"], ["Player", "Logger"], ["Enemy", "Logger"]]
     }
 
-    result = @adapter.format(graph_data)
+    result = RailsDependencyExplorer::Output::ConsoleFormatAdapter.format(graph_data)
     expected = <<~OUTPUT.chomp
       Dependencies found:
 
@@ -54,7 +54,7 @@ class ConsoleFormatAdapterTest < Minitest::Test
       edges: []
     }
 
-    result = @adapter.format(graph_data)
+    result = RailsDependencyExplorer::Output::ConsoleFormatAdapter.format(graph_data)
     expected = "No dependencies found."
 
     assert_equal expected, result
@@ -66,7 +66,7 @@ class ConsoleFormatAdapterTest < Minitest::Test
       edges: []
     }
 
-    result = @adapter.format(graph_data)
+    result = RailsDependencyExplorer::Output::ConsoleFormatAdapter.format(graph_data)
     expected = <<~OUTPUT.chomp
       Dependencies found:
 
@@ -89,7 +89,7 @@ class ConsoleFormatAdapterTest < Minitest::Test
       ]
     }
 
-    result = @adapter.format(graph_data)
+    result = RailsDependencyExplorer::Output::ConsoleFormatAdapter.format(graph_data)
 
     assert_includes result, "Dependencies found:"
     assert_includes result, "Classes: UserService, UserRepository, EmailService, Logger, User"

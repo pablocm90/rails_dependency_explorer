@@ -12,18 +12,27 @@ module RailsDependencyExplorer
 
       def parse_format_option
         format_index = @args.index("--format")
-
-        # Default format if no --format option provided
         return "graph" if format_index.nil?
 
-        # Check if format value is provided
+        format = extract_format_value(format_index)
+        return format if format.nil?
+
+        validate_format(format)
+      end
+
+      private
+
+      def extract_format_value(format_index)
         if format_index + 1 >= @args.length
           puts "Error: --format option requires a format value"
           puts "Supported formats: dot, json, html, graph"
           return nil
         end
 
-        format = @args[format_index + 1]
+        @args[format_index + 1]
+      end
+
+      def validate_format(format)
         valid_formats = ["dot", "json", "html", "graph"]
 
         unless valid_formats.include?(format)
@@ -34,6 +43,8 @@ module RailsDependencyExplorer
 
         format
       end
+
+      public
 
       def parse_output_option
         output_index = @args.index("--output")

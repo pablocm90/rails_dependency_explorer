@@ -8,18 +8,24 @@ module RailsDependencyExplorer
       # @return [Hash] Adjacency list where keys are class names and values are arrays of dependent class names
       def self.build_adjacency_list(dependency_data)
         graph = Hash.new { |h, k| h[k] = [] }
+        populate_graph_from_dependencies(dependency_data, graph)
+        graph
+      end
 
+      private
+
+      def self.populate_graph_from_dependencies(dependency_data, graph)
         dependency_data.each do |class_name, dependencies|
           dependencies.each do |dep|
-            if dep.is_a?(Hash)
-              dep.each do |constant, methods|
-                graph[class_name] << constant unless graph[class_name].include?(constant)
-              end
-            end
+            add_hash_dependencies_to_graph(class_name, dep, graph) if dep.is_a?(Hash)
           end
         end
+      end
 
-        graph
+      def self.add_hash_dependencies_to_graph(class_name, dep, graph)
+        dep.each do |constant, methods|
+          graph[class_name] << constant unless graph[class_name].include?(constant)
+        end
       end
     end
   end
