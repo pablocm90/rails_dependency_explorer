@@ -35,7 +35,7 @@ class CommandTest < Minitest::Test
     assert_includes output, "Options:"
     assert_includes output, "--help"
     assert_includes output, "--version"
-    
+
     # Should exit with success code for help display
     assert_equal 0, exit_code
   end
@@ -54,7 +54,7 @@ class CommandTest < Minitest::Test
     assert_includes output, "rails_dependency_explorer"
     assert_includes output, "analyze"
     assert_includes output, "Options:"
-    
+
     assert_equal 0, exit_code
   end
 

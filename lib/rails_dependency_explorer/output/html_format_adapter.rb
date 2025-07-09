@@ -44,7 +44,7 @@ module RailsDependencyExplorer
         dependency_data.each do |class_name, dependencies|
           html += "<div class='dependency'>\n"
           html += "  <span class='class-name'>#{class_name}</span>\n"
-          
+
           if dependencies.empty?
             html += "  <div class='dependency-list'>No dependencies</div>\n"
           else
