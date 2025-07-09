@@ -25,7 +25,7 @@ module RailsDependencyExplorer
 
         unless valid_formats.include?(format)
           puts "Error: Invalid format '#{format}'"
-          puts "Supported formats: #{valid_formats.join(', ')}"
+          puts "Supported formats: #{valid_formats.join(", ")}"
           return nil
         end
 

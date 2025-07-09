@@ -54,10 +54,10 @@ module RailsDependencyExplorer
       end
 
       def format_statistics(stats)
-        "\n\nStatistics:\n" +
-        "  Total Classes: #{stats[:total_classes]}\n" +
-        "  Total Dependencies: #{stats[:total_dependencies]}\n" +
-        "  Most Used Dependency: #{stats[:most_used_dependency]}\n"
+        "\n\nStatistics:\n" \
+          "  Total Classes: #{stats[:total_classes]}\n" \
+          "  Total Dependencies: #{stats[:total_dependencies]}\n" \
+          "  Most Used Dependency: #{stats[:most_used_dependency]}\n"
       end
 
       def format_circular_dependencies(cycles)
@@ -66,7 +66,7 @@ module RailsDependencyExplorer
           output += "  None detected\n"
         else
           cycles.each do |cycle|
-            output += "  #{cycle.join(' -> ')}\n"
+            output += "  #{cycle.join(" -> ")}\n"
           end
         end
         output

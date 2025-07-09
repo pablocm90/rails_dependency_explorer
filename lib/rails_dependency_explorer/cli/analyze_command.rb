@@ -50,19 +50,17 @@ module RailsDependencyExplorer
       end
 
       def perform_file_analysis(file_path, format, output_file)
-        begin
-          ruby_code = File.read(file_path)
-          explorer = Analysis::DependencyExplorer.new
-          result = explorer.analyze_code(ruby_code)
+        ruby_code = File.read(file_path)
+        explorer = Analysis::DependencyExplorer.new
+        result = explorer.analyze_code(ruby_code)
 
-          output_content = @output_writer.format_output(result, format, build_output_options)
-          @output_writer.write_output(output_content, output_file)
+        output_content = @output_writer.format_output(result, format, build_output_options)
+        @output_writer.write_output(output_content, output_file)
 
-          0
-        rescue => e
-          puts "Error analyzing file: #{e.message}"
-          1
-        end
+        0
+      rescue => e
+        puts "Error analyzing file: #{e.message}"
+        1
       end
 
       def analyze_directory

@@ -7,12 +7,12 @@ module RailsDependencyExplorer
       def test_build_adjacency_list_with_hash_dependencies
         dependency_data = {
           "UserService" => [
-            { "User" => ["find", "create"] },
-            { "Database" => ["connect"] }
+            {"User" => ["find", "create"]},
+            {"Database" => ["connect"]}
           ],
           "OrderService" => [
-            { "Order" => ["save"] },
-            { "User" => ["find"] }
+            {"Order" => ["save"]},
+            {"User" => ["find"]}
           ]
         }
 
@@ -29,8 +29,8 @@ module RailsDependencyExplorer
       def test_build_adjacency_list_avoids_duplicates
         dependency_data = {
           "TestClass" => [
-            { "Helper" => ["method1"] },
-            { "Helper" => ["method2"] }
+            {"Helper" => ["method1"]},
+            {"Helper" => ["method2"]}
           ]
         }
 
@@ -54,7 +54,7 @@ module RailsDependencyExplorer
       def test_build_adjacency_list_ignores_non_hash_dependencies
         dependency_data = {
           "TestClass" => [
-            { "ValidDep" => ["method"] },
+            {"ValidDep" => ["method"]},
             "InvalidDep",
             nil
           ]
