@@ -420,7 +420,7 @@ class DependencyExplorerTest < Minitest::Test
     concerns_dir = File.join(models_dir, "concerns")
     services_dir = File.join(temp_dir, "services")
     FileUtils.mkdir_p([models_dir, concerns_dir, services_dir])
-    { models: models_dir, concerns: concerns_dir, services: services_dir }
+    {models: models_dir, concerns: concerns_dir, services: services_dir}
   end
 
   def create_user_file(models_dir)

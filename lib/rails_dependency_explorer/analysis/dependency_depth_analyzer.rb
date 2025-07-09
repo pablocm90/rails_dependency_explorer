@@ -72,8 +72,6 @@ module RailsDependencyExplorer
       def add_unique_dependency(reverse_graph, neighbor, node)
         reverse_graph[neighbor] << node unless reverse_graph[neighbor].include?(node)
       end
-
-
     end
   end
 end

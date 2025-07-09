@@ -8,7 +8,7 @@ require_relative "../../lib/rails_dependency_explorer/analysis/depth_calculation
 # including memoization, depth calculation algorithms, and complex dependency trees.
 class DepthCalculationStateTest < Minitest::Test
   def test_calculates_depth_for_node_with_no_dependents
-    reverse_graph = { "A" => [] }
+    reverse_graph = {"A" => []}
     state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
 
     depth = state.calculate_node_depth("A")
@@ -17,7 +17,7 @@ class DepthCalculationStateTest < Minitest::Test
   end
 
   def test_calculates_depth_for_node_with_single_dependent
-    reverse_graph = { "A" => ["B"], "B" => [] }
+    reverse_graph = {"A" => ["B"], "B" => []}
     state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
 
     depth = state.calculate_node_depth("A")
@@ -26,7 +26,7 @@ class DepthCalculationStateTest < Minitest::Test
   end
 
   def test_calculates_depth_for_node_with_multiple_dependents
-    reverse_graph = { "A" => ["B", "C"], "B" => [], "C" => [] }
+    reverse_graph = {"A" => ["B", "C"], "B" => [], "C" => []}
     state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
 
     depth = state.calculate_node_depth("A")
@@ -35,7 +35,7 @@ class DepthCalculationStateTest < Minitest::Test
   end
 
   def test_calculates_depth_for_nested_dependencies
-    reverse_graph = { "A" => ["B"], "B" => ["C"], "C" => [] }
+    reverse_graph = {"A" => ["B"], "B" => ["C"], "C" => []}
     state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
 
     depth = state.calculate_node_depth("A")
@@ -44,7 +44,7 @@ class DepthCalculationStateTest < Minitest::Test
   end
 
   def test_handles_missing_node_in_reverse_graph
-    reverse_graph = { "A" => [] }
+    reverse_graph = {"A" => []}
     state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
 
     depth = state.calculate_node_depth("B")
@@ -53,7 +53,7 @@ class DepthCalculationStateTest < Minitest::Test
   end
 
   def test_memoizes_calculated_depths
-    reverse_graph = { "A" => ["B"], "B" => [] }
+    reverse_graph = {"A" => ["B"], "B" => []}
     state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
 
     # Calculate depth twice

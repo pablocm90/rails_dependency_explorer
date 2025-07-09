@@ -42,9 +42,9 @@ class DfsStateTest < Minitest::Test
     @state.mark_node_as_visited("A")
     @state.mark_node_as_visited("B")
     @state.mark_node_as_visited("C")
-    
+
     @state.extract_cycle("B")
-    
+
     expected_cycle = ["B", "C", "B"]
     assert_equal [expected_cycle], @state.cycles
   end
@@ -52,36 +52,36 @@ class DfsStateTest < Minitest::Test
   def test_extract_cycle_handles_missing_neighbor
     @state.mark_node_as_visited("A")
     @state.mark_node_as_visited("B")
-    
+
     @state.extract_cycle("C")
-    
+
     assert_empty @state.cycles
   end
 
   def test_extract_cycle_avoids_duplicate_cycles
     @state.mark_node_as_visited("A")
     @state.mark_node_as_visited("B")
-    
+
     @state.extract_cycle("A")
     @state.extract_cycle("A")
-    
+
     expected_cycle = ["A", "B", "A"]
     assert_equal [expected_cycle], @state.cycles
   end
 
   def test_node_visited_returns_correct_status
     refute @state.node_visited?("A")
-    
+
     @state.mark_node_as_visited("A")
     assert @state.node_visited?("A")
   end
 
   def test_node_in_recursion_stack_returns_correct_status
     refute @state.node_in_recursion_stack?("A")
-    
+
     @state.mark_node_as_visited("A")
     assert @state.node_in_recursion_stack?("A")
-    
+
     @state.unmark_node("A")
     refute @state.node_in_recursion_stack?("A")
   end

@@ -166,11 +166,10 @@ class AnalyzeCommandTest < Minitest::Test
   end
 
   def execute_command_with_capture(command)
-    output = capture_io do
+    capture_io do
       result = command.execute
       yield result if block_given?
     end
-    output
   end
 
   def capture_io
