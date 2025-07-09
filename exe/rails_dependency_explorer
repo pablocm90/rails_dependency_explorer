@@ -1,3 +1,8 @@
 #!/usr/bin/env ruby
 
 require "rails_dependency_explorer"
+
+# Run the CLI command with command line arguments
+cli = RailsDependencyExplorer::CLI::Command.new(ARGV)
+exit_code = cli.run
+exit(exit_code)

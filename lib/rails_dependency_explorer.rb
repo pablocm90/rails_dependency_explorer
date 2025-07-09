@@ -12,6 +12,7 @@ require_relative "rails_dependency_explorer/parsing/ast_visitor"
 require_relative "rails_dependency_explorer/parsing/dependency_accumulator"
 require_relative "rails_dependency_explorer/parsing/node_handler_registry"
 require_relative "rails_dependency_explorer/output/dependency_visualizer"
+require_relative "rails_dependency_explorer/cli/command"
 
 module RailsDependencyExplorer
   class Error < StandardError; end
