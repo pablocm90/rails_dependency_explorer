@@ -4,6 +4,9 @@ require "json"
 
 module RailsDependencyExplorer
   module Output
+    # Formats dependency analysis results into JSON format for programmatic consumption.
+    # Converts dependency data into structured JSON with optional statistics,
+    # suitable for API responses, data exchange, and further processing.
     class JsonFormatAdapter
       def format(dependency_data, statistics = nil)
         json_data = {

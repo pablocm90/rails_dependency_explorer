@@ -6,6 +6,9 @@ require_relative "depth_calculation_state"
 
 module RailsDependencyExplorer
   module Analysis
+    # Calculates the dependency depth for each class in a Rails application.
+    # Depth represents how many layers of dependencies a class has, helping identify
+    # classes that are deeply nested in the dependency hierarchy.
     class DependencyDepthAnalyzer
       def initialize(dependency_data)
         @dependency_data = dependency_data
@@ -15,15 +18,17 @@ module RailsDependencyExplorer
         graph = build_adjacency_list
         reverse_graph = build_reverse_adjacency_list(graph)
         all_nodes = extract_all_nodes(graph)
+        calculate_depths_for_nodes(reverse_graph, all_nodes)
+      end
 
-        # Calculate depth for each node using state object
+      private
+
+      def calculate_depths_for_nodes(reverse_graph, all_nodes)
         state = DepthCalculationState.new(reverse_graph)
         all_nodes.each_with_object({}) do |node, depths|
           depths[node] = state.calculate_node_depth(node)
         end
       end
-
-      private
 
       def build_adjacency_list
         GraphBuilder.build_adjacency_list(@dependency_data)

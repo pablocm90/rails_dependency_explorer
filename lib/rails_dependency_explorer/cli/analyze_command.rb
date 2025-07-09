@@ -4,6 +4,9 @@ require_relative "../analysis/dependency_explorer"
 
 module RailsDependencyExplorer
   module CLI
+    # Handles the 'analyze' command for the Rails dependency explorer CLI.
+    # Processes command-line arguments, performs dependency analysis on files or directories,
+    # and coordinates output formatting and writing through the OutputWriter.
     class AnalyzeCommand
       def initialize(parser, output_writer)
         @parser = parser

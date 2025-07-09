@@ -4,6 +4,9 @@ require "set"
 
 module RailsDependencyExplorer
   module Output
+    # Transforms dependency analysis results into graph data structures.
+    # Converts raw dependency information into nodes and edges format suitable
+    # for visualization libraries and graph-based analysis tools.
     class DependencyGraphAdapter
       def to_graph(dependency_data)
         nodes = extract_nodes(dependency_data)

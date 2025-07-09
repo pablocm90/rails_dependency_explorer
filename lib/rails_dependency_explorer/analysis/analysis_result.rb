@@ -9,6 +9,9 @@ require_relative "dependency_statistics_calculator"
 
 module RailsDependencyExplorer
   module Analysis
+    # Coordinates dependency analysis results and provides access to various analysis components.
+    # Acts as a facade for dependency exploration, circular dependency detection, depth analysis,
+    # and statistics calculation. Delegates visualization and output formatting to specialized classes.
     class AnalysisResult
       extend Forwardable
 

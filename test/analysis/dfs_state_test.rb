@@ -4,6 +4,8 @@ require "minitest/autorun"
 require_relative "../test_helper"
 require_relative "../../lib/rails_dependency_explorer/analysis/dfs_state"
 
+# Tests for DfsState parameter object used in circular dependency detection,
+# including state management, cycle extraction, and node tracking functionality.
 class DfsStateTest < Minitest::Test
   def setup
     @state = RailsDependencyExplorer::Analysis::DfsState.new

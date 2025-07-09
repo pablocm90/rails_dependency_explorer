@@ -4,6 +4,9 @@ require_relative "../version"
 
 module RailsDependencyExplorer
   module CLI
+    # Displays help information for the Rails dependency explorer CLI.
+    # Provides formatted usage instructions, available commands, options,
+    # and examples to guide users in using the tool effectively.
     class HelpDisplay
       def display_help
         puts <<~HELP

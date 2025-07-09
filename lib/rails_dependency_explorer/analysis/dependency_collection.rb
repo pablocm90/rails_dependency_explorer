@@ -2,6 +2,9 @@
 
 module RailsDependencyExplorer
   module Analysis
+    # Collects and manages dependency relationships between classes and constants.
+    # Provides methods to add method calls, merge hash dependencies, and convert
+    # the collected data into various formats for analysis and visualization.
     class DependencyCollection
       def initialize
         @dependencies = {}

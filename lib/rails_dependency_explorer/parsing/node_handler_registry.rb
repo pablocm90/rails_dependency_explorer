@@ -2,6 +2,9 @@
 
 module RailsDependencyExplorer
   module Parsing
+    # Registry for AST node handlers used during dependency parsing.
+    # Manages registration and dispatch of handlers for different AST node types,
+    # enabling extensible and modular parsing of Ruby syntax elements.
     class NodeHandlerRegistry
       attr_reader :handlers
 

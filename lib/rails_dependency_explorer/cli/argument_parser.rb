@@ -2,6 +2,9 @@
 
 module RailsDependencyExplorer
   module CLI
+    # Parses command-line arguments for the Rails dependency explorer.
+    # Extracts format options, output file paths, directory paths, and other
+    # command-line parameters, providing structured access to user input.
     class ArgumentParser
       def initialize(args)
         @args = args

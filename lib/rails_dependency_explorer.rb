@@ -15,5 +15,8 @@ require_relative "rails_dependency_explorer/output/dependency_visualizer"
 require_relative "rails_dependency_explorer/cli/command"
 
 module RailsDependencyExplorer
+  # Base error class for Rails dependency explorer exceptions.
+  # Provides a common ancestor for all custom exceptions raised by the gem,
+  # enabling consistent error handling and categorization.
   class Error < StandardError; end
 end

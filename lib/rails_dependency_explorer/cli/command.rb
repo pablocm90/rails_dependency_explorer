@@ -7,6 +7,9 @@ require_relative "help_display"
 
 module RailsDependencyExplorer
   module CLI
+    # Main command dispatcher for the Rails dependency explorer CLI.
+    # Routes command-line arguments to appropriate command handlers (analyze, help)
+    # and manages the overall CLI application flow and error handling.
     class Command
       def initialize(args)
         @args = args

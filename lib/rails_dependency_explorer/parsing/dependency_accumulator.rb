@@ -4,6 +4,9 @@ require_relative "../analysis/dependency_collection"
 
 module RailsDependencyExplorer
   module Parsing
+    # Accumulates dependency information during AST traversal.
+    # Collects method calls, constant references, and other dependency data
+    # from AST visitors and organizes them for further analysis.
     class DependencyAccumulator
       attr_reader :collection
 

@@ -2,6 +2,9 @@
 
 module RailsDependencyExplorer
   module Analysis
+    # Encapsulates state for dependency depth calculation with memoization.
+    # Manages reverse dependency graph and cached depth calculations to efficiently
+    # compute how deeply nested each class is in the dependency hierarchy.
     class DepthCalculationState
       attr_reader :reverse_graph, :memo
 

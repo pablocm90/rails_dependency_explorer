@@ -4,6 +4,8 @@ require "minitest/autorun"
 require_relative "../test_helper"
 require_relative "../../lib/rails_dependency_explorer/analysis/depth_calculation_state"
 
+# Tests for DepthCalculationState parameter object used in dependency depth analysis,
+# including memoization, depth calculation algorithms, and complex dependency trees.
 class DepthCalculationStateTest < Minitest::Test
   def test_calculates_depth_for_node_with_no_dependents
     reverse_graph = { "A" => [] }

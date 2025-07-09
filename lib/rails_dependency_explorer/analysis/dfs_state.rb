@@ -4,6 +4,9 @@ require "set"
 
 module RailsDependencyExplorer
   module Analysis
+    # Encapsulates state for depth-first search traversal during circular dependency detection.
+    # Manages visited nodes, recursion stack, current path, and detected cycles to eliminate
+    # parameter passing between DFS methods and improve code organization.
     class DfsState
       attr_reader :visited, :rec_stack, :path, :cycles
 

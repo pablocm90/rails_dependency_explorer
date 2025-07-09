@@ -4,6 +4,9 @@ require_relative "node_handler_registry"
 
 module RailsDependencyExplorer
   module Parsing
+    # Visits Abstract Syntax Tree nodes to extract dependency information.
+    # Traverses Ruby AST nodes to identify constant references, method calls,
+    # and other dependency patterns, using a registry-based handler system.
     class ASTVisitor
       attr_reader :registry
 
@@ -70,7 +73,7 @@ module RailsDependencyExplorer
         {const_name => [method_name]}
       end
 
-      def extract_chained_constant_call(receiver, node)
+      def extract_chained_constant_call(receiver)
         # Handle chained calls like GameState.current.update - only track first method
         const_name = receiver.children[0].children[1].to_s
         method_name = receiver.children[1].to_s

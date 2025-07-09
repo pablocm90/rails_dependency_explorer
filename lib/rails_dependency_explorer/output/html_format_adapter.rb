@@ -2,6 +2,9 @@
 
 module RailsDependencyExplorer
   module Output
+    # Formats dependency analysis results into HTML format for web display.
+    # Generates structured HTML with embedded CSS for presenting dependency information
+    # in a web browser with proper formatting and navigation.
     class HtmlFormatAdapter
       def format(dependency_data, statistics = nil)
         dependencies_html = build_dependencies_html(dependency_data)

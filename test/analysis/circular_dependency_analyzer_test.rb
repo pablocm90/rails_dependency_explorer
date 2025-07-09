@@ -3,6 +3,8 @@
 require "minitest/autorun"
 require_relative "../test_helper"
 
+# Tests for CircularDependencyAnalyzer including cycle detection algorithms,
+# DFS traversal, and various circular dependency scenarios.
 class CircularDependencyAnalyzerTest < Minitest::Test
   def test_finds_simple_circular_dependency
     dependency_data = {

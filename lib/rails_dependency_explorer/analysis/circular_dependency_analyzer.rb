@@ -6,27 +6,29 @@ require_relative "dfs_state"
 
 module RailsDependencyExplorer
   module Analysis
+    # Detects circular dependencies in Rails applications using depth-first search algorithm.
+    # Analyzes dependency graphs to identify cycles where classes depend on each other directly
+    # or indirectly, which can indicate architectural problems or potential runtime issues.
     class CircularDependencyAnalyzer
       def initialize(dependency_data)
         @dependency_data = dependency_data
       end
 
       def find_cycles
-        # Build adjacency list from dependency data
         graph = build_adjacency_list
-
-        # Find cycles using DFS with state object
         state = DfsState.new
-
-        graph.keys.each do |node|
-          next if state.node_visited?(node)
-          find_cycles_dfs(node, graph, state)
-        end
-
+        traverse_graph_for_cycles(graph, state)
         state.cycles
       end
 
       private
+
+      def traverse_graph_for_cycles(graph, state)
+        graph.keys.each do |node|
+          next if state.node_visited?(node)
+          find_cycles_dfs(node, graph, state)
+        end
+      end
 
       def build_adjacency_list
         GraphBuilder.build_adjacency_list(@dependency_data)

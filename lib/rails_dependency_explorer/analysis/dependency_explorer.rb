@@ -5,6 +5,9 @@ require_relative "analysis_result"
 
 module RailsDependencyExplorer
   module Analysis
+    # Main entry point for analyzing Ruby code dependencies in Rails applications.
+    # Scans directories and files to extract class dependencies, method calls, and
+    # constant references, building a comprehensive dependency graph.
     class DependencyExplorer
       def analyze_code(ruby_code)
         dependency_data = parse_ruby_code(ruby_code)
@@ -24,18 +27,19 @@ module RailsDependencyExplorer
 
       def analyze_directory(directory_path, pattern: "*.rb")
         ruby_files = Dir.glob(File.join(directory_path, "**", pattern))
-        files_hash = {}
-
-        ruby_files.each do |file_path|
-          filename = File.basename(file_path)
-          ruby_code = File.read(file_path)
-          files_hash[filename] = ruby_code
-        end
-
+        files_hash = build_files_hash(ruby_files)
         analyze_files(files_hash)
       end
 
       private
+
+      def build_files_hash(ruby_files)
+        ruby_files.each_with_object({}) do |file_path, files_hash|
+          filename = File.basename(file_path)
+          ruby_code = File.read(file_path)
+          files_hash[filename] = ruby_code
+        end
+      end
 
       def parse_ruby_code(ruby_code)
         parser = Parsing::DependencyParser.new(ruby_code)

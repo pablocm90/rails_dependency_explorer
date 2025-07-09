@@ -3,6 +3,8 @@
 require "minitest/autorun"
 require_relative "../test_helper"
 
+# Tests for AnalysisResult class functionality including delegation,
+# visualization coordination, and integration with various analysis components.
 class AnalysisResultTest < Minitest::Test
   def test_analysis_result_converts_single_dependency_to_graph
     dependency_data = {"Player" => [{"Enemy" => ["health"]}]}

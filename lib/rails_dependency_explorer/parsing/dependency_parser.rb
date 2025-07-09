@@ -6,6 +6,9 @@ require_relative "ast_visitor"
 
 module RailsDependencyExplorer
   module Parsing
+    # Main parser for extracting dependencies from Ruby source code.
+    # Coordinates AST parsing, class detection, and dependency extraction
+    # to build comprehensive dependency information from Ruby files.
     class DependencyParser
       def initialize(ruby_code)
         @ruby_code = ruby_code

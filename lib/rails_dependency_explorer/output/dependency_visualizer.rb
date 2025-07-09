@@ -9,6 +9,9 @@ require_relative "console_format_adapter"
 
 module RailsDependencyExplorer
   module Output
+    # Main visualization coordinator for dependency analysis results.
+    # Orchestrates the transformation of analysis data into various output formats
+    # through specialized adapters, supporting JSON, HTML, DOT, and other formats.
     class DependencyVisualizer
       def to_graph(dependency_data)
         graph_adapter.to_graph(dependency_data)
