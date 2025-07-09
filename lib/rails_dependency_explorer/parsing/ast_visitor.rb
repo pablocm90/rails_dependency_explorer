@@ -45,18 +45,36 @@ module RailsDependencyExplorer
       def visit_send(node)
         receiver = node.children[0]
 
-        if receiver&.type == :const
-          const_name = receiver.children[1].to_s
-          method_name = node.children[1].to_s
-          {const_name => [method_name]}
-        elsif receiver&.type == :send && receiver.children[0]&.type == :const
-          # Handle chained calls like GameState.current.update - only track first method
-          const_name = receiver.children[0].children[1].to_s
-          method_name = receiver.children[1].to_s
-          {const_name => [method_name]}
+        if direct_constant_call?(receiver)
+          extract_direct_constant_call(receiver, node)
+        elsif chained_constant_call?(receiver)
+          extract_chained_constant_call(receiver, node)
         else
           visit_children(node)
         end
+      end
+
+      private
+
+      def direct_constant_call?(receiver)
+        receiver&.type == :const
+      end
+
+      def chained_constant_call?(receiver)
+        receiver&.type == :send && receiver.children[0]&.type == :const
+      end
+
+      def extract_direct_constant_call(receiver, node)
+        const_name = receiver.children[1].to_s
+        method_name = node.children[1].to_s
+        {const_name => [method_name]}
+      end
+
+      def extract_chained_constant_call(receiver, node)
+        # Handle chained calls like GameState.current.update - only track first method
+        const_name = receiver.children[0].children[1].to_s
+        method_name = receiver.children[1].to_s
+        {const_name => [method_name]}
       end
 
       def visit_children(node)

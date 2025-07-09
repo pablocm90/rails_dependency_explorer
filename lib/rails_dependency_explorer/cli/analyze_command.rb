@@ -23,31 +23,38 @@ module RailsDependencyExplorer
 
       def analyze_file
         file_path = @parser.get_file_path
+        return 1 unless validate_file_path(file_path)
+
+        format = @parser.parse_format_option
+        return 1 if format.nil?
+
+        output_file = @parser.parse_output_option
+        return 1 if output_file == :error
+
+        perform_file_analysis(file_path, format, output_file)
+      end
+
+      def validate_file_path(file_path)
         if file_path.nil?
           puts "Error: analyze command requires a file path"
           puts "Usage: rails_dependency_explorer analyze <path>"
-          return 1
+          return false
         end
 
         unless File.exist?(file_path)
           puts "Error: File not found: #{file_path}"
-          return 1
+          return false
         end
 
-        # Parse format option
-        format = @parser.parse_format_option
-        return 1 if format.nil?
+        true
+      end
 
-        # Parse output option
-        output_file = @parser.parse_output_option
-        return 1 if output_file == :error
-
+      def perform_file_analysis(file_path, format, output_file)
         begin
           ruby_code = File.read(file_path)
           explorer = Analysis::DependencyExplorer.new
           result = explorer.analyze_code(ruby_code)
 
-          # Output in specified format
           output_content = @output_writer.format_output(result, format, build_output_options)
           @output_writer.write_output(output_content, output_file)
 
