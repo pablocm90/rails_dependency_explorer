@@ -77,6 +77,21 @@ class AnalysisResultTest < Minitest::Test
     assert_equal expected_cycles, cycles
   end
 
+  def test_analysis_result_categorizes_rails_components
+    dependency_data = {
+      "User" => [{"ApplicationRecord" => [[]]}],
+      "UsersController" => [{"ApplicationController" => [[]]}],
+      "UserService" => [{"Logger" => ["info"]}]
+    }
+    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
+    components = result.rails_components
+
+    assert_includes components[:models], "User"
+    assert_includes components[:controllers], "UsersController"
+    assert_includes components[:services], "UserService"
+    assert_includes components[:other], "Logger"
+  end
+
   def test_analysis_result_handles_no_circular_dependencies
     dependency_data = {
       "Player" => [{"Enemy" => ["take_damage"]}],

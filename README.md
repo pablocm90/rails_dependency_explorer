@@ -1,8 +1,15 @@
 # RailsDependencyExplorer
 
-TODO: Delete this and the text below, and describe your gem
+A Ruby gem for analyzing and visualizing dependencies in Rails applications. Extract class dependencies, method calls, and constant references to understand your Rails application's structure and identify potential issues like circular dependencies.
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/rails_dependency_explorer`. To experiment with that code, run `bin/console` for an interactive prompt.
+## Features
+
+- **Dependency Analysis**: Parse Ruby code to extract class dependencies and method calls
+- **Rails Component Detection**: Automatically categorize classes as models, controllers, services, or other components
+- **Multiple Output Formats**: Export analysis results as DOT graphs, JSON, HTML, CSV, or console output
+- **Circular Dependency Detection**: Identify and report circular dependencies in your codebase
+- **Dependency Statistics**: Calculate metrics like dependency counts and depth analysis
+- **Command Line Interface**: Easy-to-use CLI for analyzing Rails applications
 
 ## Installation
 
@@ -22,7 +29,53 @@ gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
 
 ## Usage
 
-TODO: Write usage instructions here
+### Programmatic API
+
+```ruby
+require 'rails_dependency_explorer'
+
+# Analyze a single Ruby file
+explorer = RailsDependencyExplorer::Analysis::DependencyExplorer.new
+result = explorer.analyze_code(ruby_code)
+
+# Get dependency statistics
+puts result.statistics
+
+# Detect circular dependencies
+puts result.circular_dependencies
+
+# Categorize Rails components
+components = result.rails_components
+puts "Models: #{components[:models]}"
+puts "Controllers: #{components[:controllers]}"
+puts "Services: #{components[:services]}"
+
+# Export to different formats
+puts result.to_dot      # DOT graph format
+puts result.to_json     # JSON format
+puts result.to_html     # HTML format
+puts result.to_csv      # CSV format
+puts result.to_console  # Console output
+```
+
+### Command Line Interface
+
+```bash
+# Analyze current directory
+rails_dependency_explorer analyze
+
+# Analyze specific directory
+rails_dependency_explorer analyze /path/to/rails/app
+
+# Export to specific format
+rails_dependency_explorer analyze --format json
+rails_dependency_explorer analyze --format dot
+rails_dependency_explorer analyze --format html
+rails_dependency_explorer analyze --format csv
+
+# Save to file
+rails_dependency_explorer analyze --output dependencies.json
+```
 
 ## Development
 
