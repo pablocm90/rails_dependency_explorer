@@ -28,7 +28,7 @@ module RailsDependencyExplorer
         file_path = @parser.get_file_path
         return 1 unless validate_file_path(file_path)
 
-        parse_result = parse_directory_options_options
+        parse_result = parse_directory_options
         exit_code = parse_result[:exit_code]
         return exit_code if exit_code
 
