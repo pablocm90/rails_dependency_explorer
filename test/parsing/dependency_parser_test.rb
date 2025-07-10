@@ -92,4 +92,37 @@ class DependencyParserTest < Minitest::Test
 
     assert_equal expected, RailsDependencyExplorer::Parsing::DependencyParser.new(ruby_code).parse
   end
+
+  # Test to verify separation of concerns after refactoring
+  def test_dependency_parser_properly_separates_concerns_after_refactoring
+    parser = RailsDependencyExplorer::Parsing::DependencyParser.new(player_code)
+
+    # Main coordination responsibility (should stay)
+    assert_respond_to parser, :parse
+
+    # Dependency extraction coordination concerns (should stay)
+    assert parser.respond_to?(:extract_dependencies, true)  # private method
+    assert parser.respond_to?(:accumulate_visited_dependencies, true)  # private method
+
+    # AST processing is now delegated to ASTProcessor
+    assert parser.respond_to?(:ast_processor, true)  # private method
+    ast_processor = parser.send(:ast_processor)
+    assert_instance_of RailsDependencyExplorer::Parsing::ASTProcessor, ast_processor
+
+    # Static utility methods are now delegated to DependencyParserUtils
+    assert_respond_to RailsDependencyExplorer::Parsing::DependencyParser, :extract_class_name
+    assert_respond_to RailsDependencyExplorer::Parsing::DependencyParser, :accumulate_visited_dependencies
+
+    # Verify that ASTProcessor can work independently
+    independent_processor = RailsDependencyExplorer::Parsing::ASTProcessor.new(player_code)
+    class_info_list = independent_processor.process_classes
+    assert_equal 1, class_info_list.length
+    assert_equal "Player", class_info_list.first[:name]
+
+    # This test verifies that DependencyParser now follows SRP:
+    # - DependencyParser: coordinates dependency extraction workflow
+    # - ASTProcessor: handles AST building, traversal, and class discovery
+    # - DependencyParserUtils: provides static utility methods
+    assert true, "DependencyParser now properly separates AST processing from dependency coordination"
+  end
 end

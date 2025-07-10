@@ -1,31 +1,29 @@
 # frozen_string_literal: true
 
-require "parser/current"
+require_relative "ast_processor"
+require_relative "dependency_parser_utils"
 require_relative "dependency_accumulator"
 require_relative "ast_visitor"
 
 module RailsDependencyExplorer
   module Parsing
     # Main parser for extracting dependencies from Ruby source code.
-    # Coordinates AST parsing, class detection, and dependency extraction
-    # to build comprehensive dependency information from Ruby files.
+    # Coordinates dependency extraction workflow by delegating AST processing
+    # to specialized classes and focusing on dependency coordination logic.
     class DependencyParser
       def initialize(ruby_code)
         @ruby_code = ruby_code
       end
 
       def parse
-        ast = build_ast
-        return {} unless ast
-
-        # Find all class definitions in the AST
-        class_nodes = find_class_nodes(ast)
-        return {} if class_nodes.empty?
+        class_info_list = ast_processor.process_classes
+        return {} if class_info_list.empty?
 
         # Process each class and merge results
         result = {}
-        class_nodes.each do |class_node|
-          class_name = extract_class_name(class_node)
+        class_info_list.each do |class_info|
+          class_name = class_info[:name]
+          class_node = class_info[:node]
           dependencies = extract_dependencies(class_node)
           result[class_name] = dependencies if class_name && !class_name.empty?
         end
@@ -33,54 +31,19 @@ module RailsDependencyExplorer
         result
       end
 
+      # Delegate to utility class for backward compatibility
       def self.extract_class_name(ast)
-        class_name_node = ast.children.first
-        return "" unless class_name_node&.children&.[](1)
-
-        class_name_node.children[1].to_s
+        DependencyParserUtils.extract_class_name(ast)
       end
 
       def self.accumulate_visited_dependencies(dependencies, accumulator)
-        dependencies = [dependencies] unless dependencies.is_a?(Array)
-        dependencies.flatten.each do |dep|
-          if dep.is_a?(Hash)
-            accumulator.record_hash_dependency(dep)
-          elsif dep.is_a?(String)
-            # Handle plain string constants (shouldn't happen with current logic)
-            accumulator.record_method_call(dep, [])
-          end
-        end
+        DependencyParserUtils.accumulate_visited_dependencies(dependencies, accumulator)
       end
 
       private
 
-      def find_class_nodes(node)
-        return [] unless node.respond_to?(:type)
-
-        class_nodes = []
-
-        # If this node is a class or module, add it
-        class_nodes << node if node.type == :class || node.type == :module
-
-        # Recursively search children for class and module nodes
-        if node.respond_to?(:children) && node.children
-          node.children.each do |child|
-            class_nodes.concat(find_class_nodes(child))
-          end
-        end
-
-        class_nodes
-      end
-
-      def build_ast
-        parser = Parser::CurrentRuby
-        parser.parse(@ruby_code)
-      rescue Parser::SyntaxError
-        nil
-      end
-
-      def extract_class_name(ast)
-        self.class.extract_class_name(ast)
+      def ast_processor
+        @ast_processor ||= ASTProcessor.new(@ruby_code)
       end
 
       def accumulate_visited_dependencies(dependencies, accumulator)
