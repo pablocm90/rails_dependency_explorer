@@ -3,8 +3,10 @@
 require "minitest/autorun"
 require "stringio"
 require_relative "../test_helper"
+require_relative "../support/file_test_helpers"
 
 class CommandTest < Minitest::Test
+  include IOTestHelpers
   def setup
     @original_stdout = $stdout
     @original_stderr = $stderr
@@ -236,20 +238,9 @@ class CommandTest < Minitest::Test
 
   # Helper method to capture stdout and stderr during command execution
   def capture_output
-    stdout = StringIO.new
-    stderr = StringIO.new
-    original_stdout = $stdout
-    original_stderr = $stderr
-
-    begin
-      $stdout = stdout
-      $stderr = stderr
-      exit_code = yield
-      [stdout.string, exit_code]
-    ensure
-      $stdout = original_stdout
-      $stderr = original_stderr
-    end
+    exit_code = nil
+    output = capture_io { exit_code = yield }
+    [output[0], exit_code]
   end
 
   # Helper method to test output formats
@@ -274,17 +265,10 @@ class CommandTest < Minitest::Test
   def assert_file_output_format(format, filename)
     with_test_file_and_output do |test_file, temp_dir|
       output_file = File.join(temp_dir, filename)
-      stdout_output, exit_code = run_cli_command_with_file_output(
-        ["analyze", test_file, "--format", format, "--output", output_file]
-      )
+      stdout_output, exit_code = run_format_analysis(test_file, format, output_file)
 
-      # Should write to file, not stdout
-      assert_equal "", stdout_output.strip
-      assert_equal 0, exit_code
-      assert File.exist?(output_file)
-
-      file_content = File.read(output_file)
-      yield file_content
+      assert_successful_file_output(stdout_output, exit_code, output_file)
+      yield File.read(output_file)
     end
   end
 
@@ -298,6 +282,14 @@ class CommandTest < Minitest::Test
 
   # Helper method to create test files in a directory
   def create_directory_test_files(temp_dir)
+    create_user_model_file(temp_dir)
+    create_user_controller_file(temp_dir)
+    create_non_ruby_file(temp_dir)
+  end
+
+  private
+
+  def create_user_model_file(temp_dir)
     user_model = File.join(temp_dir, "user_model.rb")
     File.write(user_model, <<~RUBY)
       class UserModel
@@ -306,7 +298,9 @@ class CommandTest < Minitest::Test
         end
       end
     RUBY
+  end
 
+  def create_user_controller_file(temp_dir)
     user_controller = File.join(temp_dir, "user_controller.rb")
     File.write(user_controller, <<~RUBY)
       class UserController
@@ -315,10 +309,23 @@ class CommandTest < Minitest::Test
         end
       end
     RUBY
+  end
 
-    # Create a non-Ruby file that should be ignored
+  def create_non_ruby_file(temp_dir)
     readme_file = File.join(temp_dir, "README.md")
     File.write(readme_file, "# This is not Ruby code")
+  end
+
+  def run_format_analysis(test_file, format, output_file)
+    run_cli_command_with_file_output(
+      ["analyze", test_file, "--format", format, "--output", output_file]
+    )
+  end
+
+  def assert_successful_file_output(stdout_output, exit_code, output_file)
+    assert_equal "", stdout_output.strip
+    assert_equal 0, exit_code
+    assert File.exist?(output_file)
   end
 
   # Helper method to create nested directory structure for testing
