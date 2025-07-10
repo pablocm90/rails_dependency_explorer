@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "parser/current"
+require "stringio"
 
 module RailsDependencyExplorer
   module Parsing
@@ -15,9 +16,14 @@ module RailsDependencyExplorer
 
       def build_ast
         parser = Parser::CurrentRuby
+        # Suppress parser diagnostic messages during parsing
+        original_stderr = $stderr
+        $stderr = StringIO.new
         parser.parse(@ruby_code)
       rescue Parser::SyntaxError
         nil
+      ensure
+        $stderr = original_stderr
       end
 
       def find_class_nodes(node)
