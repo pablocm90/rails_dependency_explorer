@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../analysis/dependency_explorer"
+require_relative "error_handler"
 
 module RailsDependencyExplorer
   module CLI
@@ -36,14 +37,9 @@ module RailsDependencyExplorer
       private
 
       def analyze_file
-        file_path = @parser.get_file_path
-        return 1 unless validate_file_path(file_path)
-
-        parse_result = parse_directory_options
-        exit_code = parse_result[:exit_code]
-        return exit_code if exit_code
-
-        perform_file_analysis(file_path, parse_result[:format], parse_result[:output_file])
+        coordinate_analysis(:file) do |path, format, output_file|
+          perform_file_analysis(path, format, output_file)
+        end
       end
 
       def validate_file_path(file_path)
@@ -54,17 +50,12 @@ module RailsDependencyExplorer
 
       def check_file_path_provided(file_path)
         return true unless file_path.nil?
-
-        puts "Error: analyze command requires a file path"
-        puts "Usage: rails_dependency_explorer analyze <path>"
-        false
+        ErrorHandler.handle_missing_path_error(:file)
       end
 
       def check_file_exists(file_path)
         return true if File.exist?(file_path)
-
-        puts "Error: File not found: #{file_path}"
-        false
+        ErrorHandler.handle_not_found_error(:file, file_path)
       end
 
       def perform_file_analysis(file_path, format, output_file)
@@ -72,8 +63,7 @@ module RailsDependencyExplorer
         write_analysis_output(result, format, output_file)
         0
       rescue => e
-        puts "Error analyzing file: #{e.message}"
-        1
+        ErrorHandler.handle_analysis_error("file", e)
       end
 
       def analyze_single_file(file_path)
@@ -86,14 +76,9 @@ module RailsDependencyExplorer
       end
 
       def analyze_directory
-        directory_path = @parser.get_directory_path
-        return validate_directory_path(directory_path) unless directory_path && File.directory?(directory_path)
-
-        parse_result = parse_directory_options
-        exit_code = parse_result[:exit_code]
-        return exit_code if exit_code
-
-        perform_directory_analysis(directory_path, parse_result[:format], parse_result[:output_file])
+        coordinate_analysis(:directory) do |path, format, output_file|
+          perform_directory_analysis(path, format, output_file)
+        end
       end
 
       def parse_directory_options
@@ -108,12 +93,12 @@ module RailsDependencyExplorer
 
       def validate_directory_path(directory_path)
         if directory_path.nil?
-          puts "Error: --directory option requires a directory path"
+          ErrorHandler.handle_missing_path_error(:directory)
           return 1
         end
 
         unless File.directory?(directory_path)
-          puts "Error: Directory not found: #{directory_path}"
+          ErrorHandler.handle_not_found_error(:directory, directory_path)
           1
         end
       end
@@ -123,12 +108,41 @@ module RailsDependencyExplorer
         write_analysis_output(result, format, output_file)
         0
       rescue => e
-        puts "Error analyzing directory: #{e.message}"
-        1
+        ErrorHandler.handle_analysis_error("directory", e)
       end
 
       def analyze_directory_files(directory_path)
         self.class.analyze_directory_files(directory_path)
+      end
+
+      def coordinate_analysis(analysis_type)
+        path = get_path_for_analysis_type(analysis_type)
+        return 1 unless validate_path_for_analysis_type(analysis_type, path)
+
+        parse_result = parse_directory_options
+        exit_code = parse_result[:exit_code]
+        return exit_code if exit_code
+
+        yield(path, parse_result[:format], parse_result[:output_file])
+      end
+
+      def get_path_for_analysis_type(analysis_type)
+        case analysis_type
+        when :file
+          @parser.get_file_path
+        when :directory
+          @parser.get_directory_path
+        end
+      end
+
+      def validate_path_for_analysis_type(analysis_type, path)
+        case analysis_type
+        when :file
+          validate_file_path(path)
+        when :directory
+          return validate_directory_path(path) != 1 if path && File.directory?(path)
+          validate_directory_path(path) != 1
+        end
       end
 
       def build_output_options

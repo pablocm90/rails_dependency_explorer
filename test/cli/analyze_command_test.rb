@@ -143,6 +143,47 @@ class AnalyzeCommandTest < Minitest::Test
     end
   end
 
+  def test_error_handling_consistency_between_file_and_directory_analysis
+    # Test that both file and directory analysis use consistent error handling
+    # This test will help ensure error handling extraction maintains consistency
+
+    # Test file analysis error handling
+    command = create_analyze_command(["analyze", "/nonexistent/file.rb"])
+    file_output = execute_command_with_capture(command) { |result| assert_equal 1, result }
+
+    # Test directory analysis error handling
+    command = create_analyze_command(["analyze", "--directory", "/nonexistent/dir"])
+    dir_output = execute_command_with_capture(command) { |result| assert_equal 1, result }
+
+    # Both should follow same error message pattern: "Error: " prefix
+    assert_match(/^Error: /, file_output[0])
+    assert_match(/^Error: /, dir_output[0])
+  end
+
+  def test_analysis_coordination_follows_same_pattern_for_file_and_directory
+    # Test that both file and directory analysis follow the same coordination pattern:
+    # 1. Get path, 2. Validate path, 3. Parse options, 4. Perform analysis
+    # This test ensures refactoring maintains the consistent flow
+
+    with_test_file do |file|
+      # Test successful file analysis follows expected pattern
+      command = create_analyze_command(["analyze", file.path, "--format", "json"])
+      output = execute_command_with_capture(command) do |result|
+        assert_equal 0, result  # Should succeed
+      end
+      assert_includes output[0], '"dependencies"'
+    end
+
+    with_test_directory do |dir|
+      # Test successful directory analysis follows expected pattern
+      command = create_analyze_command(["analyze", "--directory", dir, "--format", "json"])
+      output = execute_command_with_capture(command) do |result|
+        assert_equal 0, result  # Should succeed
+      end
+      assert_includes output[0], '"dependencies"'
+    end
+  end
+
   private
 
   def with_test_directory
