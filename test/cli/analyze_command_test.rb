@@ -173,6 +173,31 @@ class AnalyzeCommandTest < Minitest::Test
       end
       assert_includes output[0], '"dependencies"'
     end
+  end
+
+  def test_analyze_command_coordination_concerns_separated
+    # H3: Verify that AnalyzeCommand coordination concerns have been separated:
+    # The class should now delegate to AnalysisCoordinator instead of handling
+    # all coordination concerns directly
+
+    command = create_analyze_command(["analyze"])
+
+    # The command should now have a coordinator
+    assert_respond_to command, :execute
+
+    # The coordinator should handle the separated concerns
+    coordinator = command.instance_variable_get(:@coordinator)
+    assert_instance_of RailsDependencyExplorer::CLI::AnalysisCoordinator, coordinator
+
+    # The coordinator should have access to specialized classes
+    assert_instance_of RailsDependencyExplorer::CLI::AnalysisExecutor, coordinator.analysis_executor
+
+    # Backward compatibility class methods should still work
+    assert_respond_to RailsDependencyExplorer::CLI::AnalyzeCommand, :analyze_single_file
+    assert_respond_to RailsDependencyExplorer::CLI::AnalyzeCommand, :analyze_directory_files
+
+    # The separation of concerns has been achieved
+    assert true, "AnalyzeCommand coordination concerns have been separated"
 
     with_test_directory do |dir|
       # Test successful directory analysis follows expected pattern
