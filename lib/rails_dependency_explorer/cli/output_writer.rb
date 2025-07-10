@@ -55,13 +55,25 @@ module RailsDependencyExplorer
       end
 
       def format_statistics(stats)
+        self.class.format_statistics(stats)
+      end
+
+      def format_circular_dependencies(cycles)
+        self.class.format_circular_dependencies(cycles)
+      end
+
+      def format_dependency_depth(depths)
+        self.class.format_dependency_depth(depths)
+      end
+
+      def self.format_statistics(stats)
         "\n\nStatistics:\n" \
           "  Total Classes: #{stats[:total_classes]}\n" \
           "  Total Dependencies: #{stats[:total_dependencies]}\n" \
           "  Most Used Dependency: #{stats[:most_used_dependency]}\n"
       end
 
-      def format_circular_dependencies(cycles)
+      def self.format_circular_dependencies(cycles)
         output = "\n\nCircular Dependencies:\n"
         if cycles.empty?
           output += "  None detected\n"
@@ -73,7 +85,7 @@ module RailsDependencyExplorer
         output
       end
 
-      def format_dependency_depth(depths)
+      def self.format_dependency_depth(depths)
         output = "\n\nDependency Depth:\n"
         depths.each do |class_name, depth|
           output += "  #{class_name}: #{depth}\n"

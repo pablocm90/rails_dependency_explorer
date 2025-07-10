@@ -8,21 +8,24 @@ module RailsDependencyExplorer
     class ConsoleFormatAdapter
       def self.format(graph_data)
         nodes = graph_data[:nodes]
-        if nodes.empty?
-          return "No dependencies found."
-        end
+        return "No dependencies found." if nodes.empty?
 
+        build_output_lines(nodes, graph_data[:edges]).join("\n")
+      end
+
+      private
+
+      def self.build_output_lines(nodes, edges)
         output = []
         output << "Dependencies found:"
         output << ""
         output << "Classes: #{nodes.join(", ")}"
         output << ""
         output << "Dependencies:"
-        graph_data[:edges].each do |from, to|
+        edges.each do |from, to|
           output << "  #{from} -> #{to}"
         end
-
-        output.join("\n")
+        output
       end
     end
   end

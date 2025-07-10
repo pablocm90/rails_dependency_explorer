@@ -19,8 +19,9 @@ module RailsDependencyExplorer
         return [] unless node
         return [] if primitive_type?(node)
 
-        if @registry.registered?(node.type)
-          @registry.handle(node.type, node)
+        node_type = node.type
+        if @registry.registered?(node_type)
+          @registry.handle(node_type, node)
         else
           visit_children(node)
         end
@@ -34,14 +35,15 @@ module RailsDependencyExplorer
       end
 
       def visit_const(node)
-        if node.children[0]&.type == :const
+        node_children = node.children
+        if node_children[0]&.type == :const
           # Handle nested constants like Config::MAX_HEALTH
-          parent_const = node.children[0].children[1].to_s
-          child_const = node.children[1].to_s
+          parent_const = node_children[0].children[1].to_s
+          child_const = node_children[1].to_s
           {parent_const => [child_const]}
         else
           # Plain constant
-          node.children[1].to_s
+          node_children[1].to_s
         end
       end
 
@@ -60,23 +62,40 @@ module RailsDependencyExplorer
       private
 
       def direct_constant_call?(receiver)
-        receiver&.type == :const
+        self.class.direct_constant_call?(receiver)
       end
 
       def chained_constant_call?(receiver)
-        receiver&.type == :send && receiver.children[0]&.type == :const
+        self.class.chained_constant_call?(receiver)
       end
 
       def extract_direct_constant_call(receiver, node)
+        self.class.extract_direct_constant_call(receiver, node)
+      end
+
+      def extract_chained_constant_call(receiver)
+        self.class.extract_chained_constant_call(receiver)
+      end
+
+      def self.direct_constant_call?(receiver)
+        receiver&.type == :const
+      end
+
+      def self.chained_constant_call?(receiver)
+        receiver&.type == :send && receiver.children[0]&.type == :const
+      end
+
+      def self.extract_direct_constant_call(receiver, node)
         const_name = receiver.children[1].to_s
         method_name = node.children[1].to_s
         {const_name => [method_name]}
       end
 
-      def extract_chained_constant_call(receiver)
+      def self.extract_chained_constant_call(receiver)
         # Handle chained calls like GameState.current.update - only track first method
-        const_name = receiver.children[0].children[1].to_s
-        method_name = receiver.children[1].to_s
+        receiver_children = receiver.children
+        const_name = receiver_children[0].children[1].to_s
+        method_name = receiver_children[1].to_s
         {const_name => [method_name]}
       end
 

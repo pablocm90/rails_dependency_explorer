@@ -38,32 +38,50 @@ module RailsDependencyExplorer
       end
 
       def validate_file_path(file_path)
-        if file_path.nil?
-          puts "Error: analyze command requires a file path"
-          puts "Usage: rails_dependency_explorer analyze <path>"
-          return false
-        end
-
-        unless File.exist?(file_path)
-          puts "Error: File not found: #{file_path}"
-          return false
-        end
-
+        return false unless check_file_path_provided(file_path)
+        return false unless check_file_exists(file_path)
         true
       end
 
+      private
+
+      def check_file_path_provided(file_path)
+        return true unless file_path.nil?
+
+        puts "Error: analyze command requires a file path"
+        puts "Usage: rails_dependency_explorer analyze <path>"
+        false
+      end
+
+      def check_file_exists(file_path)
+        return true if File.exist?(file_path)
+
+        puts "Error: File not found: #{file_path}"
+        false
+      end
+
       def perform_file_analysis(file_path, format, output_file)
-        ruby_code = File.read(file_path)
-        explorer = Analysis::DependencyExplorer.new
-        result = explorer.analyze_code(ruby_code)
-
-        output_content = @output_writer.format_output(result, format, build_output_options)
-        @output_writer.write_output(output_content, output_file)
-
+        result = analyze_single_file(file_path)
+        write_analysis_output(result, format, output_file)
         0
       rescue => e
         puts "Error analyzing file: #{e.message}"
         1
+      end
+
+      def analyze_single_file(file_path)
+        self.class.analyze_single_file(file_path)
+      end
+
+      def self.analyze_single_file(file_path)
+        ruby_code = File.read(file_path)
+        explorer = Analysis::DependencyExplorer.new
+        explorer.analyze_code(ruby_code)
+      end
+
+      def write_analysis_output(result, format, output_file)
+        output_content = @output_writer.format_output(result, format, build_output_options)
+        @output_writer.write_output(output_content, output_file)
       end
 
       def analyze_directory
@@ -94,16 +112,21 @@ module RailsDependencyExplorer
       end
 
       def perform_directory_analysis(directory_path, format, output_file)
-        explorer = Analysis::DependencyExplorer.new
-        result = explorer.analyze_directory(directory_path)
-
-        output_content = @output_writer.format_output(result, format, build_output_options)
-        @output_writer.write_output(output_content, output_file)
-
+        result = analyze_directory_files(directory_path)
+        write_analysis_output(result, format, output_file)
         0
       rescue => e
         puts "Error analyzing directory: #{e.message}"
         1
+      end
+
+      def analyze_directory_files(directory_path)
+        self.class.analyze_directory_files(directory_path)
+      end
+
+      def self.analyze_directory_files(directory_path)
+        explorer = Analysis::DependencyExplorer.new
+        explorer.analyze_directory(directory_path)
       end
 
       def build_output_options

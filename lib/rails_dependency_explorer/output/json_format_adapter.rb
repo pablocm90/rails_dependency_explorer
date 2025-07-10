@@ -21,11 +21,11 @@ module RailsDependencyExplorer
       def self.build_dependencies_hash(dependency_data)
         result = {}
         dependency_data.each do |class_name, dependencies|
-          result[class_name] = []
+          class_dependencies = (result[class_name] = [])
           dependencies.each do |dep|
             if dep.is_a?(Hash)
               dep.each do |constant, _methods|
-                result[class_name] << constant unless result[class_name].include?(constant)
+                class_dependencies << constant unless class_dependencies.include?(constant)
               end
             end
           end
