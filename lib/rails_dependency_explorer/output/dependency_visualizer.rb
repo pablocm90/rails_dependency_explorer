@@ -2,6 +2,7 @@
 
 require "set"
 require_relative "dependency_graph_adapter"
+require_relative "rails_aware_graph_adapter"
 require_relative "dot_format_adapter"
 require_relative "json_format_adapter"
 require_relative "html_format_adapter"
@@ -18,8 +19,17 @@ module RailsDependencyExplorer
         graph_adapter.to_graph(dependency_data)
       end
 
+      def to_rails_graph(dependency_data)
+        rails_graph_adapter.to_graph(dependency_data)
+      end
+
       def to_dot(dependency_data)
         graph = to_graph(dependency_data)
+        dot_adapter.format(graph)
+      end
+
+      def to_rails_dot(dependency_data)
+        graph = to_rails_graph(dependency_data)
         dot_adapter.format(graph)
       end
 
@@ -44,6 +54,10 @@ module RailsDependencyExplorer
 
       def graph_adapter
         @graph_adapter ||= DependencyGraphAdapter.new
+      end
+
+      def rails_graph_adapter
+        @rails_graph_adapter ||= RailsAwareGraphAdapter.new
       end
 
       def dot_adapter

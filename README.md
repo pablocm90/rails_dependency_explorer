@@ -63,6 +63,10 @@ puts result.to_json     # JSON format
 puts result.to_html     # HTML format
 puts result.to_csv      # CSV format
 puts result.to_console  # Console output
+
+# Rails-aware visualization (shows model relationships instead of ActiveRecord methods)
+puts result.to_rails_dot    # DOT format with model relationships
+graph = result.to_rails_graph  # Graph structure with model relationships
 ```
 
 ### Command Line Interface
@@ -83,6 +87,20 @@ rails_dependency_explorer analyze --format csv
 # Save to file
 rails_dependency_explorer analyze --output dependencies.json
 ```
+
+### Visualization Modes
+
+The gem provides two visualization modes:
+
+**Standard Mode**: Shows all dependencies including ActiveRecord method calls
+- `result.to_dot` - Shows edges like `User -> ActiveRecord::belongs_to`
+- `result.to_graph` - Includes ActiveRecord method nodes
+
+**Rails-Aware Mode**: Shows actual model relationships for cleaner Rails application graphs
+- `result.to_rails_dot` - Shows edges like `User -> Account` (actual model relationships)
+- `result.to_rails_graph` - Filters out ActiveRecord method nodes, shows target models
+
+The Rails-aware mode is particularly useful for understanding the actual data relationships in your Rails application, while the standard mode shows the complete code dependency picture.
 
 ## Development
 

@@ -51,6 +51,14 @@ module RailsDependencyExplorer
         visualizer.to_csv(@dependency_data, statistics)
       end
 
+      def to_rails_graph
+        visualizer.to_rails_graph(@dependency_data)
+      end
+
+      def to_rails_dot
+        visualizer.to_rails_dot(@dependency_data)
+      end
+
       private
 
       def visualizer

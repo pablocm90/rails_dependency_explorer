@@ -39,4 +39,33 @@ class DependencyVisualizerTest < Minitest::Test
     assert_equal "Source,Target,Methods", lines.first
     assert_equal "Player,Enemy,health", lines.last
   end
+
+  def test_dependency_visualizer_provides_rails_aware_graph
+    dependency_data = {
+      "User" => [
+        {"ApplicationRecord" => [[]]},
+        {"ActiveRecord::belongs_to" => ["Account"]},
+        {"ActiveRecord::has_many" => ["Post"]}
+      ]
+    }
+
+    result = @visualizer.to_rails_graph(dependency_data)
+
+    expected_nodes = ["User", "ApplicationRecord", "Account", "Post"]
+    expected_edges = [["User", "ApplicationRecord"], ["User", "Account"], ["User", "Post"]]
+
+    assert_equal expected_nodes.sort, result[:nodes].sort
+    assert_equal expected_edges.sort, result[:edges].sort
+  end
+
+  def test_dependency_visualizer_provides_rails_aware_dot_format
+    dependency_data = {
+      "User" => [{"ActiveRecord::belongs_to" => ["Account"]}]
+    }
+
+    result = @visualizer.to_rails_dot(dependency_data)
+    expected = "digraph dependencies {\n  \"User\" -> \"Account\";\n}"
+
+    assert_equal expected, result
+  end
 end

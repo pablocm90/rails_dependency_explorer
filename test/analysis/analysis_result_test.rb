@@ -98,4 +98,33 @@ class AnalysisResultTest < Minitest::Test
 
     assert_equal [], cycles
   end
+
+  def test_analysis_result_provides_rails_aware_graph
+    dependency_data = {
+      "User" => [
+        {"ApplicationRecord" => [[]]},
+        {"ActiveRecord::belongs_to" => ["Account"]},
+        {"ActiveRecord::has_many" => ["Post"]}
+      ]
+    }
+    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
+    rails_graph = result.to_rails_graph
+
+    expected_nodes = ["User", "ApplicationRecord", "Account", "Post"]
+    expected_edges = [["User", "ApplicationRecord"], ["User", "Account"], ["User", "Post"]]
+
+    assert_equal expected_nodes.sort, rails_graph[:nodes].sort
+    assert_equal expected_edges.sort, rails_graph[:edges].sort
+  end
+
+  def test_analysis_result_provides_rails_aware_dot_format
+    dependency_data = {
+      "User" => [{"ActiveRecord::belongs_to" => ["Account"]}]
+    }
+    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
+    rails_dot = result.to_rails_dot
+
+    expected = "digraph dependencies {\n  \"User\" -> \"Account\";\n}"
+    assert_equal expected, rails_dot
+  end
 end
