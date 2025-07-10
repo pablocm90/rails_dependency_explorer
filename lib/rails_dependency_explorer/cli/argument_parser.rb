@@ -49,36 +49,9 @@ module RailsDependencyExplorer
 
       def parse_output_option
         output_index = @args.index("--output")
-
-        # No output file specified, use stdout
         return nil if output_index.nil?
 
-        # Check if output file path is provided
-        output_value_index = output_index + 1
-        if output_value_index >= @args.length
-          puts "Error: --output option requires a file path"
-          return :error
-        end
-
-        @args[output_value_index]
-      end
-
-      def has_directory_option?
-        @args.include?("--directory")
-      end
-
-      def get_directory_path
-        directory_index = @args.index("--directory")
-        return nil if directory_index.nil?
-
-        directory_value_index = directory_index + 1
-        return nil if directory_value_index >= @args.length
-        @args[directory_value_index]
-      end
-
-      def get_file_path
-        return nil if @args.length < 2
-        @args[1]
+        get_option_value(output_index, "--output", "file path")
       end
 
       def has_help_option?
@@ -94,6 +67,24 @@ module RailsDependencyExplorer
         @args[0]
       end
 
+      def get_file_path
+        return nil if @args.length < 2
+        @args[1]
+      end
+
+      def has_directory_option?
+        @args.include?("--directory")
+      end
+
+      def get_directory_path
+        directory_index = @args.index("--directory")
+        return nil if directory_index.nil?
+
+        directory_value_index = directory_index + 1
+        return nil if directory_value_index >= @args.length
+        @args[directory_value_index]
+      end
+
       def has_stats_option?
         @args.include?("--stats") || @args.include?("-s")
       end
@@ -103,8 +94,25 @@ module RailsDependencyExplorer
       end
 
       def has_depth_option?
-        @args.include?("--depth")
+        @args.include?("--depth") || @args.include?("-d")
       end
+
+      private
+
+      def get_option_value(option_index, option_name, value_description)
+        value_index = option_index + 1
+        if value_index >= @args.length
+          puts "Error: #{option_name} option requires a #{value_description}"
+          return :error
+        end
+        @args[value_index]
+      end
+
+
+
+
+
+
     end
   end
 end

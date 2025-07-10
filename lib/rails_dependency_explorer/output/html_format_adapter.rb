@@ -45,25 +45,46 @@ module RailsDependencyExplorer
 
         html = ""
         dependency_data.each do |class_name, dependencies|
-          html += "<div class='dependency'>\n"
-          html += "  <span class='class-name'>#{class_name}</span>\n"
-
-          if dependencies.empty?
-            html += "  <div class='dependency-list'>No dependencies</div>\n"
-          else
-            html += "  <div class='dependency-list'>\n"
-            unique_deps = extract_unique_dependencies(dependencies)
-            unique_deps.each do |dep|
-              html += "    <div>→ #{dep}</div>\n"
-            end
-            html += "  </div>\n"
-          end
-          html += "</div>\n"
+          html += build_class_dependency_html(class_name, dependencies)
         end
         html
       end
 
+      def build_class_dependency_html(class_name, dependencies)
+        html = "<div class='dependency'>\n"
+        html += "  <span class='class-name'>#{class_name}</span>\n"
+        html += build_dependency_list_html(dependencies)
+        html += "</div>\n"
+        html
+      end
+
+      def build_dependency_list_html(dependencies)
+        if dependencies.empty?
+          "  <div class='dependency-list'>No dependencies</div>\n"
+        else
+          build_non_empty_dependency_list_html(dependencies)
+        end
+      end
+
+      def build_non_empty_dependency_list_html(dependencies)
+        html = "  <div class='dependency-list'>\n"
+        unique_deps = extract_unique_dependencies(dependencies)
+        unique_deps.each do |dep|
+          html += "    <div>→ #{dep}</div>\n"
+        end
+        html += "  </div>\n"
+        html
+      end
+
       def build_statistics_html(statistics)
+        self.class.build_statistics_html(statistics)
+      end
+
+      def extract_unique_dependencies(dependencies)
+        self.class.extract_unique_dependencies(dependencies)
+      end
+
+      def self.build_statistics_html(statistics)
         return "<p>No statistics available.</p>" if statistics.nil?
 
         html = ""
@@ -73,7 +94,7 @@ module RailsDependencyExplorer
         html
       end
 
-      def extract_unique_dependencies(dependencies)
+      def self.extract_unique_dependencies(dependencies)
         unique_deps = Set.new
         dependencies.each do |dep|
           if dep.is_a?(Hash)

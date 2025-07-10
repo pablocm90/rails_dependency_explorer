@@ -28,13 +28,11 @@ module RailsDependencyExplorer
         file_path = @parser.get_file_path
         return 1 unless validate_file_path(file_path)
 
-        format = @parser.parse_format_option
-        return 1 if format.nil?
+        parse_result = parse_directory_options_options
+        exit_code = parse_result[:exit_code]
+        return exit_code if exit_code
 
-        output_file = @parser.parse_output_option
-        return 1 if output_file == :error
-
-        perform_file_analysis(file_path, format, output_file)
+        perform_file_analysis(file_path, parse_result[:format], parse_result[:output_file])
       end
 
       def validate_file_path(file_path)
@@ -88,16 +86,24 @@ module RailsDependencyExplorer
         directory_path = @parser.get_directory_path
         return validate_directory_path(directory_path) unless directory_path && File.directory?(directory_path)
 
-        format = @parser.parse_format_option
-        return 1 if format.nil?
+        parse_result = parse_directory_options
+        exit_code = parse_result[:exit_code]
+        return exit_code if exit_code
 
-        output_file = @parser.parse_output_option
-        return 1 if output_file == :error
-
-        perform_directory_analysis(directory_path, format, output_file)
+        perform_directory_analysis(directory_path, parse_result[:format], parse_result[:output_file])
       end
 
       private
+
+      def parse_directory_options
+        format = @parser.parse_format_option
+        return {exit_code: 1} if format.nil?
+
+        output_file = @parser.parse_output_option
+        return {exit_code: 1} if output_file == :error
+
+        {format: format, output_file: output_file, exit_code: nil}
+      end
 
       def validate_directory_path(directory_path)
         if directory_path.nil?

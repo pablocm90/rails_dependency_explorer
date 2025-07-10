@@ -19,7 +19,7 @@ module RailsDependencyExplorer
       end
 
       def run
-        return handle_help_option if @parser.has_help_option?
+        return execute_help_command if @parser.has_help_option?
         return handle_version_option if @parser.has_version_option?
 
         command = @parser.get_command
@@ -27,11 +27,6 @@ module RailsDependencyExplorer
       end
 
       private
-
-      def handle_help_option
-        @help_display.display_help
-        0
-      end
 
       def handle_version_option
         @help_display.display_version
@@ -41,15 +36,29 @@ module RailsDependencyExplorer
       def execute_command(command)
         case command
         when "analyze"
-          analyze_cmd = AnalyzeCommand.new(@parser, @output_writer)
-          analyze_cmd.execute
+          execute_analyze_command
         when nil
-          @help_display.display_help
-          0
+          execute_help_command
         else
-          display_error("Unknown command '#{command}'")
-          1
+          execute_unknown_command(command)
         end
+      end
+
+      private
+
+      def execute_analyze_command
+        analyze_cmd = AnalyzeCommand.new(@parser, @output_writer)
+        analyze_cmd.execute
+      end
+
+      def execute_help_command
+        @help_display.display_help
+        0
+      end
+
+      def execute_unknown_command(command)
+        display_error("Unknown command '#{command}'")
+        1
       end
 
       def display_error(message)

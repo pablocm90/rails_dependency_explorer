@@ -35,16 +35,30 @@ module RailsDependencyExplorer
       end
 
       def visit_const(node)
+        self.class.visit_const(node)
+      end
+
+      def primitive_type?(node)
+        self.class.primitive_type?(node)
+      end
+
+      def self.visit_const(node)
         node_children = node.children
-        if node_children[0]&.type == :const
+        first_child = node_children[0]
+        second_child_str = node_children[1].to_s
+
+        if first_child&.type == :const
           # Handle nested constants like Config::MAX_HEALTH
-          parent_const = node_children[0].children[1].to_s
-          child_const = node_children[1].to_s
-          {parent_const => [child_const]}
+          parent_const = first_child.children[1].to_s
+          {parent_const => [second_child_str]}
         else
           # Plain constant
-          node_children[1].to_s
+          second_child_str
         end
+      end
+
+      def self.primitive_type?(node)
+        node.is_a?(Symbol) || node.is_a?(String) || node.is_a?(Integer)
       end
 
       def visit_send(node)
@@ -103,9 +117,7 @@ module RailsDependencyExplorer
         node.children.map { |child| visit(child) }.flatten
       end
 
-      def primitive_type?(node)
-        node.is_a?(Symbol) || node.is_a?(String) || node.is_a?(Integer)
-      end
+
     end
   end
 end

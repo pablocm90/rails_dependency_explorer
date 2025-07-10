@@ -32,6 +32,10 @@ module RailsDependencyExplorer
       end
 
       def add_dependent_nodes(nodes, dependencies)
+        self.class.add_dependent_nodes(nodes, dependencies)
+      end
+
+      def self.add_dependent_nodes(nodes, dependencies)
         dependencies.each do |dependency_hash|
           dependency_hash.each_key { |dependent_class| nodes.add(dependent_class) }
         end
@@ -48,6 +52,10 @@ module RailsDependencyExplorer
       end
 
       def add_edges_for_class(edges, class_name, dependencies)
+        self.class.add_edges_for_class(edges, class_name, dependencies)
+      end
+
+      def self.add_edges_for_class(edges, class_name, dependencies)
         dependencies.each do |dependency_hash|
           dependency_hash.each_key { |dependent_class| edges.add([class_name, dependent_class]) }
         end

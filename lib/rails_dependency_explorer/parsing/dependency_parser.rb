@@ -61,10 +61,30 @@ module RailsDependencyExplorer
       end
 
       def extract_class_name(ast)
+        self.class.extract_class_name(ast)
+      end
+
+      def accumulate_visited_dependencies(dependencies, accumulator)
+        self.class.accumulate_visited_dependencies(dependencies, accumulator)
+      end
+
+      def self.extract_class_name(ast)
         class_name_node = ast.children.first
         return "" unless class_name_node&.children&.[](1)
 
         class_name_node.children[1].to_s
+      end
+
+      def self.accumulate_visited_dependencies(dependencies, accumulator)
+        dependencies = [dependencies] unless dependencies.is_a?(Array)
+        dependencies.flatten.each do |dep|
+          if dep.is_a?(Hash)
+            accumulator.record_hash_dependency(dep)
+          elsif dep.is_a?(String)
+            # Handle plain string constants (shouldn't happen with current logic)
+            accumulator.record_method_call(dep, [])
+          end
+        end
       end
 
       def extract_dependencies(ast)
@@ -79,17 +99,7 @@ module RailsDependencyExplorer
         accumulator.collection.to_grouped_array
       end
 
-      def accumulate_visited_dependencies(dependencies, accumulator)
-        dependencies = [dependencies] unless dependencies.is_a?(Array)
-        dependencies.flatten.each do |dep|
-          if dep.is_a?(Hash)
-            accumulator.record_hash_dependency(dep)
-          elsif dep.is_a?(String)
-            # Handle plain string constants (shouldn't happen with current logic)
-            accumulator.record_method_call(dep, [])
-          end
-        end
-      end
+
     end
   end
 end

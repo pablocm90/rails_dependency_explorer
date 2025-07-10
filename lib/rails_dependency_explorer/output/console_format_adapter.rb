@@ -16,16 +16,35 @@ module RailsDependencyExplorer
       private
 
       def self.build_output_lines(nodes, edges)
-        output = []
-        output << "Dependencies found:"
-        output << ""
+        output = build_header_lines(nodes)
+        add_dependency_lines(output, edges)
+        output
+      end
+
+      def self.build_header_lines(nodes)
+        output = build_title_section
+        add_classes_section(output, nodes)
+        add_dependencies_header(output)
+        output
+      end
+
+      def self.build_title_section
+        ["Dependencies found:", ""]
+      end
+
+      def self.add_classes_section(output, nodes)
         output << "Classes: #{nodes.join(", ")}"
         output << ""
+      end
+
+      def self.add_dependencies_header(output)
         output << "Dependencies:"
+      end
+
+      def self.add_dependency_lines(output, edges)
         edges.each do |from, to|
           output << "  #{from} -> #{to}"
         end
-        output
       end
     end
   end
