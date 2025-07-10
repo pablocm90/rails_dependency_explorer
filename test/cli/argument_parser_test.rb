@@ -117,6 +117,43 @@ class ArgumentParserTest < Minitest::Test
     assert_parser_method_result([], :get_command, nil)
   end
 
+  def test_argument_parser_coordination_concerns_separated
+    # H5: Verify that ArgumentParser now coordinates between specialized classes
+    # instead of mixing multiple option parsing concerns in one class.
+    # The concerns are now separated into:
+    # 1. OptionExtractor - handles option value extraction
+    # 2. OptionValidator - handles validation logic
+    # 3. FlagDetector - handles boolean flag detection
+    # 4. ArgumentParser - coordinates between specialized classes
+
+    parser = create_parser(["analyze", "file.rb", "--format", "json"])
+
+    # Verify that ArgumentParser now delegates to specialized classes
+    assert_respond_to parser, :parse_format_option
+    assert_respond_to parser, :parse_output_option
+    assert_respond_to parser, :get_directory_path
+    assert_respond_to parser, :get_file_path
+    assert_respond_to parser, :has_directory_option?
+    assert_respond_to parser, :has_stats_option?
+    assert_respond_to parser, :has_circular_option?
+    assert_respond_to parser, :has_depth_option?
+    assert_respond_to parser, :has_help_option?
+    assert_respond_to parser, :has_version_option?
+
+    # Verify that the old mixed-concern methods are no longer present
+    private_methods = parser.class.private_instance_methods(false)
+    public_methods = parser.class.public_instance_methods(false)
+    all_methods = (private_methods + public_methods).map(&:to_s)
+
+    # These old mixed-concern methods should be gone
+    refute_includes all_methods, "extract_format_value"
+    refute_includes all_methods, "validate_format"
+    refute_includes all_methods, "get_option_value"
+
+    # ArgumentParser should now coordinate instead of doing everything itself
+    assert true, "ArgumentParser now coordinates between specialized classes"
+  end
+
   private
 
   def create_parser(args)

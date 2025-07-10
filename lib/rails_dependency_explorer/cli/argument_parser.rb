@@ -1,112 +1,101 @@
 # frozen_string_literal: true
 
+require_relative 'option_extractor'
+require_relative 'option_validator'
+require_relative 'flag_detector'
+
 module RailsDependencyExplorer
   module CLI
-    # Parses command-line arguments for the Rails dependency explorer.
-    # Extracts format options, output file paths, directory paths, and other
-    # command-line parameters, providing structured access to user input.
+    # Coordinates command-line argument parsing by delegating to specialized classes.
+    # Refactored from complex mixed-concern implementation to follow SRP.
+    #
+    # Responsibilities:
+    # - Coordinates between OptionExtractor, OptionValidator, and FlagDetector
+    # - Provides unified interface for command-line argument access
+    # - Handles error message formatting and display
+    #
+    # Part of H5 refactoring to separate option parsing concerns.
     class ArgumentParser
       def initialize(args)
         @args = args
+        @extractor = OptionExtractor.new(args)
+        @validator = OptionValidator.new
+        @flag_detector = FlagDetector.new(args)
       end
 
       def parse_format_option
-        format_index = @args.index("--format")
-        return "graph" if format_index.nil?
+        format_value = @extractor.extract_format_option
+        validation_result = @validator.validate_format(format_value)
 
-        format = extract_format_value(format_index)
-        return format if format.nil?
-
-        validate_format(format)
+        if validation_result[:valid]
+          validation_result[:value]
+        else
+          print_validation_error(validation_result[:error])
+          nil
+        end
       end
 
       private
 
-      def extract_format_value(format_index)
-        format_value_index = format_index + 1
-        if format_value_index >= @args.length
-          puts "Error: --format option requires a format value"
-          puts "Supported formats: dot, json, html, graph"
-          return nil
-        end
-
-        @args[format_value_index]
-      end
-
-      def validate_format(format)
-        valid_formats = ["dot", "json", "html", "graph"]
-
-        unless valid_formats.include?(format)
-          puts "Error: Invalid format '#{format}'"
-          puts "Supported formats: #{valid_formats.join(", ")}"
-          return nil
-        end
-
-        format
+      def print_validation_error(error)
+        puts error[:message]
+        puts error[:details] if error[:details]
       end
 
       public
 
       def parse_output_option
-        output_index = @args.index("--output")
-        return nil if output_index.nil?
+        output_value = @extractor.extract_output_option
+        validation_result = @validator.validate_output(output_value)
 
-        get_option_value(output_index, "--output", "file path")
+        if validation_result[:valid]
+          validation_result[:value]
+        else
+          print_validation_error(validation_result[:error])
+          :error
+        end
       end
 
       def has_help_option?
-        @args.empty? || @args.include?("--help") || @args.include?("-h")
+        @flag_detector.has_help_flag?
       end
 
       def has_version_option?
-        @args.include?("--version")
+        @flag_detector.has_version_flag?
       end
 
       def get_command
-        return nil if @args.empty?
-        @args[0]
+        @extractor.get_command
       end
 
       def get_file_path
-        return nil if @args.length < 2
-        @args[1]
+        @extractor.get_file_path
       end
 
       def has_directory_option?
-        @args.include?("--directory")
+        @flag_detector.has_directory_flag?
       end
 
       def get_directory_path
-        directory_index = @args.index("--directory")
-        return nil if directory_index.nil?
+        directory_value = @extractor.extract_directory_option
+        validation_result = @validator.validate_directory(directory_value)
 
-        directory_value_index = directory_index + 1
-        return nil if directory_value_index >= @args.length
-        @args[directory_value_index]
+        validation_result[:valid] ? validation_result[:value] : nil
       end
 
       def has_stats_option?
-        @args.include?("--stats") || @args.include?("-s")
+        @flag_detector.has_stats_flag?
       end
 
       def has_circular_option?
-        @args.include?("--circular") || @args.include?("-c")
+        @flag_detector.has_circular_flag?
       end
 
       def has_depth_option?
-        @args.include?("--depth") || @args.include?("-d")
+        @flag_detector.has_depth_flag?
       end
 
-      private
 
-      def get_option_value(option_index, option_name, value_description)
-        value_index = option_index + 1
-        if value_index >= @args.length
-          puts "Error: #{option_name} option requires a #{value_description}"
-          return :error
-        end
-        @args[value_index]
-      end
     end
   end
 end
