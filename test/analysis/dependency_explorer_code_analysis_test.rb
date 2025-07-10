@@ -6,26 +6,12 @@ require_relative "../test_helper"
 
 class DependencyExplorerCodeAnalysisTest < Minitest::Test
   def setup
-    @explorer = RailsDependencyExplorer::Analysis::DependencyExplorer.new
+    setup_dependency_explorer
   end
 
   def test_dependency_explorer_integrates_parser_and_visualizer_for_single_class
-    ruby_code = <<~RUBY
-      class Player
-        def attack
-          Enemy.health -= 10
-        end
-      end
-    RUBY
-
-    result = @explorer.analyze_code(ruby_code)
-
-    expected_graph = {
-      nodes: ["Player", "Enemy"],
-      edges: [["Player", "Enemy"]]
-    }
-
-    assert_equal expected_graph, result.to_graph
+    result = @explorer.analyze_code(player_code)
+    assert_simple_graph_structure(result)
   end
 
   def test_dependency_explorer_generates_dot_output_from_ruby_code

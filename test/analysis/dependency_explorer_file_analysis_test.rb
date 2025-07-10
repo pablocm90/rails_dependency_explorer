@@ -6,40 +6,12 @@ require_relative "../test_helper"
 
 class DependencyExplorerFileAnalysisTest < Minitest::Test
   def setup
-    @explorer = RailsDependencyExplorer::Analysis::DependencyExplorer.new
+    setup_dependency_explorer
   end
 
   def test_dependency_explorer_analyzes_multiple_files
-    player_code = <<~RUBY
-      class Player
-        def attack
-          Enemy.health -= 10
-        end
-      end
-    RUBY
-
-    game_code = <<~RUBY
-      class Game
-        def start
-          Player.new
-          Logger.info("Game started")
-        end
-      end
-    RUBY
-
-    files = {
-      "player.rb" => player_code,
-      "game.rb" => game_code
-    }
-
-    result = @explorer.analyze_files(files)
-
-    expected_graph = {
-      nodes: ["Player", "Enemy", "Game", "Logger"],
-      edges: [["Player", "Enemy"], ["Game", "Player"], ["Game", "Logger"]]
-    }
-
-    assert_equal expected_graph, result.to_graph
+    result = @explorer.analyze_files(player_game_files)
+    assert_equal game_player_expected_graph, result.to_graph
   end
 
   def test_dependency_explorer_scans_directory_for_ruby_files

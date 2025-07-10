@@ -43,4 +43,39 @@ class IOTestHelpersTest < Minitest::Test
     assert_same original_stdout, $stdout
     assert_same original_stderr, $stderr
   end
+
+  # Test to verify shared test helpers are working correctly after refactoring
+  def test_shared_test_helpers_eliminate_duplication
+    # Verify that shared modules are available in test classes
+    test_instance = self
+
+    # Pattern 1: DependencyExplorerTestHelpers methods are available
+    assert_respond_to test_instance, :setup_dependency_explorer
+    assert_respond_to test_instance, :player_code
+    assert_respond_to test_instance, :game_code
+    assert_respond_to test_instance, :simple_dependency_data
+    assert_respond_to test_instance, :complex_dependency_data
+
+    # Pattern 2: AnalysisResultTestHelpers methods are available
+    assert_respond_to test_instance, :create_simple_analysis_result
+    assert_respond_to test_instance, :create_complex_analysis_result
+    assert_respond_to test_instance, :assert_simple_graph_structure
+
+    # Pattern 3: FileTestHelpers methods are still available
+    assert_respond_to test_instance, :with_test_file
+    assert_respond_to test_instance, :create_ruby_file
+
+    # Verify the shared helpers actually work
+    setup_dependency_explorer
+    refute_nil @explorer
+    assert_instance_of RailsDependencyExplorer::Analysis::DependencyExplorer, @explorer
+
+    # Verify shared code templates work
+    assert_includes player_code, "class Player"
+    assert_includes game_code, "class Game"
+
+    # Verify shared analysis result creation works
+    result = create_simple_analysis_result
+    assert_instance_of RailsDependencyExplorer::Analysis::AnalysisResult, result
+  end
 end
