@@ -7,6 +7,7 @@ A Ruby gem for analyzing and visualizing dependencies in Rails applications. Ext
 - **Dependency Analysis**: Parse Ruby code to extract class dependencies and method calls
 - **Rails Component Detection**: Automatically categorize classes as models, controllers, services, or other components
 - **ActiveRecord Relationship Analysis**: Detect and analyze ActiveRecord associations (belongs_to, has_many, has_one, has_and_belongs_to_many)
+- **Rails Configuration Tracking**: Track Rails configuration dependencies (Rails.env, Rails.logger, Rails.application.config, ENV variables)
 - **Multiple Output Formats**: Export analysis results as DOT graphs, JSON, HTML, CSV, or console output
 - **Circular Dependency Detection**: Identify and report circular dependencies in your codebase
 - **Dependency Statistics**: Calculate metrics like dependency counts and depth analysis
@@ -56,6 +57,11 @@ relationships = result.activerecord_relationships
 puts "User belongs_to: #{relationships['User'][:belongs_to]}"
 puts "User has_many: #{relationships['User'][:has_many]}"
 puts "User has_one: #{relationships['User'][:has_one]}"
+
+# Analyze Rails configuration dependencies
+config_deps = result.rails_configuration_dependencies
+puts "Rails config: #{config_deps['UserService'][:rails_config]}"
+puts "Environment vars: #{config_deps['UserService'][:environment_variables]}"
 
 # Export to different formats
 puts result.to_dot      # DOT graph format

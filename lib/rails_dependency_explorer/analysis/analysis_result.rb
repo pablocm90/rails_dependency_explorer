@@ -59,10 +59,18 @@ module RailsDependencyExplorer
         visualizer.to_rails_dot(@dependency_data)
       end
 
+      def rails_configuration_dependencies
+        rails_config_analyzer.analyze_configuration_dependencies
+      end
+
       private
 
       def visualizer
         @visualizer ||= Output::DependencyVisualizer.new
+      end
+
+      def rails_config_analyzer
+        @rails_config_analyzer ||= RailsConfigurationAnalyzer.new(@dependency_data)
       end
 
       def circular_analyzer

@@ -8,6 +8,7 @@ require_relative "rails_dependency_explorer/analysis/circular_dependency_analyze
 require_relative "rails_dependency_explorer/analysis/dependency_depth_analyzer"
 require_relative "rails_dependency_explorer/analysis/dependency_statistics_calculator"
 require_relative "rails_dependency_explorer/analysis/rails_component_analyzer"
+require_relative "rails_dependency_explorer/analysis/rails_configuration_analyzer"
 require_relative "rails_dependency_explorer/parsing/dependency_parser"
 require_relative "rails_dependency_explorer/parsing/ast_visitor"
 require_relative "rails_dependency_explorer/parsing/dependency_accumulator"
