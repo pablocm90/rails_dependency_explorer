@@ -2,7 +2,7 @@
 
 require "set"
 require "forwardable"
-require_relative "../output/dependency_visualizer"
+require_relative "analysis_result_formatter"
 require_relative "circular_dependency_analyzer"
 require_relative "dependency_depth_analyzer"
 require_relative "dependency_statistics_calculator"
@@ -13,50 +13,29 @@ module RailsDependencyExplorer
   module Analysis
     # Coordinates dependency analysis results and provides access to various analysis components.
     # Acts as a facade for dependency exploration, circular dependency detection, depth analysis,
-    # and statistics calculation. Delegates visualization and output formatting to specialized classes.
+    # and statistics calculation. Focuses solely on analysis coordination following SRP.
     class AnalysisResult
       extend Forwardable
 
+      # Analysis coordination delegations
       def_delegator :statistics_calculator, :calculate_statistics, :statistics
       def_delegator :circular_analyzer, :find_cycles, :circular_dependencies
       def_delegator :depth_analyzer, :calculate_depth, :dependency_depth
       def_delegator :rails_component_analyzer, :categorize_components, :rails_components
       def_delegator :activerecord_relationship_analyzer, :analyze_relationships, :activerecord_relationships
 
+      # Output formatting delegations
+      def_delegator :formatter, :to_graph
+      def_delegator :formatter, :to_dot
+      def_delegator :formatter, :to_json
+      def_delegator :formatter, :to_html
+      def_delegator :formatter, :to_console
+      def_delegator :formatter, :to_csv
+      def_delegator :formatter, :to_rails_graph
+      def_delegator :formatter, :to_rails_dot
+
       def initialize(dependency_data)
         @dependency_data = dependency_data
-      end
-
-      def to_graph
-        visualizer.to_graph(@dependency_data)
-      end
-
-      def to_dot
-        visualizer.to_dot(@dependency_data)
-      end
-
-      def to_json
-        visualizer.to_json(@dependency_data, statistics)
-      end
-
-      def to_html
-        visualizer.to_html(@dependency_data, statistics)
-      end
-
-      def to_console
-        visualizer.to_console(@dependency_data)
-      end
-
-      def to_csv
-        visualizer.to_csv(@dependency_data, statistics)
-      end
-
-      def to_rails_graph
-        visualizer.to_rails_graph(@dependency_data)
-      end
-
-      def to_rails_dot
-        visualizer.to_rails_dot(@dependency_data)
       end
 
       def rails_configuration_dependencies
@@ -65,8 +44,8 @@ module RailsDependencyExplorer
 
       private
 
-      def visualizer
-        @visualizer ||= Output::DependencyVisualizer.new
+      def formatter
+        @formatter ||= AnalysisResultFormatter.new(@dependency_data, self)
       end
 
       def rails_config_analyzer

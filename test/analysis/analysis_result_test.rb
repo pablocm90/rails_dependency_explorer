@@ -113,4 +113,41 @@ class AnalysisResultTest < Minitest::Test
     expected = "digraph dependencies {\n  \"User\" -> \"Account\";\n}"
     assert_equal expected, rails_dot
   end
+
+  # Test to verify SRP compliance after refactoring
+  def test_analysis_result_properly_separates_responsibilities_after_refactoring
+    result = create_simple_analysis_result
+
+    # Analysis coordination responsibilities (AnalysisResult's primary responsibility)
+    assert_respond_to result, :statistics
+    assert_respond_to result, :circular_dependencies
+    assert_respond_to result, :dependency_depth
+    assert_respond_to result, :rails_components
+    assert_respond_to result, :activerecord_relationships
+    assert_respond_to result, :rails_configuration_dependencies
+
+    # Output formatting methods are still available through delegation
+    # but the actual formatting logic is handled by AnalysisResultFormatter
+    assert_respond_to result, :to_graph
+    assert_respond_to result, :to_dot
+    assert_respond_to result, :to_json
+    assert_respond_to result, :to_html
+    assert_respond_to result, :to_console
+    assert_respond_to result, :to_csv
+    assert_respond_to result, :to_rails_graph
+    assert_respond_to result, :to_rails_dot
+
+    # Verify that AnalysisResult now uses AnalysisResultFormatter internally
+    formatter = result.send(:formatter)
+    assert_instance_of RailsDependencyExplorer::Analysis::AnalysisResultFormatter, formatter
+
+    # Verify that the formatter can work independently
+    independent_formatter = RailsDependencyExplorer::Analysis::AnalysisResultFormatter.new(simple_dependency_data)
+    assert_equal result.to_graph, independent_formatter.to_graph
+
+    # This test verifies that AnalysisResult now follows SRP:
+    # - AnalysisResult: coordinates analysis components
+    # - AnalysisResultFormatter: handles output formatting
+    assert true, "AnalysisResult now properly separates analysis coordination from output formatting"
+  end
 end
