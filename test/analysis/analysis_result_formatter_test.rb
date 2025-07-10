@@ -32,7 +32,7 @@ class AnalysisResultFormatterTest < Minitest::Test
     formatter = create_simple_formatter
     json_output = formatter.to_json
     parsed_json = JSON.parse(json_output)
-    
+
     assert parsed_json.key?("dependencies")
     assert parsed_json["dependencies"].key?("Player")
   end
@@ -55,7 +55,7 @@ class AnalysisResultFormatterTest < Minitest::Test
     formatter = create_simple_formatter
     csv_output = formatter.to_csv
     lines = csv_output.split("\n")
-    
+
     assert_equal "Source,Target,Methods", lines.first
     assert lines.length > 1, "CSV should have data rows"
   end
@@ -63,10 +63,10 @@ class AnalysisResultFormatterTest < Minitest::Test
   def test_formatter_generates_rails_graph
     formatter = create_rails_formatter
     rails_graph = formatter.to_rails_graph
-    
+
     expected_nodes = ["User", "ApplicationRecord", "Account", "Post"]
     expected_edges = [["User", "ApplicationRecord"], ["User", "Account"], ["User", "Post"]]
-    
+
     assert_equal expected_nodes.sort, rails_graph[:nodes].sort
     assert_equal expected_edges.sort, rails_graph[:edges].sort
   end
@@ -74,7 +74,7 @@ class AnalysisResultFormatterTest < Minitest::Test
   def test_formatter_generates_rails_dot_format
     formatter = create_rails_formatter
     rails_dot = formatter.to_rails_dot
-    
+
     assert_includes rails_dot, "digraph dependencies"
     assert_includes rails_dot, "\"User\" -> \"Account\""
     assert_includes rails_dot, "\"User\" -> \"Post\""
@@ -82,12 +82,12 @@ class AnalysisResultFormatterTest < Minitest::Test
 
   def test_formatter_handles_empty_dependency_data
     formatter = RailsDependencyExplorer::Analysis::AnalysisResultFormatter.new({})
-    
+
     expected = {
       nodes: [],
       edges: []
     }
-    
+
     assert_equal expected, formatter.to_graph
   end
 
@@ -97,25 +97,25 @@ class AnalysisResultFormatterTest < Minitest::Test
     def stats_provider.statistics
       {total_classes: 1, total_dependencies: 1}
     end
-    
+
     formatter = RailsDependencyExplorer::Analysis::AnalysisResultFormatter.new(
-      simple_dependency_data, 
+      simple_dependency_data,
       stats_provider
     )
-    
+
     json_output = formatter.to_json
     parsed_json = JSON.parse(json_output)
-    
+
     assert parsed_json.key?("statistics")
     assert_equal 1, parsed_json["statistics"]["total_classes"]
   end
 
   def test_formatter_works_without_statistics_provider
     formatter = RailsDependencyExplorer::Analysis::AnalysisResultFormatter.new(simple_dependency_data)
-    
+
     json_output = formatter.to_json
     parsed_json = JSON.parse(json_output)
-    
+
     # Should still work, just with nil statistics
     assert parsed_json.key?("statistics")
     assert_nil parsed_json["statistics"]

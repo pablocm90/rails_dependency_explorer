@@ -10,7 +10,7 @@ class ASTProcessorTest < Minitest::Test
   def test_build_ast_creates_ast_from_valid_ruby_code
     processor = RailsDependencyExplorer::Parsing::ASTProcessor.new(player_code)
     ast = processor.build_ast
-    
+
     refute_nil ast
     assert_respond_to ast, :type
     assert_respond_to ast, :children
@@ -20,7 +20,7 @@ class ASTProcessorTest < Minitest::Test
     invalid_code = "class Player def attack end"  # Missing 'end' for class
     processor = RailsDependencyExplorer::Parsing::ASTProcessor.new(invalid_code)
     ast = processor.build_ast
-    
+
     assert_nil ast
   end
 
@@ -28,7 +28,7 @@ class ASTProcessorTest < Minitest::Test
     processor = RailsDependencyExplorer::Parsing::ASTProcessor.new(player_code)
     ast = processor.build_ast
     class_nodes = processor.find_class_nodes(ast)
-    
+
     assert_equal 1, class_nodes.length
     assert_equal :class, class_nodes.first.type
   end
@@ -47,11 +47,11 @@ class ASTProcessorTest < Minitest::Test
         end
       end
     RUBY
-    
+
     processor = RailsDependencyExplorer::Parsing::ASTProcessor.new(ruby_code)
     ast = processor.build_ast
     class_nodes = processor.find_class_nodes(ast)
-    
+
     assert_equal 2, class_nodes.length
     types = class_nodes.map(&:type)
     assert_includes types, :module
@@ -61,7 +61,7 @@ class ASTProcessorTest < Minitest::Test
   def test_find_class_nodes_returns_empty_for_non_node
     processor = RailsDependencyExplorer::Parsing::ASTProcessor.new(player_code)
     class_nodes = processor.find_class_nodes("not a node")
-    
+
     assert_equal [], class_nodes
   end
 
@@ -70,7 +70,7 @@ class ASTProcessorTest < Minitest::Test
     ast = processor.build_ast
     class_nodes = processor.find_class_nodes(ast)
     class_name = processor.extract_class_name(class_nodes.first)
-    
+
     assert_equal "Player", class_name
   end
 
@@ -82,24 +82,24 @@ class ASTProcessorTest < Minitest::Test
         end
       end
     RUBY
-    
+
     processor = RailsDependencyExplorer::Parsing::ASTProcessor.new(ruby_code)
     ast = processor.build_ast
     class_nodes = processor.find_class_nodes(ast)
     class_name = processor.extract_class_name(class_nodes.first)
-    
+
     assert_equal "Validatable", class_name
   end
 
   def test_extract_class_name_returns_empty_for_invalid_node
     processor = RailsDependencyExplorer::Parsing::ASTProcessor.new(player_code)
-    
+
     # Create a mock node without proper structure
     mock_node = Object.new
     def mock_node.children
       [nil]
     end
-    
+
     class_name = processor.extract_class_name(mock_node)
     assert_equal "", class_name
   end
@@ -107,9 +107,9 @@ class ASTProcessorTest < Minitest::Test
   def test_process_classes_returns_class_info_with_names_and_nodes
     processor = RailsDependencyExplorer::Parsing::ASTProcessor.new(player_code)
     class_info_list = processor.process_classes
-    
+
     assert_equal 1, class_info_list.length
-    
+
     class_info = class_info_list.first
     assert_equal "Player", class_info[:name]
     assert_respond_to class_info[:node], :type
@@ -130,12 +130,12 @@ class ASTProcessorTest < Minitest::Test
         end
       end
     RUBY
-    
+
     processor = RailsDependencyExplorer::Parsing::ASTProcessor.new(ruby_code)
     class_info_list = processor.process_classes
-    
+
     assert_equal 2, class_info_list.length
-    
+
     names = class_info_list.map { |info| info[:name] }
     assert_includes names, "Player"
     assert_includes names, "GameUtils"
@@ -144,7 +144,7 @@ class ASTProcessorTest < Minitest::Test
   def test_process_classes_returns_empty_for_invalid_code
     processor = RailsDependencyExplorer::Parsing::ASTProcessor.new("invalid ruby code {")
     class_info_list = processor.process_classes
-    
+
     assert_equal [], class_info_list
   end
 
@@ -156,22 +156,22 @@ class ASTProcessorTest < Minitest::Test
       
       x = 42
     RUBY
-    
+
     processor = RailsDependencyExplorer::Parsing::ASTProcessor.new(ruby_code)
     class_info_list = processor.process_classes
-    
+
     assert_equal [], class_info_list
   end
 
   def test_process_classes_filters_out_empty_class_names
     # This would be an edge case where extract_class_name returns empty
     processor = RailsDependencyExplorer::Parsing::ASTProcessor.new(player_code)
-    
+
     # Mock extract_class_name to return empty string
     def processor.extract_class_name(node)
       ""
     end
-    
+
     class_info_list = processor.process_classes
     assert_equal [], class_info_list
   end

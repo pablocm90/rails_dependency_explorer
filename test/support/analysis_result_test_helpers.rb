@@ -49,7 +49,7 @@ module AnalysisResultTestHelpers
   def assert_rails_graph_structure(result)
     expected_nodes = ["User", "ApplicationRecord", "Account", "Post"]
     expected_edges = [["User", "ApplicationRecord"], ["User", "Account"], ["User", "Post"]]
-    
+
     rails_graph = result.to_rails_graph
     assert_equal expected_nodes.sort, rails_graph[:nodes].sort
     assert_equal expected_edges.sort, rails_graph[:edges].sort
@@ -67,7 +67,7 @@ module AnalysisResultTestHelpers
   def assert_json_format_output(result)
     json_output = result.to_json
     parsed_json = JSON.parse(json_output)
-    
+
     assert parsed_json.key?("nodes")
     assert parsed_json.key?("edges")
     assert parsed_json["nodes"].is_a?(Array)
@@ -77,7 +77,7 @@ module AnalysisResultTestHelpers
   def assert_csv_format_output(result)
     csv_output = result.to_csv
     lines = csv_output.split("\n")
-    
+
     assert_equal "Source,Target,Methods", lines.first
     assert lines.length > 1, "CSV should have data rows"
   end

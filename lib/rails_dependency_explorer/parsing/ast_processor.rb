@@ -56,7 +56,7 @@ module RailsDependencyExplorer
         class_nodes.map do |class_node|
           class_name = extract_class_name(class_node)
           next unless class_name && !class_name.empty?
-          
+
           {
             name: class_name,
             node: class_node
