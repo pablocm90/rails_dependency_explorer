@@ -31,8 +31,6 @@ module RailsDependencyExplorer
         analyze_files(files_hash)
       end
 
-      private
-
       def self.build_files_hash(ruby_files)
         ruby_files.each_with_object({}) do |file_path, files_hash|
           filename = File.basename(file_path)

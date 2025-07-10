@@ -27,21 +27,6 @@ module RailsDependencyExplorer
         end
       end
 
-      private
-
-      def register_default_handlers
-        @registry.register(:const, method(:visit_const))
-        @registry.register(:send, method(:visit_send))
-      end
-
-      def visit_const(node)
-        self.class.visit_const(node)
-      end
-
-      def primitive_type?(node)
-        self.class.primitive_type?(node)
-      end
-
       def self.visit_const(node)
         node_children = node.children
         first_child = node_children[0]
@@ -59,36 +44,6 @@ module RailsDependencyExplorer
 
       def self.primitive_type?(node)
         node.is_a?(Symbol) || node.is_a?(String) || node.is_a?(Integer)
-      end
-
-      def visit_send(node)
-        receiver = node.children[0]
-
-        if direct_constant_call?(receiver)
-          extract_direct_constant_call(receiver, node)
-        elsif chained_constant_call?(receiver)
-          extract_chained_constant_call(receiver)
-        else
-          visit_children(node)
-        end
-      end
-
-      private
-
-      def direct_constant_call?(receiver)
-        self.class.direct_constant_call?(receiver)
-      end
-
-      def chained_constant_call?(receiver)
-        self.class.chained_constant_call?(receiver)
-      end
-
-      def extract_direct_constant_call(receiver, node)
-        self.class.extract_direct_constant_call(receiver, node)
-      end
-
-      def extract_chained_constant_call(receiver)
-        self.class.extract_chained_constant_call(receiver)
       end
 
       def self.direct_constant_call?(receiver)
@@ -113,11 +68,52 @@ module RailsDependencyExplorer
         {const_name => [method_name]}
       end
 
+      private
+
+      def register_default_handlers
+        @registry.register(:const, method(:visit_const))
+        @registry.register(:send, method(:visit_send))
+      end
+
+      def visit_const(node)
+        self.class.visit_const(node)
+      end
+
+      def primitive_type?(node)
+        self.class.primitive_type?(node)
+      end
+
+      def visit_send(node)
+        receiver = node.children[0]
+
+        if direct_constant_call?(receiver)
+          extract_direct_constant_call(receiver, node)
+        elsif chained_constant_call?(receiver)
+          extract_chained_constant_call(receiver)
+        else
+          visit_children(node)
+        end
+      end
+
+      def direct_constant_call?(receiver)
+        self.class.direct_constant_call?(receiver)
+      end
+
+      def chained_constant_call?(receiver)
+        self.class.chained_constant_call?(receiver)
+      end
+
+      def extract_direct_constant_call(receiver, node)
+        self.class.extract_direct_constant_call(receiver, node)
+      end
+
+      def extract_chained_constant_call(receiver)
+        self.class.extract_chained_constant_call(receiver)
+      end
+
       def visit_children(node)
         node.children.map { |child| visit(child) }.flatten
       end
-
-
     end
   end
 end

@@ -12,8 +12,6 @@ module RailsDependencyExplorer
         graph
       end
 
-      private
-
       def self.populate_graph_from_dependencies(dependency_data, graph)
         dependency_data.each do |class_name, dependencies|
           dependencies.each do |dep|
@@ -28,6 +26,8 @@ module RailsDependencyExplorer
           class_dependencies << constant unless class_dependencies.include?(constant)
         end
       end
+
+      private_class_method :populate_graph_from_dependencies, :add_hash_dependencies_to_graph
     end
   end
 end

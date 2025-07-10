@@ -22,6 +22,17 @@ module RailsDependencyExplorer
         analyze_file
       end
 
+      def self.analyze_single_file(file_path)
+        ruby_code = File.read(file_path)
+        explorer = Analysis::DependencyExplorer.new
+        explorer.analyze_code(ruby_code)
+      end
+
+      def self.analyze_directory_files(directory_path)
+        explorer = Analysis::DependencyExplorer.new
+        explorer.analyze_directory(directory_path)
+      end
+
       private
 
       def analyze_file
@@ -40,8 +51,6 @@ module RailsDependencyExplorer
         return false unless check_file_exists(file_path)
         true
       end
-
-      private
 
       def check_file_path_provided(file_path)
         return true unless file_path.nil?
@@ -71,12 +80,6 @@ module RailsDependencyExplorer
         self.class.analyze_single_file(file_path)
       end
 
-      def self.analyze_single_file(file_path)
-        ruby_code = File.read(file_path)
-        explorer = Analysis::DependencyExplorer.new
-        explorer.analyze_code(ruby_code)
-      end
-
       def write_analysis_output(result, format, output_file)
         output_content = @output_writer.format_output(result, format, build_output_options)
         @output_writer.write_output(output_content, output_file)
@@ -92,8 +95,6 @@ module RailsDependencyExplorer
 
         perform_directory_analysis(directory_path, parse_result[:format], parse_result[:output_file])
       end
-
-      private
 
       def parse_directory_options
         format = @parser.parse_format_option
@@ -113,7 +114,7 @@ module RailsDependencyExplorer
 
         unless File.directory?(directory_path)
           puts "Error: Directory not found: #{directory_path}"
-          return 1
+          1
         end
       end
 
@@ -128,11 +129,6 @@ module RailsDependencyExplorer
 
       def analyze_directory_files(directory_path)
         self.class.analyze_directory_files(directory_path)
-      end
-
-      def self.analyze_directory_files(directory_path)
-        explorer = Analysis::DependencyExplorer.new
-        explorer.analyze_directory(directory_path)
       end
 
       def build_output_options

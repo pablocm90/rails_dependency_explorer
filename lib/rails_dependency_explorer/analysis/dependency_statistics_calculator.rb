@@ -22,6 +22,12 @@ module RailsDependencyExplorer
         }
       end
 
+      def self.count_hash_dependencies(dep, counts)
+        dep.each do |constant, methods|
+          counts[constant] += 1
+        end
+      end
+
       private
 
       def calculate_dependency_counts
@@ -35,12 +41,6 @@ module RailsDependencyExplorer
           dependencies.each do |dep|
             self.class.count_hash_dependencies(dep, counts) if dep.is_a?(Hash)
           end
-        end
-      end
-
-      def self.count_hash_dependencies(dep, counts)
-        dep.each do |constant, methods|
-          counts[constant] += 1
         end
       end
     end

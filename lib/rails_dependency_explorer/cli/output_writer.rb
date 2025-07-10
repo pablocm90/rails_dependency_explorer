@@ -92,6 +92,10 @@ module RailsDependencyExplorer
         end
         output
       end
+
+      private_class_method :format_statistics, :format_circular_dependencies, :format_dependency_depth
+
+      private
     end
   end
 end

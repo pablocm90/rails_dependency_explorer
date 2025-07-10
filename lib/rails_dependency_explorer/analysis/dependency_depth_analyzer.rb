@@ -21,8 +21,6 @@ module RailsDependencyExplorer
         self.class.calculate_depths_for_nodes(reverse_graph, all_nodes)
       end
 
-      private
-
       def self.calculate_depths_for_nodes(reverse_graph, all_nodes)
         state = DepthCalculationState.new(reverse_graph)
         all_nodes.each_with_object({}) do |node, depths|

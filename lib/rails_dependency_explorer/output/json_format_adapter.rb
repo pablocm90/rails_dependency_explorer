@@ -16,8 +16,6 @@ module RailsDependencyExplorer
         JSON.generate(json_data)
       end
 
-      private
-
       def self.build_dependencies_hash(dependency_data)
         result = {}
         dependency_data.each do |class_name, dependencies|

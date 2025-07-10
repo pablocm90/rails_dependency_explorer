@@ -107,12 +107,6 @@ module RailsDependencyExplorer
         end
         @args[value_index]
       end
-
-
-
-
-
-
     end
   end
 end

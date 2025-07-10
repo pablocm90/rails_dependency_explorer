@@ -46,6 +46,8 @@ module RailsDependencyExplorer
           output << "  #{from} -> #{to}"
         end
       end
+
+      private_class_method :build_output_lines, :build_header_lines, :build_title_section, :add_classes_section, :add_dependencies_header, :add_dependency_lines
     end
   end
 end

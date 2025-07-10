@@ -52,8 +52,6 @@ module RailsDependencyExplorer
       def html_adapter
         @html_adapter ||= HtmlFormatAdapter.new
       end
-
-
     end
   end
 end

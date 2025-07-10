@@ -38,6 +38,26 @@ module RailsDependencyExplorer
         HTML
       end
 
+      def self.build_statistics_html(statistics)
+        return "<p>No statistics available.</p>" if statistics.nil?
+
+        html = ""
+        html += "<div class='statistic'><strong>Total Classes:</strong> #{statistics[:total_classes]}</div>\n"
+        html += "<div class='statistic'><strong>Total Dependencies:</strong> #{statistics[:total_dependencies]}</div>\n"
+        html += "<div class='statistic'><strong>Most Used Dependency:</strong> #{statistics[:most_used_dependency]}</div>\n"
+        html
+      end
+
+      def self.extract_unique_dependencies(dependencies)
+        unique_deps = Set.new
+        dependencies.each do |dep|
+          if dep.is_a?(Hash)
+            dep.each_key { |constant| unique_deps.add(constant) }
+          end
+        end
+        unique_deps.to_a
+      end
+
       private
 
       def build_dependencies_html(dependency_data)
@@ -82,26 +102,6 @@ module RailsDependencyExplorer
 
       def extract_unique_dependencies(dependencies)
         self.class.extract_unique_dependencies(dependencies)
-      end
-
-      def self.build_statistics_html(statistics)
-        return "<p>No statistics available.</p>" if statistics.nil?
-
-        html = ""
-        html += "<div class='statistic'><strong>Total Classes:</strong> #{statistics[:total_classes]}</div>\n"
-        html += "<div class='statistic'><strong>Total Dependencies:</strong> #{statistics[:total_dependencies]}</div>\n"
-        html += "<div class='statistic'><strong>Most Used Dependency:</strong> #{statistics[:most_used_dependency]}</div>\n"
-        html
-      end
-
-      def self.extract_unique_dependencies(dependencies)
-        unique_deps = Set.new
-        dependencies.each do |dep|
-          if dep.is_a?(Hash)
-            dep.each_key { |constant| unique_deps.add(constant) }
-          end
-        end
-        unique_deps.to_a
       end
     end
   end

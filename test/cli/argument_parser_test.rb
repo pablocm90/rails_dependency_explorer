@@ -123,7 +123,7 @@ class ArgumentParserTest < Minitest::Test
 
   def assert_parser_method_result(args, method, expected_result)
     parser = create_parser(args)
-    if expected_result == nil
+    if expected_result.nil?
       assert_nil parser.send(method)
     else
       assert_equal expected_result, parser.send(method)
