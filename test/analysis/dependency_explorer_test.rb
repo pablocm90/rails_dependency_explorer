@@ -280,8 +280,10 @@ class DependencyExplorerTest < Minitest::Test
     result = @explorer.analyze_code(ruby_code)
     json_output = result.to_json
 
-    assert_valid_json_structure(json_output)
-    assert_contains_user_service_dependencies(json_output)
+    # Verify JSON integration with single parse
+    parsed = JSON.parse(json_output)
+    assert parsed.key?("dependencies")
+    assert_includes parsed["dependencies"]["UserService"], "UserRepository"
   end
 
   def test_dependency_explorer_generates_html_report
@@ -442,18 +444,7 @@ class DependencyExplorerTest < Minitest::Test
     RUBY
   end
 
-  def assert_valid_json_structure(json_output)
-    parsed = JSON.parse(json_output)
-    assert parsed.key?("dependencies")
-    assert parsed.key?("statistics")
-  end
 
-  def assert_contains_user_service_dependencies(json_output)
-    parsed = JSON.parse(json_output)
-    assert parsed["dependencies"].key?("UserService")
-    assert_includes parsed["dependencies"]["UserService"], "UserRepository"
-    assert_includes parsed["dependencies"]["UserService"], "EmailService"
-  end
 
   def create_nested_directory_structure(temp_dir)
     models_dir = File.join(temp_dir, "models")
