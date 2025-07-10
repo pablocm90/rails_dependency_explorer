@@ -3,7 +3,7 @@
 module RailsDependencyExplorer
   module CLI
     # Handles output writing and formatting for the Rails dependency explorer CLI.
-    # Coordinates with format adapters to generate output in various formats (console, JSON, HTML, DOT)
+    # Coordinates with format adapters to generate output in various formats (console, JSON, HTML, DOT, CSV)
     # and manages writing to files or standard output based on user preferences.
     class OutputWriter
       def write_output(content, output_file)
@@ -29,6 +29,8 @@ module RailsDependencyExplorer
           result.to_json
         when "html"
           result.to_html
+        when "csv"
+          result.to_csv
         else
           format_console_output(result, options)
         end

@@ -30,5 +30,13 @@ class DependencyVisualizerTest < Minitest::Test
     assert_equal expected, result
   end
 
+  def test_dependency_visualizer_generates_csv_format_for_spreadsheet_analysis
+    dependency_data = {"Player" => [{"Enemy" => ["health"]}]}
 
+    result = @visualizer.to_csv(dependency_data)
+    lines = result.split("\n")
+
+    assert_equal "Source,Target,Methods", lines.first
+    assert_equal "Player,Enemy,health", lines.last
+  end
 end

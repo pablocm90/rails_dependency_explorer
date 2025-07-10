@@ -43,6 +43,10 @@ module RailsDependencyExplorer
         visualizer.to_console(@dependency_data)
       end
 
+      def to_csv
+        visualizer.to_csv(@dependency_data, statistics)
+      end
+
       private
 
       def visualizer

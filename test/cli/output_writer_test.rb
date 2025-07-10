@@ -51,8 +51,12 @@ class OutputWriterTest < Minitest::Test
     assert_format_output_includes("unknown", ["Dependencies found:", "SampleClass"])
   end
 
+  def test_format_output_returns_csv_format
+    assert_format_output_includes("csv", ["Source,Target,Methods", "SampleClass,Logger"])
+  end
+
   def test_format_output_handles_all_supported_formats
-    formats = ["dot", "json", "html", "graph"]
+    formats = ["dot", "json", "html", "csv", "graph"]
 
     formats.each do |format|
       result = @writer.format_output(@result, format)

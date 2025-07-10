@@ -6,6 +6,7 @@ require_relative "dot_format_adapter"
 require_relative "json_format_adapter"
 require_relative "html_format_adapter"
 require_relative "console_format_adapter"
+require_relative "csv_format_adapter"
 
 module RailsDependencyExplorer
   module Output
@@ -35,6 +36,10 @@ module RailsDependencyExplorer
         ConsoleFormatAdapter.format(graph)
       end
 
+      def to_csv(dependency_data, statistics = nil)
+        csv_adapter.format(dependency_data, statistics)
+      end
+
       private
 
       def graph_adapter
@@ -51,6 +56,10 @@ module RailsDependencyExplorer
 
       def html_adapter
         @html_adapter ||= HtmlFormatAdapter.new
+      end
+
+      def csv_adapter
+        @csv_adapter ||= CsvFormatAdapter.new
       end
     end
   end

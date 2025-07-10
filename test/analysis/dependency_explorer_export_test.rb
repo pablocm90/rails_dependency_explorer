@@ -50,6 +50,27 @@ class DependencyExplorerExportTest < Minitest::Test
     assert_includes html_output, "Total Dependencies"
   end
 
+  def test_dependency_explorer_exports_to_csv
+    ruby_code = create_user_service_code
+    result = @explorer.analyze_code(ruby_code)
+    csv_output = result.to_csv
+
+    # Should be valid CSV format with header
+    lines = csv_output.split("\n")
+    assert_equal "Source,Target,Methods", lines.first
+
+    # Should include dependency relationships
+    assert_includes csv_output, "UserService,UserRepository"
+    assert_includes csv_output, "UserService,Logger"
+    assert_includes csv_output, "UserService,User"
+
+    # Should have proper CSV structure (3 columns per row)
+    lines[1..-1].each do |line|
+      columns = line.split(",")
+      assert_equal 3, columns.length, "Each CSV row should have 3 columns: #{line}"
+    end
+  end
+
   private
 
   def create_user_service_code
