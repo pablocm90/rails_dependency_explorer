@@ -7,26 +7,12 @@ require_relative "../test_helper"
 # visualization coordination, and integration with various analysis components.
 class AnalysisResultTest < Minitest::Test
   def test_analysis_result_converts_single_dependency_to_graph
-    dependency_data = {"Player" => [{"Enemy" => ["health"]}]}
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
-
-    expected = {
-      nodes: ["Player", "Enemy"],
-      edges: [["Player", "Enemy"]]
-    }
-
-    assert_equal expected, result.to_graph
+    result = create_simple_analysis_result
+    assert_simple_graph_structure(result)
   end
 
   def test_analysis_result_converts_multiple_dependencies_to_graph
-    dependency_data = {
-      "Player" => [
-        {"Enemy" => ["take_damage", "health"]},
-        {"GameState" => ["current"]},
-        {"Logger" => ["info"]}
-      ]
-    }
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
+    result = create_complex_analysis_result
 
     expected = {
       nodes: ["Player", "Enemy", "GameState", "Logger"],
