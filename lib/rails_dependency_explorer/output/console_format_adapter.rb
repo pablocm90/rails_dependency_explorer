@@ -7,14 +7,15 @@ module RailsDependencyExplorer
     # and structure for command-line output and debugging purposes.
     class ConsoleFormatAdapter
       def self.format(graph_data)
-        if graph_data[:nodes].empty?
+        nodes = graph_data[:nodes]
+        if nodes.empty?
           return "No dependencies found."
         end
 
         output = []
         output << "Dependencies found:"
         output << ""
-        output << "Classes: #{graph_data[:nodes].join(", ")}"
+        output << "Classes: #{nodes.join(", ")}"
         output << ""
         output << "Dependencies:"
         graph_data[:edges].each do |from, to|

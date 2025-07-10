@@ -23,13 +23,14 @@ module RailsDependencyExplorer
       private
 
       def extract_format_value(format_index)
-        if format_index + 1 >= @args.length
+        format_value_index = format_index + 1
+        if format_value_index >= @args.length
           puts "Error: --format option requires a format value"
           puts "Supported formats: dot, json, html, graph"
           return nil
         end
 
-        @args[format_index + 1]
+        @args[format_value_index]
       end
 
       def validate_format(format)
@@ -53,12 +54,13 @@ module RailsDependencyExplorer
         return nil if output_index.nil?
 
         # Check if output file path is provided
-        if output_index + 1 >= @args.length
+        output_value_index = output_index + 1
+        if output_value_index >= @args.length
           puts "Error: --output option requires a file path"
           return :error
         end
 
-        @args[output_index + 1]
+        @args[output_value_index]
       end
 
       def has_directory_option?
@@ -67,8 +69,11 @@ module RailsDependencyExplorer
 
       def get_directory_path
         directory_index = @args.index("--directory")
-        return nil if directory_index.nil? || directory_index + 1 >= @args.length
-        @args[directory_index + 1]
+        return nil if directory_index.nil?
+
+        directory_value_index = directory_index + 1
+        return nil if directory_value_index >= @args.length
+        @args[directory_value_index]
       end
 
       def get_file_path

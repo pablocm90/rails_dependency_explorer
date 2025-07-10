@@ -23,8 +23,9 @@ module RailsDependencyExplorer
       end
 
       def self.add_hash_dependencies_to_graph(class_name, dep, graph)
+        class_dependencies = graph[class_name]
         dep.each do |constant, methods|
-          graph[class_name] << constant unless graph[class_name].include?(constant)
+          class_dependencies << constant unless class_dependencies.include?(constant)
         end
       end
     end

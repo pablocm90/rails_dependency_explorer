@@ -10,7 +10,7 @@ module RailsDependencyExplorer
     class JsonFormatAdapter
       def format(dependency_data, statistics = nil)
         json_data = {
-          "dependencies" => build_dependencies_hash(dependency_data),
+          "dependencies" => self.class.build_dependencies_hash(dependency_data),
           "statistics" => statistics
         }
         JSON.generate(json_data)
@@ -18,7 +18,7 @@ module RailsDependencyExplorer
 
       private
 
-      def build_dependencies_hash(dependency_data)
+      def self.build_dependencies_hash(dependency_data)
         result = {}
         dependency_data.each do |class_name, dependencies|
           result[class_name] = []

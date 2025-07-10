@@ -29,8 +29,6 @@ module RailsDependencyExplorer
           result.to_json
         when "html"
           result.to_html
-        when "graph"
-          format_console_output(result, options)
         else
           format_console_output(result, options)
         end

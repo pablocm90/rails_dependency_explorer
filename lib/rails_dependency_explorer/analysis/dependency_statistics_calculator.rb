@@ -33,12 +33,12 @@ module RailsDependencyExplorer
       def process_dependency_data(counts)
         @dependency_data.each do |class_name, dependencies|
           dependencies.each do |dep|
-            count_hash_dependencies(dep, counts) if dep.is_a?(Hash)
+            self.class.count_hash_dependencies(dep, counts) if dep.is_a?(Hash)
           end
         end
       end
 
-      def count_hash_dependencies(dep, counts)
+      def self.count_hash_dependencies(dep, counts)
         dep.each do |constant, methods|
           counts[constant] += 1
         end

@@ -18,12 +18,12 @@ module RailsDependencyExplorer
         graph = build_adjacency_list
         reverse_graph = build_reverse_adjacency_list(graph)
         all_nodes = extract_all_nodes(graph)
-        calculate_depths_for_nodes(reverse_graph, all_nodes)
+        self.class.calculate_depths_for_nodes(reverse_graph, all_nodes)
       end
 
       private
 
-      def calculate_depths_for_nodes(reverse_graph, all_nodes)
+      def self.calculate_depths_for_nodes(reverse_graph, all_nodes)
         state = DepthCalculationState.new(reverse_graph)
         all_nodes.each_with_object({}) do |node, depths|
           depths[node] = state.calculate_node_depth(node)
@@ -43,11 +43,11 @@ module RailsDependencyExplorer
       def add_graph_nodes_to_set(graph, all_nodes)
         graph.each do |node, neighbors|
           all_nodes.add(node)
-          add_neighbors_to_set(neighbors, all_nodes)
+          self.class.add_neighbors_to_set(neighbors, all_nodes)
         end
       end
 
-      def add_neighbors_to_set(neighbors, all_nodes)
+      def self.add_neighbors_to_set(neighbors, all_nodes)
         neighbors.each { |neighbor| all_nodes.add(neighbor) }
       end
 
@@ -65,12 +65,13 @@ module RailsDependencyExplorer
 
       def add_reverse_dependencies(node, neighbors, reverse_graph)
         neighbors.each do |neighbor|
-          add_unique_dependency(reverse_graph, neighbor, node)
+          self.class.add_unique_dependency(reverse_graph, neighbor, node)
         end
       end
 
-      def add_unique_dependency(reverse_graph, neighbor, node)
-        reverse_graph[neighbor] << node unless reverse_graph[neighbor].include?(node)
+      def self.add_unique_dependency(reverse_graph, neighbor, node)
+        neighbor_dependencies = reverse_graph[neighbor]
+        neighbor_dependencies << node unless neighbor_dependencies.include?(node)
       end
     end
   end
