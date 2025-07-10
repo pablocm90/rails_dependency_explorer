@@ -37,7 +37,7 @@ module RailsDependencyExplorer
           dependency_hash.each do |constant_name, _methods|
             # Skip ActiveRecord relationship methods - we'll handle these separately
             next if activerecord_relationship?(constant_name)
-            
+
             nodes.add(constant_name)
           end
         end
@@ -69,7 +69,7 @@ module RailsDependencyExplorer
           dependency_hash.each do |constant_name, _methods|
             # Skip ActiveRecord relationship methods - we'll handle these separately
             next if activerecord_relationship?(constant_name)
-            
+
             edges.add([class_name, constant_name])
           end
         end

@@ -1,0 +1,8 @@
+digraph dependencies {
+  "Player" -> "Enemy";
+  "Player" -> "GameState";
+  "Player" -> "Config";
+  "Player" -> "Logger";
+  "Enemy" -> "Player";
+  "Enemy" -> "Logger";
+}
