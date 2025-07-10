@@ -1,0 +1,5 @@
+Source,Target,Methods
+UserService,UserRepository,new
+UserService,Logger,new
+UserService,EmailService,new
+UserService,User,new
