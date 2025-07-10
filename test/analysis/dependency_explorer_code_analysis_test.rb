@@ -49,10 +49,10 @@ class DependencyExplorerCodeAnalysisTest < Minitest::Test
 
     # Test empty code
     result = @explorer.analyze_code(empty_code)
-    assert_equal({ nodes: [], edges: [] }, result.to_graph)
+    assert_equal({nodes: [], edges: []}, result.to_graph)
 
     # Test invalid code - should not crash
     result = @explorer.analyze_code(invalid_code)
-    assert_equal({ nodes: [], edges: [] }, result.to_graph)
+    assert_equal({nodes: [], edges: []}, result.to_graph)
   end
 end

@@ -10,23 +10,23 @@ class ErrorHandlerTest < Minitest::Test
 
   def test_handle_analysis_error_returns_exit_code_1
     error = StandardError.new("test error")
-    
+
     output = capture_io do
       result = RailsDependencyExplorer::CLI::ErrorHandler.handle_analysis_error("file", error)
       assert_equal 1, result
     end
-    
+
     assert_includes output[0], "Error analyzing file: test error"
   end
 
   def test_handle_analysis_error_formats_directory_message
     error = StandardError.new("directory error")
-    
+
     output = capture_io do
       result = RailsDependencyExplorer::CLI::ErrorHandler.handle_analysis_error("directory", error)
       assert_equal 1, result
     end
-    
+
     assert_includes output[0], "Error analyzing directory: directory error"
   end
 
@@ -35,7 +35,7 @@ class ErrorHandlerTest < Minitest::Test
       result = RailsDependencyExplorer::CLI::ErrorHandler.handle_validation_error("test message")
       assert_equal false, result
     end
-    
+
     assert_includes output[0], "Error: test message"
   end
 
@@ -44,7 +44,7 @@ class ErrorHandlerTest < Minitest::Test
       result = RailsDependencyExplorer::CLI::ErrorHandler.handle_missing_path_error(:file)
       assert_equal false, result
     end
-    
+
     assert_includes output[0], "Error: analyze command requires a file path"
     assert_includes output[0], "Usage: rails_dependency_explorer analyze <path>"
   end
@@ -54,7 +54,7 @@ class ErrorHandlerTest < Minitest::Test
       result = RailsDependencyExplorer::CLI::ErrorHandler.handle_missing_path_error(:directory)
       assert_equal false, result
     end
-    
+
     assert_includes output[0], "Error: --directory option requires a directory path"
   end
 
@@ -63,7 +63,7 @@ class ErrorHandlerTest < Minitest::Test
       result = RailsDependencyExplorer::CLI::ErrorHandler.handle_not_found_error(:file, "/test/path")
       assert_equal false, result
     end
-    
+
     assert_includes output[0], "Error: File not found: /test/path"
   end
 
@@ -72,7 +72,7 @@ class ErrorHandlerTest < Minitest::Test
       result = RailsDependencyExplorer::CLI::ErrorHandler.handle_not_found_error(:directory, "/test/dir")
       assert_equal false, result
     end
-    
+
     assert_includes output[0], "Error: Directory not found: /test/dir"
   end
 end

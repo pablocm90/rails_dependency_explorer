@@ -14,9 +14,9 @@ class RailsComponentAnalyzerTest < Minitest::Test
       "Post" => [{"ApplicationRecord" => [[]]}]
     }
     analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data)
-    
+
     result = analyzer.categorize_components
-    
+
     assert_includes result[:models], "User"
     assert_includes result[:models], "Post"
   end
@@ -27,9 +27,9 @@ class RailsComponentAnalyzerTest < Minitest::Test
       "PostsController" => [{"ApplicationController" => [[]]}]
     }
     analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data)
-    
+
     result = analyzer.categorize_components
-    
+
     assert_includes result[:controllers], "UsersController"
     assert_includes result[:controllers], "PostsController"
   end
@@ -40,9 +40,9 @@ class RailsComponentAnalyzerTest < Minitest::Test
       "ApiController" => []
     }
     analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data)
-    
+
     result = analyzer.categorize_components
-    
+
     assert_includes result[:controllers], "AdminController"
     assert_includes result[:controllers], "ApiController"
   end
@@ -54,9 +54,9 @@ class RailsComponentAnalyzerTest < Minitest::Test
       "PaymentService" => []
     }
     analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data)
-    
+
     result = analyzer.categorize_components
-    
+
     assert_includes result[:services], "UserService"
     assert_includes result[:services], "EmailService"
     assert_includes result[:services], "PaymentService"
@@ -69,9 +69,9 @@ class RailsComponentAnalyzerTest < Minitest::Test
       "CustomClass" => []
     }
     analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data)
-    
+
     result = analyzer.categorize_components
-    
+
     assert_includes result[:other], "Logger"
     assert_includes result[:other], "Redis"
     assert_includes result[:other], "CustomClass"
@@ -85,9 +85,9 @@ class RailsComponentAnalyzerTest < Minitest::Test
       ]
     }
     analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data)
-    
+
     result = analyzer.categorize_components
-    
+
     assert_includes result[:services], "UserService"
     assert_includes result[:other], "Logger"
     assert_includes result[:other], "Redis"
@@ -96,9 +96,9 @@ class RailsComponentAnalyzerTest < Minitest::Test
   def test_categorize_components_handles_empty_dependency_data
     dependency_data = {}
     analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data)
-    
+
     result = analyzer.categorize_components
-    
+
     assert_equal [], result[:models]
     assert_equal [], result[:controllers]
     assert_equal [], result[:services]
@@ -110,9 +110,9 @@ class RailsComponentAnalyzerTest < Minitest::Test
       "UserService" => [{"UserService" => ["call"]}] # Self-reference
     }
     analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data)
-    
+
     result = analyzer.categorize_components
-    
+
     # UserService should only appear once
     assert_equal 1, result[:services].count("UserService")
   end

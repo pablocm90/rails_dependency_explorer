@@ -65,7 +65,7 @@ class DependencyExplorerExportTest < Minitest::Test
     assert_includes csv_output, "UserService,User"
 
     # Should have proper CSV structure (3 columns per row)
-    lines[1..-1].each do |line|
+    lines[1..].each do |line|
       columns = line.split(",")
       assert_equal 3, columns.length, "Each CSV row should have 3 columns: #{line}"
     end

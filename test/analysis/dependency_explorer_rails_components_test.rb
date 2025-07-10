@@ -11,22 +11,22 @@ class DependencyExplorerRailsComponentsTest < Minitest::Test
   def test_dependency_explorer_identifies_rails_components
     ruby_code = create_rails_components_code
     result = @explorer.analyze_code(ruby_code)
-    
+
     # Should categorize dependencies by Rails component type
     components = result.rails_components
-    
+
     # Should identify models
     assert_includes components[:models], "User"
     assert_includes components[:models], "Post"
-    
+
     # Should identify controllers
     assert_includes components[:controllers], "UsersController"
     assert_includes components[:controllers], "PostsController"
-    
+
     # Should identify services
     assert_includes components[:services], "UserService"
     assert_includes components[:services], "EmailService"
-    
+
     # Should identify other/unknown components
     assert_includes components[:other], "Logger"
     assert_includes components[:other], "Redis"

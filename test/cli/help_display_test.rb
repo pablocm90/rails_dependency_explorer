@@ -103,5 +103,4 @@ class HelpDisplayTest < Minitest::Test
       assert line.start_with?("  "), "Option line should be indented: #{line}"
     end
   end
-
 end

@@ -9,7 +9,7 @@ class IOTestHelpersTest < Minitest::Test
   def test_capture_io_captures_stdout_and_stderr
     stdout_output, stderr_output = capture_io do
       puts "Hello stdout"
-      $stderr.puts "Hello stderr"
+      warn "Hello stderr"
     end
 
     assert_equal "Hello stdout\n", stdout_output
@@ -36,7 +36,7 @@ class IOTestHelpersTest < Minitest::Test
       capture_io do
         raise StandardError, "test error"
       end
-    rescue StandardError
+    rescue
       # Expected exception
     end
 

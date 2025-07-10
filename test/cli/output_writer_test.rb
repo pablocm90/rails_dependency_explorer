@@ -78,8 +78,6 @@ class OutputWriterTest < Minitest::Test
     RailsDependencyExplorer::Analysis::AnalysisResult.new(dependencies)
   end
 
-
-
   def assert_format_output_includes(format, expected_content)
     result = @writer.format_output(@result, format)
     if expected_content.is_a?(Array)
@@ -88,5 +86,4 @@ class OutputWriterTest < Minitest::Test
       assert_includes result, expected_content
     end
   end
-
 end

@@ -8,11 +8,11 @@ module RailsDependencyExplorer
     class CsvFormatAdapter
       def format(dependency_data, statistics = nil)
         csv_lines = ["Source,Target,Methods"]
-        
+
         dependency_data.each do |class_name, dependencies|
           add_dependency_rows(csv_lines, class_name, dependencies)
         end
-        
+
         csv_lines.join("\n")
       end
 

@@ -84,8 +84,6 @@ class CommandTest < Minitest::Test
     end
   end
 
-
-
   def test_cli_supports_html_format
     assert_output_format("html") do |output|
       assert_includes output, "<html>"

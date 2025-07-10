@@ -41,13 +41,13 @@ module RailsDependencyExplorer
       def determine_component_type(class_name, dependencies)
         # Check for Rails models (inherit from ApplicationRecord)
         return :models if inherits_from_application_record?(dependencies)
-        
+
         # Check for Rails controllers (inherit from ApplicationController or end with Controller)
         return :controllers if rails_controller?(class_name, dependencies)
-        
+
         # Check for service classes (end with Service)
         return :services if service_class?(class_name)
-        
+
         # Everything else is categorized as other
         :other
       end

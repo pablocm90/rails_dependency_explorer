@@ -48,10 +48,6 @@ class AnalysisResultTest < Minitest::Test
     assert_equal expected, result.to_graph
   end
 
-
-
-
-
   def test_analysis_result_handles_class_with_no_dependencies
     dependency_data = {"Standalone" => []}
     result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)

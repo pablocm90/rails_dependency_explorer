@@ -144,5 +144,4 @@ class ArgumentParserTest < Minitest::Test
       assert_includes output[0], pattern
     end
   end
-
 end

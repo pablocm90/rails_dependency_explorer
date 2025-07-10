@@ -205,5 +205,4 @@ class AnalyzeCommandTest < Minitest::Test
       yield result if block_given?
     end
   end
-
 end
