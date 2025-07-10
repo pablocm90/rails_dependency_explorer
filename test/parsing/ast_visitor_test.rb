@@ -86,4 +86,60 @@ class ASTVisitorTest < Minitest::Test
 
     assert_equal expected, result
   end
+
+  def test_visit_activerecord_belongs_to_relationship
+    # Create a send node: belongs_to :account
+    parser = Parser::CurrentRuby
+    ast = parser.parse("belongs_to :account")
+
+    result = @visitor.visit(ast)
+    expected = {"ActiveRecord::belongs_to" => ["Account"]}
+
+    assert_equal expected, result
+  end
+
+  def test_visit_activerecord_has_many_relationship
+    # Create a send node: has_many :posts
+    parser = Parser::CurrentRuby
+    ast = parser.parse("has_many :posts")
+
+    result = @visitor.visit(ast)
+    expected = {"ActiveRecord::has_many" => ["Post"]}
+
+    assert_equal expected, result
+  end
+
+  def test_visit_activerecord_has_one_relationship
+    # Create a send node: has_one :profile
+    parser = Parser::CurrentRuby
+    ast = parser.parse("has_one :profile")
+
+    result = @visitor.visit(ast)
+    expected = {"ActiveRecord::has_one" => ["Profile"]}
+
+    assert_equal expected, result
+  end
+
+  def test_visit_activerecord_has_and_belongs_to_many_relationship
+    # Create a send node: has_and_belongs_to_many :roles
+    parser = Parser::CurrentRuby
+    ast = parser.parse("has_and_belongs_to_many :roles")
+
+    result = @visitor.visit(ast)
+    expected = {"ActiveRecord::has_and_belongs_to_many" => ["Role"]}
+
+    assert_equal expected, result
+  end
+
+  def test_visit_non_activerecord_method_call_with_nil_receiver
+    # Create a send node: validates :email, presence: true
+    parser = Parser::CurrentRuby
+    ast = parser.parse("validates :email, presence: true")
+
+    result = @visitor.visit(ast)
+    # Should not be treated as ActiveRecord relationship, should traverse children
+    expected = []
+
+    assert_equal expected, result
+  end
 end

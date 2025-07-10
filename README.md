@@ -6,6 +6,7 @@ A Ruby gem for analyzing and visualizing dependencies in Rails applications. Ext
 
 - **Dependency Analysis**: Parse Ruby code to extract class dependencies and method calls
 - **Rails Component Detection**: Automatically categorize classes as models, controllers, services, or other components
+- **ActiveRecord Relationship Analysis**: Detect and analyze ActiveRecord associations (belongs_to, has_many, has_one, has_and_belongs_to_many)
 - **Multiple Output Formats**: Export analysis results as DOT graphs, JSON, HTML, CSV, or console output
 - **Circular Dependency Detection**: Identify and report circular dependencies in your codebase
 - **Dependency Statistics**: Calculate metrics like dependency counts and depth analysis
@@ -49,6 +50,12 @@ components = result.rails_components
 puts "Models: #{components[:models]}"
 puts "Controllers: #{components[:controllers]}"
 puts "Services: #{components[:services]}"
+
+# Analyze ActiveRecord relationships
+relationships = result.activerecord_relationships
+puts "User belongs_to: #{relationships['User'][:belongs_to]}"
+puts "User has_many: #{relationships['User'][:has_many]}"
+puts "User has_one: #{relationships['User'][:has_one]}"
 
 # Export to different formats
 puts result.to_dot      # DOT graph format

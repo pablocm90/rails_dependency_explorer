@@ -68,6 +68,48 @@ module RailsDependencyExplorer
         {const_name => [method_name]}
       end
 
+      def self.activerecord_relationship_call?(receiver, node)
+        # Check if this is a method call with nil receiver (self) and an ActiveRecord relationship method
+        return false unless receiver.nil?
+
+        method_name = node.children[1].to_s
+        %w[belongs_to has_many has_one has_and_belongs_to_many].include?(method_name)
+      end
+
+      def self.extract_activerecord_relationship(node)
+        method_name = node.children[1].to_s
+
+        # Extract the target model from the first argument (symbol)
+        first_arg = node.children[2]
+        if first_arg&.type == :sym
+          target_symbol = first_arg.children[0].to_s
+          target_model = convert_symbol_to_model_name(target_symbol)
+          {"ActiveRecord::#{method_name}" => [target_model]}
+        else
+          # Fallback if we can't extract the target
+          {"ActiveRecord::#{method_name}" => ["Unknown"]}
+        end
+      end
+
+      def self.convert_symbol_to_model_name(symbol_name)
+        # Convert symbol like :posts to model name like Post
+        # Remove leading colon if present
+        clean_name = symbol_name.sub(/^:/, "")
+
+        # Simple singularization for common cases
+        singular_name = case clean_name
+        when /ies$/
+          clean_name.sub(/ies$/, "y")
+        when /s$/
+          clean_name.sub(/s$/, "")
+        else
+          clean_name
+        end
+
+        # Capitalize first letter
+        singular_name.capitalize
+      end
+
       private
 
       def register_default_handlers
@@ -90,6 +132,8 @@ module RailsDependencyExplorer
           extract_direct_constant_call(receiver, node)
         elsif chained_constant_call?(receiver)
           extract_chained_constant_call(receiver)
+        elsif activerecord_relationship_call?(receiver, node)
+          extract_activerecord_relationship(node)
         else
           visit_children(node)
         end
@@ -109,6 +153,14 @@ module RailsDependencyExplorer
 
       def extract_chained_constant_call(receiver)
         self.class.extract_chained_constant_call(receiver)
+      end
+
+      def activerecord_relationship_call?(receiver, node)
+        self.class.activerecord_relationship_call?(receiver, node)
+      end
+
+      def extract_activerecord_relationship(node)
+        self.class.extract_activerecord_relationship(node)
       end
 
       def visit_children(node)

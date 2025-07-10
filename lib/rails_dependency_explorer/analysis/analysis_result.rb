@@ -7,6 +7,7 @@ require_relative "circular_dependency_analyzer"
 require_relative "dependency_depth_analyzer"
 require_relative "dependency_statistics_calculator"
 require_relative "rails_component_analyzer"
+require_relative "activerecord_relationship_analyzer"
 
 module RailsDependencyExplorer
   module Analysis
@@ -20,6 +21,7 @@ module RailsDependencyExplorer
       def_delegator :circular_analyzer, :find_cycles, :circular_dependencies
       def_delegator :depth_analyzer, :calculate_depth, :dependency_depth
       def_delegator :rails_component_analyzer, :categorize_components, :rails_components
+      def_delegator :activerecord_relationship_analyzer, :analyze_relationships, :activerecord_relationships
 
       def initialize(dependency_data)
         @dependency_data = dependency_data
@@ -69,6 +71,10 @@ module RailsDependencyExplorer
 
       def rails_component_analyzer
         @rails_component_analyzer ||= RailsComponentAnalyzer.new(@dependency_data)
+      end
+
+      def activerecord_relationship_analyzer
+        @activerecord_relationship_analyzer ||= ActiveRecordRelationshipAnalyzer.new(@dependency_data)
       end
     end
   end
