@@ -15,12 +15,12 @@ class DependencyParserUtilsTest < Minitest::Test
         end
       end
     RUBY
-    
+
     parser = Parser::CurrentRuby
     ast = parser.parse(ruby_code)
     class_nodes = find_class_nodes(ast)
     class_name = RailsDependencyExplorer::Parsing::DependencyParserUtils.extract_class_name(class_nodes.first)
-    
+
     assert_equal "Player", class_name
   end
 
@@ -32,12 +32,12 @@ class DependencyParserUtilsTest < Minitest::Test
         end
       end
     RUBY
-    
+
     parser = Parser::CurrentRuby
     ast = parser.parse(ruby_code)
     class_nodes = find_class_nodes(ast)
     class_name = RailsDependencyExplorer::Parsing::DependencyParserUtils.extract_class_name(class_nodes.first)
-    
+
     assert_equal "Validatable", class_name
   end
 
@@ -47,7 +47,7 @@ class DependencyParserUtilsTest < Minitest::Test
     def mock_node.children
       [nil]
     end
-    
+
     class_name = RailsDependencyExplorer::Parsing::DependencyParserUtils.extract_class_name(mock_node)
     assert_equal "", class_name
   end
@@ -55,9 +55,9 @@ class DependencyParserUtilsTest < Minitest::Test
   def test_accumulate_visited_dependencies_handles_hash_dependencies
     accumulator = RailsDependencyExplorer::Parsing::DependencyAccumulator.new
     dependencies = {"Enemy" => ["health", "take_damage"]}
-    
+
     RailsDependencyExplorer::Parsing::DependencyParserUtils.accumulate_visited_dependencies(dependencies, accumulator)
-    
+
     result = accumulator.collection.to_grouped_array
     expected = [{"Enemy" => ["health", "take_damage"]}]
     assert_equal expected, result
@@ -69,9 +69,9 @@ class DependencyParserUtilsTest < Minitest::Test
       {"Enemy" => ["health"]},
       {"Logger" => ["info"]}
     ]
-    
+
     RailsDependencyExplorer::Parsing::DependencyParserUtils.accumulate_visited_dependencies(dependencies, accumulator)
-    
+
     result = accumulator.collection.to_grouped_array
     expected = [
       {"Enemy" => ["health"]},
@@ -134,9 +134,9 @@ class DependencyParserUtilsTest < Minitest::Test
   def test_accumulate_visited_dependencies_handles_empty_array
     accumulator = RailsDependencyExplorer::Parsing::DependencyAccumulator.new
     dependencies = []
-    
+
     RailsDependencyExplorer::Parsing::DependencyParserUtils.accumulate_visited_dependencies(dependencies, accumulator)
-    
+
     result = accumulator.collection.to_grouped_array
     expected = []
     assert_equal expected, result
