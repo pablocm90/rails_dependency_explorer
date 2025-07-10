@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require "minitest/autorun"
+require_relative "../support/file_test_helpers"
 require_relative "../../lib/rails_dependency_explorer/cli/argument_parser"
 
 class ArgumentParserTest < Minitest::Test
+  include IOTestHelpers
   def test_parse_format_option_returns_default_when_no_format_specified
     assert_parser_method_result(["analyze", "file.rb"], :parse_format_option, "graph")
   end
@@ -143,17 +145,4 @@ class ArgumentParserTest < Minitest::Test
     end
   end
 
-  def capture_io
-    original_stdout = $stdout
-    original_stderr = $stderr
-    $stdout = StringIO.new
-    $stderr = StringIO.new
-
-    yield
-
-    [$stdout.string, $stderr.string]
-  ensure
-    $stdout = original_stdout
-    $stderr = original_stderr
-  end
 end

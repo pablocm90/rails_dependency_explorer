@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require "minitest/autorun"
+require_relative "../support/file_test_helpers"
 require_relative "../../lib/rails_dependency_explorer/cli/help_display"
 
 class HelpDisplayTest < Minitest::Test
+  include IOTestHelpers
   def setup
     @help_display = RailsDependencyExplorer::CLI::HelpDisplay.new
   end
@@ -102,17 +104,4 @@ class HelpDisplayTest < Minitest::Test
     end
   end
 
-  def capture_io
-    original_stdout = $stdout
-    original_stderr = $stderr
-    $stdout = StringIO.new
-    $stderr = StringIO.new
-
-    yield
-
-    [$stdout.string, $stderr.string]
-  ensure
-    $stdout = original_stdout
-    $stderr = original_stderr
-  end
 end

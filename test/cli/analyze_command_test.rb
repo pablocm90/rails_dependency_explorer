@@ -2,11 +2,13 @@
 
 require "minitest/autorun"
 require_relative "../test_helper"
+require_relative "../support/file_test_helpers"
 require_relative "../../lib/rails_dependency_explorer/cli/analyze_command"
 require_relative "../../lib/rails_dependency_explorer/cli/argument_parser"
 require_relative "../../lib/rails_dependency_explorer/cli/output_writer"
 
 class AnalyzeCommandTest < Minitest::Test
+  include IOTestHelpers
   def setup
     @output_writer = RailsDependencyExplorer::CLI::OutputWriter.new
   end
@@ -163,17 +165,4 @@ class AnalyzeCommandTest < Minitest::Test
     end
   end
 
-  def capture_io
-    original_stdout = $stdout
-    original_stderr = $stderr
-    $stdout = StringIO.new
-    $stderr = StringIO.new
-
-    yield
-
-    [$stdout.string, $stderr.string]
-  ensure
-    $stdout = original_stdout
-    $stderr = original_stderr
-  end
 end

@@ -3,6 +3,7 @@
 require "tempfile"
 require "tmpdir"
 require "fileutils"
+require "stringio"
 
 module FileTestHelpers
   # Creates a temporary Ruby file with the given content
@@ -95,5 +96,24 @@ module FileTestHelpers
         end
       end
     RUBY
+  end
+end
+
+# Module for capturing IO during tests
+module IOTestHelpers
+  # Captures stdout and stderr during block execution
+  # Returns array [stdout_string, stderr_string]
+  def capture_io
+    original_stdout = $stdout
+    original_stderr = $stderr
+    $stdout = StringIO.new
+    $stderr = StringIO.new
+
+    yield
+
+    [$stdout.string, $stderr.string]
+  ensure
+    $stdout = original_stdout
+    $stderr = original_stderr
   end
 end
