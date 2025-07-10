@@ -34,6 +34,33 @@ module RailsDependencyExplorer
         end
       end
 
+      def self.format_statistics(stats)
+        "\n\nStatistics:\n" \
+          "  Total Classes: #{stats[:total_classes]}\n" \
+          "  Total Dependencies: #{stats[:total_dependencies]}\n" \
+          "  Most Used Dependency: #{stats[:most_used_dependency]}\n"
+      end
+
+      def self.format_circular_dependencies(cycles)
+        output = "\n\nCircular Dependencies:\n"
+        if cycles.empty?
+          output += "  None detected\n"
+        else
+          cycles.each do |cycle|
+            output += "  #{cycle.join(" -> ")}\n"
+          end
+        end
+        output
+      end
+
+      def self.format_dependency_depth(depths)
+        output = "\n\nDependency Depth:\n"
+        depths.each do |class_name, depth|
+          output += "  #{class_name}: #{depth}\n"
+        end
+        output
+      end
+
       private
 
       def format_console_output(result, options)
@@ -65,37 +92,6 @@ module RailsDependencyExplorer
       def format_dependency_depth(depths)
         self.class.format_dependency_depth(depths)
       end
-
-      def self.format_statistics(stats)
-        "\n\nStatistics:\n" \
-          "  Total Classes: #{stats[:total_classes]}\n" \
-          "  Total Dependencies: #{stats[:total_dependencies]}\n" \
-          "  Most Used Dependency: #{stats[:most_used_dependency]}\n"
-      end
-
-      def self.format_circular_dependencies(cycles)
-        output = "\n\nCircular Dependencies:\n"
-        if cycles.empty?
-          output += "  None detected\n"
-        else
-          cycles.each do |cycle|
-            output += "  #{cycle.join(" -> ")}\n"
-          end
-        end
-        output
-      end
-
-      def self.format_dependency_depth(depths)
-        output = "\n\nDependency Depth:\n"
-        depths.each do |class_name, depth|
-          output += "  #{class_name}: #{depth}\n"
-        end
-        output
-      end
-
-      private_class_method :format_statistics, :format_circular_dependencies, :format_dependency_depth
-
-      private
     end
   end
 end
