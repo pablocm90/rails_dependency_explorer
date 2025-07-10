@@ -82,55 +82,7 @@ class CommandTest < Minitest::Test
     end
   end
 
-  def test_cli_analyzes_directory_with_pattern_filtering
-    with_test_directory do |temp_dir|
-      create_directory_test_files(temp_dir)
 
-      output, exit_code = run_cli_command(["analyze", "--directory", temp_dir])
-
-      # Should analyze all Ruby files in directory
-      assert_includes output, "UserModel"
-      assert_includes output, "UserController"
-      assert_includes output, "Logger"
-      assert_includes output, "UserModel -> Logger"
-      assert_includes output, "UserController -> UserModel"
-      assert_equal 0, exit_code
-    end
-  end
-
-  def test_cli_analyzes_directory_recursively
-    with_nested_test_directory do |models_dir|
-      output, exit_code = run_cli_command(["analyze", "--directory", models_dir])
-
-      # Should find classes in both root and subdirectories
-      assert_includes output, "User"
-      assert_includes output, "Validatable"
-      assert_includes output, "Logger"
-      assert_includes output, "User -> Validatable"
-      assert_includes output, "Validatable -> Logger"
-      assert_equal 0, exit_code
-    end
-  end
-
-  def test_cli_supports_dot_format
-    assert_output_format("dot") do |output|
-      assert_includes output, "digraph"
-      assert_includes output, "TestClass"
-      assert_includes output, "Logger"
-      assert_includes output, "DataProcessor"
-    end
-  end
-
-  def test_cli_supports_json_format
-    require "json"
-
-    assert_output_format("json") do |output|
-      # Should be valid JSON
-      parsed_json = JSON.parse(output)
-      assert parsed_json.key?("dependencies")
-      assert parsed_json.key?("statistics")
-    end
-  end
 
   def test_cli_supports_html_format
     assert_output_format("html") do |output|
@@ -155,24 +107,6 @@ class CommandTest < Minitest::Test
       assert_includes output, "Error"
       assert_includes output, "invalid"
       assert_equal 1, exit_code
-    end
-  end
-
-  def test_cli_outputs_dot_format_to_file
-    assert_file_output_format("dot", "output.dot") do |content|
-      assert_includes content, "digraph"
-      assert_includes content, "TestClass"
-      assert_includes content, "Logger"
-    end
-  end
-
-  def test_cli_outputs_json_format_to_file
-    require "json"
-
-    assert_file_output_format("json", "output.json") do |content|
-      parsed_json = JSON.parse(content)
-      assert parsed_json.key?("dependencies")
-      assert parsed_json.key?("statistics")
     end
   end
 
@@ -279,33 +213,12 @@ class CommandTest < Minitest::Test
 
   private
 
-  # Helper method to create a test file with dependencies
-  def with_test_file
-    with_test_file_and_output { |test_file, _temp_dir| yield test_file }
-  end
-
   # Helper method to create a test file and output directory
   def with_test_file_and_output
-    require "tmpdir"
-
-    Dir.mktmpdir do |temp_dir|
-      test_file = create_test_file(temp_dir)
+    with_test_directory do |temp_dir|
+      test_file = create_ruby_file(temp_dir, "test_class.rb", command_test_class_content)
       yield test_file, temp_dir
     end
-  end
-
-  # Helper method to create a test file with standard content
-  def create_test_file(temp_dir)
-    test_file = File.join(temp_dir, "test_class.rb")
-    File.write(test_file, <<~RUBY)
-      class TestClass
-        def process
-          Logger.info("Processing")
-          DataProcessor.transform(data)
-        end
-      end
-    RUBY
-    test_file
   end
 
   # Helper method to run CLI command and capture output

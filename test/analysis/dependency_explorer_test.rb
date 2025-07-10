@@ -276,32 +276,12 @@ class DependencyExplorerTest < Minitest::Test
   end
 
   def test_dependency_explorer_exports_to_json
-    ruby_code = <<~RUBY
-      class UserService
-        def initialize
-          @user_repo = UserRepository.new
-          @email_service = EmailService.new
-        end
-
-        def create_user(params)
-          user = @user_repo.create(params)
-          @email_service.send_welcome_email(user)
-        end
-      end
-    RUBY
-
+    ruby_code = create_user_service_code
     result = @explorer.analyze_code(ruby_code)
     json_output = result.to_json
 
-    # Verify it's valid JSON
-    parsed = JSON.parse(json_output)
-
-    # Verify it contains expected dependency structure
-    assert parsed.key?("dependencies")
-    assert parsed.key?("statistics")
-    assert parsed["dependencies"].key?("UserService")
-    assert_includes parsed["dependencies"]["UserService"], "UserRepository"
-    assert_includes parsed["dependencies"]["UserService"], "EmailService"
+    assert_valid_json_structure(json_output)
+    assert_contains_user_service_dependencies(json_output)
   end
 
   def test_dependency_explorer_generates_html_report
@@ -393,27 +373,87 @@ class DependencyExplorerTest < Minitest::Test
     assert_includes graph[:edges], ["SimpleClass", "OtherClass"]
   end
 
-  def test_analyze_directory_traverses_subdirectories_recursively
+  def test_analyze_directory_finds_files_in_nested_subdirectories
     require "tmpdir"
     require "fileutils"
 
     Dir.mktmpdir do |temp_dir|
-      # Create nested directory structure and files
       dirs = create_nested_directory_structure(temp_dir)
       create_user_file(dirs[:models])
       create_user_validator_file(dirs[:concerns])
       create_email_service_file(dirs[:services])
 
-      # Analyze the entire directory structure
       result = @explorer.analyze_directory(temp_dir)
       graph = result.to_graph
 
-      # Verify recursive analysis results
-      assert_recursive_analysis_results(graph)
+      expected_nodes = ["User", "UserValidator", "EmailService"]
+      expected_nodes.each { |node| assert_includes graph[:nodes], node }
+    end
+  end
+
+  def test_analyze_directory_detects_cross_directory_dependencies
+    require "tmpdir"
+    require "fileutils"
+
+    Dir.mktmpdir do |temp_dir|
+      dirs = create_nested_directory_structure(temp_dir)
+      create_user_file(dirs[:models])
+      create_user_validator_file(dirs[:concerns])
+
+      result = @explorer.analyze_directory(temp_dir)
+      graph = result.to_graph
+
+      assert_includes graph[:edges], ["User", "UserValidator"]
+    end
+  end
+
+  def test_analyze_directory_processes_all_dependency_types_recursively
+    require "tmpdir"
+    require "fileutils"
+
+    Dir.mktmpdir do |temp_dir|
+      dirs = create_nested_directory_structure(temp_dir)
+      create_user_validator_file(dirs[:concerns])
+      create_email_service_file(dirs[:services])
+
+      result = @explorer.analyze_directory(temp_dir)
+      graph = result.to_graph
+
+      expected_edges = [["UserValidator", "Logger"], ["EmailService", "Mailer"]]
+      expected_edges.each { |edge| assert_includes graph[:edges], edge }
     end
   end
 
   private
+
+  def create_user_service_code
+    <<~RUBY
+      class UserService
+        def initialize
+          @user_repo = UserRepository.new
+          @email_service = EmailService.new
+        end
+
+        def create_user(params)
+          user = @user_repo.create(params)
+          @email_service.send_welcome_email(user)
+        end
+      end
+    RUBY
+  end
+
+  def assert_valid_json_structure(json_output)
+    parsed = JSON.parse(json_output)
+    assert parsed.key?("dependencies")
+    assert parsed.key?("statistics")
+  end
+
+  def assert_contains_user_service_dependencies(json_output)
+    parsed = JSON.parse(json_output)
+    assert parsed["dependencies"].key?("UserService")
+    assert_includes parsed["dependencies"]["UserService"], "UserRepository"
+    assert_includes parsed["dependencies"]["UserService"], "EmailService"
+  end
 
   def create_nested_directory_structure(temp_dir)
     models_dir = File.join(temp_dir, "models")
@@ -464,26 +504,11 @@ class DependencyExplorerTest < Minitest::Test
   end
 
   def create_player_file(temp_dir)
-    player_file = File.join(temp_dir, "player.rb")
-    File.write(player_file, <<~RUBY)
-      class Player
-        def attack
-          Enemy.health -= 10
-        end
-      end
-    RUBY
+    create_ruby_file(temp_dir, "player.rb", player_game_content)
   end
 
   def create_game_file(temp_dir)
-    game_file = File.join(temp_dir, "game.rb")
-    File.write(game_file, <<~RUBY)
-      class Game
-        def start
-          Player.new
-          Logger.info("Game started")
-        end
-      end
-    RUBY
+    create_ruby_file(temp_dir, "game.rb", game_content)
   end
 
   def create_non_ruby_file(temp_dir)

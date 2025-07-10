@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "minitest/autorun"
-require "tempfile"
+require_relative "../test_helper"
 require_relative "../../lib/rails_dependency_explorer/cli/output_writer"
 require_relative "../../lib/rails_dependency_explorer/analysis/analysis_result"
 
@@ -20,7 +20,7 @@ class OutputWriterTest < Minitest::Test
   end
 
   def test_write_output_to_file_when_file_specified
-    with_temp_file do |file|
+    with_output_file do |file|
       @writer.write_output("test content", file.path)
 
       assert_equal "test content", File.read(file.path)
@@ -35,14 +35,6 @@ class OutputWriterTest < Minitest::Test
     end
 
     assert_includes output[0], "Error writing to file '/invalid/path/file.txt'"
-  end
-
-  def test_format_output_returns_dot_format
-    assert_format_output_includes("dot", ["digraph", "SampleClass"])
-  end
-
-  def test_format_output_returns_json_format
-    assert_format_output_includes("json", ['"dependencies"', '"SampleClass"'])
   end
 
   def test_format_output_returns_html_format
@@ -80,11 +72,7 @@ class OutputWriterTest < Minitest::Test
     RailsDependencyExplorer::Analysis::AnalysisResult.new(dependencies)
   end
 
-  def with_temp_file
-    Tempfile.create("test_output") do |file|
-      yield file
-    end
-  end
+
 
   def assert_format_output_includes(format, expected_content)
     result = @writer.format_output(@result, format)

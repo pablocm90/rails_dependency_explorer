@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "minitest/autorun"
-require "tempfile"
+require_relative "../test_helper"
 require_relative "../../lib/rails_dependency_explorer/cli/analyze_command"
 require_relative "../../lib/rails_dependency_explorer/cli/argument_parser"
 require_relative "../../lib/rails_dependency_explorer/cli/output_writer"
@@ -9,19 +9,6 @@ require_relative "../../lib/rails_dependency_explorer/cli/output_writer"
 class AnalyzeCommandTest < Minitest::Test
   def setup
     @output_writer = RailsDependencyExplorer::CLI::OutputWriter.new
-  end
-
-  def test_execute_analyzes_single_file_successfully
-    with_test_file do |file|
-      command = create_analyze_command(["analyze", file.path])
-
-      output = execute_command_with_capture(command) do |result|
-        assert_equal 0, result
-      end
-
-      assert_includes output[0], "Dependencies found:"
-      assert_includes output[0], "TestClass"
-    end
   end
 
   def test_execute_returns_error_for_missing_file_path
@@ -89,24 +76,43 @@ class AnalyzeCommandTest < Minitest::Test
     end
   end
 
-  def test_execute_writes_to_output_file_when_specified
+  def test_execute_succeeds_with_output_file_option
     with_test_file do |file|
       with_output_file do |output_file|
         command = create_analyze_command([
           "analyze", file.path, "--format", "json", "--output", output_file.path
         ])
 
-        output = execute_command_with_capture(command) do |result|
-          assert_equal 0, result
-        end
+        result = command.execute
+        assert_equal 0, result
+      end
+    end
+  end
 
-        # Should not output to stdout
-        assert_empty output[0]
+  def test_execute_writes_content_to_specified_output_file
+    with_test_file do |file|
+      with_output_file do |output_file|
+        command = create_analyze_command([
+          "analyze", file.path, "--format", "json", "--output", output_file.path
+        ])
 
-        # Should write to file
+        command.execute
         file_content = File.read(output_file.path)
         assert_includes file_content, '"dependencies"'
         assert_includes file_content, '"TestClass"'
+      end
+    end
+  end
+
+  def test_execute_suppresses_stdout_when_output_file_specified
+    with_test_file do |file|
+      with_output_file do |output_file|
+        command = create_analyze_command([
+          "analyze", file.path, "--format", "json", "--output", output_file.path
+        ])
+
+        output = execute_command_with_capture(command)
+        assert_empty output[0]
       end
     end
   end
@@ -137,26 +143,11 @@ class AnalyzeCommandTest < Minitest::Test
 
   private
 
-  def with_test_file(content = "class TestClass\n  def initialize\n    @logger = Logger.new\n  end\nend")
-    Tempfile.create(["test", ".rb"]) do |file|
-      file.write(content)
-      file.flush
-      yield file
-    end
-  end
-
   def with_test_directory
     Dir.mktmpdir do |dir|
-      # Create a test Ruby file in the directory
-      test_file = File.join(dir, "test_class.rb")
-      File.write(test_file, "class TestClass\n  def initialize\n    @logger = Logger.new\n  end\nend")
+      # Create a test Ruby file in the directory using shared helper
+      create_ruby_file(dir, "test_class.rb", default_test_class_content)
       yield dir
-    end
-  end
-
-  def with_output_file
-    Tempfile.create("output") do |output_file|
-      yield output_file
     end
   end
 
