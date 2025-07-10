@@ -12,18 +12,22 @@ class AnalysisCoordinatorTest < Minitest::Test
     with_test_file do |file|
       parser = create_parser_mock(file_path: file.path, format: "json")
       coordinator = RailsDependencyExplorer::CLI::AnalysisCoordinator.new(parser, @output_writer)
-      
-      result = coordinator.coordinate_analysis(:file)
-      assert_equal 0, result
+
+      capture_io do
+        result = coordinator.coordinate_analysis(:file)
+        assert_equal 0, result
+      end
     end
   end
 
   def test_coordinate_analysis_file_returns_1_on_invalid_path
     parser = create_parser_mock(file_path: nil, format: "json")
     coordinator = RailsDependencyExplorer::CLI::AnalysisCoordinator.new(parser, @output_writer)
-    
-    result = coordinator.coordinate_analysis(:file)
-    assert_equal 1, result
+
+    capture_io do
+      result = coordinator.coordinate_analysis(:file)
+      assert_equal 1, result
+    end
   end
 
   def test_coordinate_analysis_directory_returns_0_on_success
@@ -31,18 +35,22 @@ class AnalysisCoordinatorTest < Minitest::Test
       create_test_file_in_directory(dir, "test.rb", "class TestClass; end")
       parser = create_parser_mock(directory_path: dir, format: "json")
       coordinator = RailsDependencyExplorer::CLI::AnalysisCoordinator.new(parser, @output_writer)
-      
-      result = coordinator.coordinate_analysis(:directory)
-      assert_equal 0, result
+
+      capture_io do
+        result = coordinator.coordinate_analysis(:directory)
+        assert_equal 0, result
+      end
     end
   end
 
   def test_coordinate_analysis_directory_returns_1_on_invalid_path
     parser = create_parser_mock(directory_path: "nonexistent", format: "json")
     coordinator = RailsDependencyExplorer::CLI::AnalysisCoordinator.new(parser, @output_writer)
-    
-    result = coordinator.coordinate_analysis(:directory)
-    assert_equal 1, result
+
+    capture_io do
+      result = coordinator.coordinate_analysis(:directory)
+      assert_equal 1, result
+    end
   end
 
   def test_analysis_executor_is_accessible
