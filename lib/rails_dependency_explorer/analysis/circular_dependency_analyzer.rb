@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "set"
+require_relative "analyzer_interface"
+require_relative "cycle_detection_interface"
 require_relative "graph_builder"
 require_relative "dfs_state"
 
@@ -10,8 +12,15 @@ module RailsDependencyExplorer
     # Analyzes dependency graphs to identify cycles where classes depend on each other directly
     # or indirectly, which can indicate architectural problems or potential runtime issues.
     class CircularDependencyAnalyzer
+      include AnalyzerInterface
+      include CycleDetectionInterface
       def initialize(dependency_data)
         @dependency_data = dependency_data
+      end
+
+      # Implementation of AnalyzerInterface
+      def analyze
+        find_cycles
       end
 
       def find_cycles

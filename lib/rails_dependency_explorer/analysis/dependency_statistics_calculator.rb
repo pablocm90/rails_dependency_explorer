@@ -1,13 +1,23 @@
 # frozen_string_literal: true
 
+require_relative "analyzer_interface"
+require_relative "statistics_interface"
+
 module RailsDependencyExplorer
   module Analysis
     # Calculates statistical metrics for dependency analysis results.
     # Provides insights into dependency patterns, including dependency counts,
     # distribution statistics, and other metrics useful for code quality assessment.
     class DependencyStatisticsCalculator
+      include AnalyzerInterface
+      include StatisticsInterface
       def initialize(dependency_data)
         @dependency_data = dependency_data
+      end
+
+      # Implementation of AnalyzerInterface
+      def analyze
+        calculate_statistics
       end
 
       def calculate_statistics

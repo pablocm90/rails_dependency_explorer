@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "set"
+require_relative "analyzer_interface"
 require_relative "graph_builder"
 require_relative "depth_calculation_state"
 
@@ -10,8 +11,14 @@ module RailsDependencyExplorer
     # Depth represents how many layers of dependencies a class has, helping identify
     # classes that are deeply nested in the dependency hierarchy.
     class DependencyDepthAnalyzer
+      include AnalyzerInterface
       def initialize(dependency_data)
         @dependency_data = dependency_data
+      end
+
+      # Implementation of AnalyzerInterface
+      def analyze
+        calculate_depth
       end
 
       def calculate_depth
