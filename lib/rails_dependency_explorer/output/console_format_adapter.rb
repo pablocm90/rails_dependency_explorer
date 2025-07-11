@@ -13,6 +13,16 @@ module RailsDependencyExplorer
         build_output_lines(nodes, graph_data[:edges]).join("\n")
       end
 
+      def self.format_architectural_analysis(architectural_data)
+        output = []
+
+        if architectural_data[:cross_namespace_cycles]
+          output << format_cross_namespace_cycles(architectural_data[:cross_namespace_cycles])
+        end
+
+        output.join("\n")
+      end
+
       private
 
       def self.build_output_lines(nodes, edges)
@@ -47,7 +57,25 @@ module RailsDependencyExplorer
         end
       end
 
-      private_class_method :build_output_lines, :build_header_lines, :build_title_section, :add_classes_section, :add_dependencies_header, :add_dependency_lines
+      def self.format_cross_namespace_cycles(cycles)
+        output = "Cross-Namespace Cycles:\n"
+
+        if cycles.empty?
+          output += "  ✅ None detected"
+        else
+          cycle_count = cycles.length
+          output += "  ⚠️  HIGH SEVERITY (#{cycle_count} cycle#{'s' if cycle_count > 1} detected)\n"
+
+          cycles.each do |cycle_info|
+            output += "    #{cycle_info[:cycle].join(' -> ')}\n"
+            output += "    Namespaces: #{cycle_info[:namespaces].join(', ')}\n"
+          end
+        end
+
+        output
+      end
+
+      private_class_method :build_output_lines, :build_header_lines, :build_title_section, :add_classes_section, :add_dependencies_header, :add_dependency_lines, :format_cross_namespace_cycles
     end
   end
 end

@@ -19,26 +19,56 @@ module RailsDependencyExplorer
       end
 
       def to_dot
-        visualizer.to_dot(@dependency_data)
+        architectural_analysis = extract_architectural_analysis
+
+        if architectural_analysis.any?
+          visualizer.to_dot_with_architectural_analysis(@dependency_data, architectural_analysis)
+        else
+          visualizer.to_dot(@dependency_data)
+        end
       end
 
       def to_json
         statistics = @statistics_provider&.statistics
-        visualizer.to_json(@dependency_data, statistics)
+        architectural_analysis = extract_architectural_analysis
+
+        if architectural_analysis.any?
+          visualizer.to_json_with_architectural_analysis(@dependency_data, statistics, architectural_analysis)
+        else
+          visualizer.to_json(@dependency_data, statistics)
+        end
       end
 
       def to_html
         statistics = @statistics_provider&.statistics
-        visualizer.to_html(@dependency_data, statistics)
+        architectural_analysis = extract_architectural_analysis
+
+        if architectural_analysis.any?
+          visualizer.to_html_with_architectural_analysis(@dependency_data, statistics, architectural_analysis)
+        else
+          visualizer.to_html(@dependency_data, statistics)
+        end
       end
 
       def to_console
-        visualizer.to_console(@dependency_data)
+        architectural_analysis = extract_architectural_analysis
+
+        if architectural_analysis.any?
+          visualizer.to_console_with_architectural_analysis(@dependency_data, architectural_analysis)
+        else
+          visualizer.to_console(@dependency_data)
+        end
       end
 
       def to_csv
         statistics = @statistics_provider&.statistics
-        visualizer.to_csv(@dependency_data, statistics)
+        architectural_analysis = extract_architectural_analysis
+
+        if architectural_analysis.any?
+          visualizer.to_csv_with_architectural_analysis(@dependency_data, statistics, architectural_analysis)
+        else
+          visualizer.to_csv(@dependency_data, statistics)
+        end
       end
 
       def to_rails_graph
@@ -53,6 +83,17 @@ module RailsDependencyExplorer
 
       def visualizer
         @visualizer ||= Output::DependencyVisualizer.new
+      end
+
+      def extract_architectural_analysis
+        architectural_analysis = {}
+
+        if @statistics_provider&.respond_to?(:cross_namespace_cycles)
+          cross_namespace_cycles = @statistics_provider.cross_namespace_cycles
+          architectural_analysis[:cross_namespace_cycles] = cross_namespace_cycles if cross_namespace_cycles&.any?
+        end
+
+        architectural_analysis
       end
     end
   end

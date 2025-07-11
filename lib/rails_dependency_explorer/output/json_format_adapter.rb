@@ -16,6 +16,15 @@ module RailsDependencyExplorer
         JSON.generate(json_data)
       end
 
+      def format_with_architectural_analysis(dependency_data, statistics = nil, architectural_analysis: {})
+        json_data = {
+          "dependencies" => self.class.build_dependencies_hash(dependency_data),
+          "statistics" => statistics,
+          "architectural_analysis" => architectural_analysis
+        }
+        JSON.generate(json_data)
+      end
+
       def self.build_dependencies_hash(dependency_data)
         result = {}
         dependency_data.each do |class_name, dependencies|

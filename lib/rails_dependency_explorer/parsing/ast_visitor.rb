@@ -49,8 +49,22 @@ module RailsDependencyExplorer
         end
       end
 
+      def extract_full_constant_name(node)
+        return nil unless node.type == :const
+
+        parts = []
+        current = node
+
+        while current && current.type == :const
+          parts.unshift(current.children[1].to_s)
+          current = current.children[0]
+        end
+
+        parts.join("::")
+      end
+
       def primitive_type?(node)
-        node.is_a?(Symbol) || node.is_a?(String) || node.is_a?(Integer)
+        node.is_a?(Symbol) || node.is_a?(String) || node.is_a?(Integer) || node.is_a?(Float)
       end
 
       def visit_send(node)
@@ -76,7 +90,7 @@ module RailsDependencyExplorer
       end
 
       def extract_direct_constant_call(receiver, node)
-        const_name = receiver.children[1].to_s
+        const_name = extract_full_constant_name(receiver)
         method_name = node.children[1].to_s
         {const_name => [method_name]}
       end
@@ -84,7 +98,7 @@ module RailsDependencyExplorer
       def extract_chained_constant_call(receiver)
         # Handle chained calls like GameState.current.update - only track first method
         receiver_children = receiver.children
-        const_name = receiver_children[0].children[1].to_s
+        const_name = extract_full_constant_name(receiver_children[0])
         method_name = receiver_children[1].to_s
         {const_name => [method_name]}
       end

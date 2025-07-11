@@ -164,12 +164,19 @@ class ASTProcessorTest < Minitest::Test
   end
 
   def test_process_classes_filters_out_empty_class_names
-    # This would be an edge case where extract_class_name returns empty
+    # This would be an edge case where find_class_nodes_with_namespace returns empty full_name
     processor = RailsDependencyExplorer::Parsing::ASTProcessor.new(player_code)
 
-    # Mock extract_class_name to return empty string
-    def processor.extract_class_name(node)
-      ""
+    # Mock find_class_nodes_with_namespace to return class info with empty full_name
+    def processor.find_class_nodes_with_namespace(ast, namespace_stack = [])
+      # Get the actual node but return it with empty full_name
+      original_result = super(ast, namespace_stack)
+      return [] if original_result.empty?
+
+      # Return the same structure but with empty full_name
+      original_result.map do |info|
+        info.merge(full_name: "")
+      end
     end
 
     class_info_list = processor.process_classes
