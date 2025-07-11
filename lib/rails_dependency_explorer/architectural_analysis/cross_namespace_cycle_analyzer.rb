@@ -23,7 +23,7 @@ module RailsDependencyExplorer
       private
 
       def find_all_cycles
-        circular_analyzer = Analysis::CircularDependencyAnalyzer.new(@dependency_data)
+        circular_analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(@dependency_data)
         circular_analyzer.find_cycles
       end
 

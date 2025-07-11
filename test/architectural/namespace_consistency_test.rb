@@ -83,34 +83,56 @@ class NamespaceConsistencyTest < Minitest::Test
     end
   end
 
+  def test_cross_module_references_use_full_namespaces
+    # Test that cross-module references use full namespaces for clarity
+    # This prevents ambiguity and makes dependencies explicit
+
+    # Check architectural_analysis module references to other modules
+    arch_analysis_files = Dir.glob("lib/rails_dependency_explorer/architectural_analysis/**/*.rb")
+
+    arch_analysis_files.each do |file|
+      content = File.read(file)
+
+      # Look for references to Analysis module classes without full namespace
+      # These should use RailsDependencyExplorer::Analysis:: prefix for clarity
+      analysis_class_refs = content.scan(/([^:]Analysis::\w+)/)
+        .flatten
+        .reject { |ref| ref.start_with?('RailsDependencyExplorer') }
+
+      assert_empty analysis_class_refs,
+        "File #{file} contains cross-module references without full namespace: #{analysis_class_refs.join(', ')}. " \
+        "Use RailsDependencyExplorer::Analysis:: prefix for clarity."
+    end
+  end
+
   def test_consistent_namespace_references_in_code
     lib_files = Dir.glob("lib/**/*.rb")
-    
+
     lib_files.each do |file|
       content = File.read(file)
-      
+
       # Skip files that are just module/class definitions
       next unless content.match?(/\w+::\w+/)
-      
+
       # Look for inconsistent namespace usage patterns
       # This is a structural check - we want consistent style
-      
+
       # Check for mixed short and long namespace references to same class
       # Example: both "AnalysisResult" and "RailsDependencyExplorer::Analysis::AnalysisResult"
       short_class_refs = content.scan(/(?<!::)([A-Z][a-zA-Z]*(?:[A-Z][a-zA-Z]*)*)(?!::)/)
         .flatten
         .select { |ref| ref.length > 3 } # Filter out short words like "Set"
-      
+
       long_class_refs = content.scan(/RailsDependencyExplorer::(?:\w+::)*(\w+)/)
         .flatten
-      
+
       # Find classes referenced both ways in same file
       mixed_references = short_class_refs & long_class_refs
-      
+
       # Allow some exceptions for common patterns
       allowed_mixed_references = %w[Set Hash Array String Parser]
       mixed_references -= allowed_mixed_references
-      
+
       if mixed_references.any?
         # This is informational for now - we'll fix in implementation
         # For the test to pass initially, we'll make this a soft assertion
