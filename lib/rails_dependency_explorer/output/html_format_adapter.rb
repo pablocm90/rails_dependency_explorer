@@ -27,12 +27,54 @@ module RailsDependencyExplorer
           </head>
           <body>
             <h1>Dependencies Report</h1>
-            
+
             <h2>Dependencies</h2>
             #{dependencies_html}
-            
+
             <h2>Statistics</h2>
             #{statistics_html}
+          </body>
+          </html>
+        HTML
+      end
+
+      def format_with_architectural_analysis(dependency_data, statistics = nil, architectural_analysis: {})
+        dependencies_html = build_dependencies_html(dependency_data)
+        statistics_html = build_statistics_html(statistics)
+        architectural_html = build_architectural_analysis_html(architectural_analysis)
+
+        <<~HTML
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Dependencies Report</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              h1 { color: #333; }
+              h2 { color: #666; }
+              h3 { color: #888; }
+              .dependency { margin: 10px 0; }
+              .class-name { font-weight: bold; color: #0066cc; }
+              .dependency-list { margin-left: 20px; }
+              .statistic { margin: 5px 0; }
+              .architectural-cycle { margin: 10px 0; padding: 10px; border-left: 4px solid #ff6b6b; background-color: #fff5f5; }
+              .severity-high { color: #d63031; font-weight: bold; }
+              .no-issues { color: #00b894; font-weight: bold; }
+              .cycle-path { font-family: monospace; background-color: #f8f9fa; padding: 5px; border-radius: 3px; }
+              .namespaces { color: #636e72; font-style: italic; }
+            </style>
+          </head>
+          <body>
+            <h1>Dependencies Report</h1>
+
+            <h2>Dependencies</h2>
+            #{dependencies_html}
+
+            <h2>Statistics</h2>
+            #{statistics_html}
+
+            <h2>Architectural Analysis</h2>
+            #{architectural_html}
           </body>
           </html>
         HTML
@@ -102,6 +144,36 @@ module RailsDependencyExplorer
 
       def extract_unique_dependencies(dependencies)
         self.class.extract_unique_dependencies(dependencies)
+      end
+
+      def build_architectural_analysis_html(architectural_analysis)
+        html = ""
+
+        if architectural_analysis[:cross_namespace_cycles]
+          html += build_cross_namespace_cycles_html(architectural_analysis[:cross_namespace_cycles])
+        end
+
+        html
+      end
+
+      def build_cross_namespace_cycles_html(cycles)
+        html = "<h3>Cross-Namespace Cycles</h3>\n"
+
+        if cycles.empty?
+          html += "<div class='no-issues'>✅ None detected</div>\n"
+        else
+          cycle_count = cycles.length
+          html += "<div class='severity-high'>⚠️ HIGH SEVERITY (#{cycle_count} cycle#{'s' if cycle_count > 1} detected)</div>\n"
+
+          cycles.each do |cycle_info|
+            html += "<div class='architectural-cycle'>\n"
+            html += "  <div class='cycle-path'>#{cycle_info[:cycle].join(' → ')}</div>\n"
+            html += "  <div class='namespaces'>Namespaces: #{cycle_info[:namespaces].join(', ')}</div>\n"
+            html += "</div>\n"
+          end
+        end
+
+        html
       end
     end
   end

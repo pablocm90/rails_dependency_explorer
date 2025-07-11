@@ -50,6 +50,31 @@ module RailsDependencyExplorer
         csv_adapter.format(dependency_data, statistics)
       end
 
+      # Architectural analysis enhanced output methods
+      def to_json_with_architectural_analysis(dependency_data, statistics = nil, architectural_analysis = {})
+        json_adapter.format_with_architectural_analysis(dependency_data, statistics, architectural_analysis: architectural_analysis)
+      end
+
+      def to_html_with_architectural_analysis(dependency_data, statistics = nil, architectural_analysis = {})
+        html_adapter.format_with_architectural_analysis(dependency_data, statistics, architectural_analysis: architectural_analysis)
+      end
+
+      def to_dot_with_architectural_analysis(dependency_data, architectural_analysis = {})
+        graph = to_graph(dependency_data)
+        dot_adapter.format_with_architectural_analysis(graph, architectural_analysis: architectural_analysis)
+      end
+
+      def to_console_with_architectural_analysis(dependency_data, architectural_analysis = {})
+        graph = to_graph(dependency_data)
+        base_output = ConsoleFormatAdapter.format(graph)
+        architectural_output = ConsoleFormatAdapter.format_architectural_analysis(architectural_analysis)
+        "#{base_output}\n\n#{architectural_output}"
+      end
+
+      def to_csv_with_architectural_analysis(dependency_data, statistics = nil, architectural_analysis = {})
+        csv_adapter.format_with_architectural_analysis(dependency_data, statistics, architectural_analysis: architectural_analysis)
+      end
+
       private
 
       def graph_adapter

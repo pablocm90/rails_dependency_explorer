@@ -37,14 +37,14 @@ class DependencyExplorerParsingTest < Minitest::Test
     result = @explorer.analyze_code(ruby_code)
     graph = result.to_graph
 
-    # Should detect class instantiations as dependencies
-    assert_includes graph[:nodes], "DependencyExplorer"
+    # Should detect class instantiations as dependencies (with full namespaces)
+    assert_includes graph[:nodes], "RailsDependencyExplorer::Analysis::DependencyExplorer"
     assert_includes graph[:nodes], "AnalysisResult"
-    assert_includes graph[:nodes], "DependencyParser"
+    assert_includes graph[:nodes], "Parsing::DependencyParser"
 
     # Should detect the dependency relationships
-    assert_includes graph[:edges], ["DependencyExplorer", "AnalysisResult"]
-    assert_includes graph[:edges], ["DependencyExplorer", "DependencyParser"]
+    assert_includes graph[:edges], ["RailsDependencyExplorer::Analysis::DependencyExplorer", "AnalysisResult"]
+    assert_includes graph[:edges], ["RailsDependencyExplorer::Analysis::DependencyExplorer", "Parsing::DependencyParser"]
   end
 
   def test_dependency_explorer_handles_code_with_modules_and_requires

@@ -8,6 +8,7 @@ require_relative "dependency_depth_analyzer"
 require_relative "dependency_statistics_calculator"
 require_relative "rails_component_analyzer"
 require_relative "activerecord_relationship_analyzer"
+require_relative "../architectural_analysis/cross_namespace_cycle_analyzer"
 
 module RailsDependencyExplorer
   module Analysis
@@ -23,6 +24,7 @@ module RailsDependencyExplorer
       def_delegator :depth_analyzer, :calculate_depth, :dependency_depth
       def_delegator :rails_component_analyzer, :categorize_components, :rails_components
       def_delegator :activerecord_relationship_analyzer, :analyze_relationships, :activerecord_relationships
+      def_delegator :cross_namespace_cycle_analyzer, :find_cross_namespace_cycles, :cross_namespace_cycles
 
       # Output formatting delegations
       def_delegator :formatter, :to_graph
@@ -70,6 +72,10 @@ module RailsDependencyExplorer
 
       def activerecord_relationship_analyzer
         @activerecord_relationship_analyzer ||= ActiveRecordRelationshipAnalyzer.new(@dependency_data)
+      end
+
+      def cross_namespace_cycle_analyzer
+        @cross_namespace_cycle_analyzer ||= ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(@dependency_data)
       end
     end
   end
