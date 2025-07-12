@@ -11,6 +11,10 @@ require_relative "activerecord_relationship_analyzer"
 require_relative "../architectural_analysis/cross_namespace_cycle_analyzer"
 
 module RailsDependencyExplorer
+  # Analysis module provides core dependency analysis and coordination functionality.
+  # Handles dependency exploration, circular dependency detection, depth analysis, statistics calculation,
+  # Rails component categorization, and analysis result coordination. Separates analysis concerns
+  # from parsing and output formatting following separation of concerns principle.
   module Analysis
     # Coordinates dependency analysis results and provides access to various analysis components.
     # Acts as a facade for dependency exploration, circular dependency detection, depth analysis,

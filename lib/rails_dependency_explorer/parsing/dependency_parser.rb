@@ -6,6 +6,10 @@ require_relative "dependency_accumulator"
 require_relative "ast_visitor"
 
 module RailsDependencyExplorer
+  # Parsing module handles Ruby code parsing, AST processing, and dependency extraction.
+  # Coordinates the complex process of analyzing Ruby source code to extract class dependencies,
+  # method calls, and constant references through Abstract Syntax Tree (AST) manipulation.
+  # Provides specialized classes for different aspects of parsing and dependency detection.
   module Parsing
     # Main parser for extracting dependencies from Ruby source code.
     # Coordinates dependency extraction workflow by delegating AST processing

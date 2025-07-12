@@ -2,8 +2,8 @@
 
 module RailsDependencyExplorer
   module Analysis
-    # Interface for analyzers that calculate dependency statistics.
-    # Defines the contract for statistics calculation functionality.
+    # Interface contract for analyzers that calculate dependency statistics.
+    # Defines the interface contract for statistics calculation functionality.
     # Part of Phase 1.2 interface extraction (Tidy First - Structural).
     module StatisticsInterface
       # Calculates statistics from the dependency data.

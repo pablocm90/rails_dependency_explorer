@@ -5,6 +5,9 @@ require_relative "error_handler"
 require_relative "analysis_coordinator"
 
 module RailsDependencyExplorer
+  # CLI module provides command-line interface functionality for the Rails dependency explorer.
+  # Handles user interaction, command parsing, option processing, and coordinates analysis execution.
+  # Separates command-line concerns from core analysis logic following separation of concerns.
   module CLI
     # Handles the 'analyze' command for the Rails dependency explorer CLI.
     # Delegates to AnalysisCoordinator for coordination logic, maintaining

@@ -1,5 +1,16 @@
 # frozen_string_literal: true
 
+# Rails Dependency Explorer - A comprehensive tool for analyzing dependencies in Ruby/Rails applications.
+# Provides dependency analysis, circular dependency detection, Rails component categorization,
+# ActiveRecord relationship analysis, and multiple output formats for visualization and reporting.
+#
+# The gem is organized into four main modules:
+# - Analysis: Core dependency analysis and coordination
+# - Parsing: Ruby code parsing and AST processing
+# - Output: Multiple format adapters for visualization
+# - CLI: Command-line interface and user interaction
+# - Utils: Utility classes organized by functional area
+
 require_relative "rails_dependency_explorer/version"
 require_relative "rails_dependency_explorer/utils"
 require_relative "rails_dependency_explorer/analysis/analyzer_interface"

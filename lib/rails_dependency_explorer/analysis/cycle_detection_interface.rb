@@ -2,8 +2,8 @@
 
 module RailsDependencyExplorer
   module Analysis
-    # Interface for analyzers that detect circular dependencies.
-    # Defines the contract for cycle detection functionality.
+    # Interface contract for analyzers that detect circular dependencies.
+    # Defines the interface contract for cycle detection functionality.
     # Part of Phase 1.2 interface extraction (Tidy First - Structural).
     module CycleDetectionInterface
       # Finds circular dependencies in the dependency graph.

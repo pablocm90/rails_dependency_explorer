@@ -6,7 +6,7 @@ require_relative "../architectural_analysis/cross_namespace_cycle_filter"
 module RailsDependencyExplorer
   module Utils
     # Filtering utility classes and modules.
-    # Organizes data filtering and selection utilities.
+    # Organizes data filtering and selection utility functionality.
     # Part of Phase 1.3 utility organization (Tidy First - Structural changes only).
     module FilterUtils
       # Re-export filter utilities under Utils namespace while maintaining backward compatibility

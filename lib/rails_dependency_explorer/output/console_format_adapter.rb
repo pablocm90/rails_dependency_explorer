@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module RailsDependencyExplorer
+  # Output module handles formatting and visualization of dependency analysis results.
+  # Provides multiple format adapters for different output types including console, DOT graphs,
+  # JSON, HTML, and CSV formats. Separates output formatting concerns from analysis logic.
   module Output
     # Formats dependency analysis results for console/terminal display.
     # Converts graph data into human-readable text format with proper indentation

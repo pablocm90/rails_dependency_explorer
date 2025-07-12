@@ -8,7 +8,7 @@ require_relative "../parsing/content_filter"
 module RailsDependencyExplorer
   module Utils
     # Parsing-related utility classes and modules.
-    # Organizes code parsing and dependency extraction utilities.
+    # Organizes code parsing and dependency extraction utility functionality.
     # Part of Phase 1.3 utility organization (Tidy First - Structural changes only).
     module ParsingUtils
       # Re-export parsing utilities under Utils namespace while maintaining backward compatibility

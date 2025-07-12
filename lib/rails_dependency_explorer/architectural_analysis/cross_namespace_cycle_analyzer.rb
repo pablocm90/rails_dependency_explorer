@@ -5,6 +5,9 @@ require_relative "cross_namespace_cycle_filter"
 require_relative "architectural_cycle_formatter"
 
 module RailsDependencyExplorer
+  # ArchitecturalAnalysis module provides advanced architectural analysis capabilities.
+  # Focuses on detecting architectural problems like cross-namespace cycles, coupling issues,
+  # and design pattern violations that indicate structural problems in the codebase.
   module ArchitecturalAnalysis
     # Detects circular dependencies that cross namespace boundaries.
     # Cross-namespace cycles indicate architectural problems where different

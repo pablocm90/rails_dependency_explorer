@@ -2,8 +2,8 @@
 
 module RailsDependencyExplorer
   module Analysis
-    # Base interface for all dependency analyzers.
-    # Defines the common contract that all analyzers must implement.
+    # Base interface contract for all dependency analyzers.
+    # Defines the common interface contract that all analyzers must implement.
     # Part of Phase 1.2 interface extraction (Tidy First - Structural).
     module AnalyzerInterface
       # Analyzes the dependency data and returns analysis results.
