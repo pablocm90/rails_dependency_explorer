@@ -9,9 +9,20 @@ module RailsDependencyExplorer
     # Scans directories and files to extract class dependencies, method calls, and
     # constant references, building a comprehensive dependency graph.
     class DependencyExplorer
+      def initialize(container: nil)
+        @container = container
+      end
+
+      # Factory method for creating DependencyExplorer with dependency container
+      # @param container [DependencyContainer] Optional DI container for custom analyzers
+      # @return [DependencyExplorer] New instance with appropriate container
+      def self.create(container: nil)
+        new(container: container)
+      end
+
       def analyze_code(ruby_code)
         dependency_data = self.class.parse_ruby_code(ruby_code)
-        AnalysisResult.new(dependency_data)
+        AnalysisResult.create(dependency_data, container: @container)
       end
 
       def analyze_files(files)
@@ -22,7 +33,7 @@ module RailsDependencyExplorer
           combined_dependency_data.merge!(file_dependencies)
         end
 
-        AnalysisResult.new(combined_dependency_data)
+        AnalysisResult.create(combined_dependency_data, container: @container)
       end
 
       def analyze_directory(directory_path, pattern: "*.rb")
