@@ -1,13 +1,21 @@
 # frozen_string_literal: true
 
+require_relative "analyzer_interface"
+
 module RailsDependencyExplorer
   module Analysis
     # Analyzes Rails configuration dependencies and environment-specific code.
     # Detects Rails.application.config, Rails.env, environment variables, secrets,
     # and credentials access patterns to identify configuration dependencies.
     class RailsConfigurationAnalyzer
+      include AnalyzerInterface
       def initialize(dependency_data)
         @dependency_data = dependency_data
+      end
+
+      # Implementation of AnalyzerInterface
+      def analyze
+        analyze_configuration_dependencies
       end
 
       def analyze_configuration_dependencies

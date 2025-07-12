@@ -1,13 +1,21 @@
 # frozen_string_literal: true
 
+require_relative "analyzer_interface"
+
 module RailsDependencyExplorer
   module Analysis
     # Analyzes ActiveRecord relationships and associations in Rails models.
     # Detects belongs_to, has_many, has_one, and has_and_belongs_to_many relationships
     # to provide insights into model associations and database relationships.
     class ActiveRecordRelationshipAnalyzer
+      include AnalyzerInterface
       def initialize(dependency_data)
         @dependency_data = dependency_data
+      end
+
+      # Implementation of AnalyzerInterface
+      def analyze
+        analyze_relationships
       end
 
       def analyze_relationships

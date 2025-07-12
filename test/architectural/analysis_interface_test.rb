@@ -127,19 +127,55 @@ class AnalysisInterfaceTest < Minitest::Test
       "StatisticsInterface should be focused (max 3 methods), has: #{stats_methods}"
   end
 
+  def test_rails_component_analyzer_implements_interface
+    analyzer_class = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer
+
+    # Test that RailsComponentAnalyzer includes AnalyzerInterface
+    assert analyzer_class.ancestors.include?(RailsDependencyExplorer::Analysis::AnalyzerInterface),
+      "RailsComponentAnalyzer should include AnalyzerInterface"
+
+    # Test that it implements the analyze method
+    assert analyzer_class.method_defined?(:analyze),
+      "RailsComponentAnalyzer should implement analyze method"
+  end
+
+  def test_rails_configuration_analyzer_implements_interface
+    analyzer_class = RailsDependencyExplorer::Analysis::RailsConfigurationAnalyzer
+
+    # Test that RailsConfigurationAnalyzer includes AnalyzerInterface
+    assert analyzer_class.ancestors.include?(RailsDependencyExplorer::Analysis::AnalyzerInterface),
+      "RailsConfigurationAnalyzer should include AnalyzerInterface"
+
+    # Test that it implements the analyze method
+    assert analyzer_class.method_defined?(:analyze),
+      "RailsConfigurationAnalyzer should implement analyze method"
+  end
+
+  def test_activerecord_relationship_analyzer_implements_interface
+    analyzer_class = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer
+
+    # Test that ActiveRecordRelationshipAnalyzer includes AnalyzerInterface
+    assert analyzer_class.ancestors.include?(RailsDependencyExplorer::Analysis::AnalyzerInterface),
+      "ActiveRecordRelationshipAnalyzer should include AnalyzerInterface"
+
+    # Test that it implements the analyze method
+    assert analyzer_class.method_defined?(:analyze),
+      "ActiveRecordRelationshipAnalyzer should implement analyze method"
+  end
+
   def test_interface_method_signatures
     # Test that interface methods have proper signatures (accept dependency_data)
-    
+
     # Create test instances to verify method signatures
     dependency_data = { "TestClass" => ["TestDependency"] }
-    
+
     # Test AnalyzerInterface compliance through CircularDependencyAnalyzer
     analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(dependency_data)
-    
+
     # Should respond to analyze method
     assert_respond_to analyzer, :analyze,
       "Analyzer should respond to analyze method"
-    
+
     # analyze method should accept no parameters (uses instance data)
     assert_equal 0, analyzer.method(:analyze).arity,
       "analyze method should accept no parameters"
