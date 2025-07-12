@@ -53,7 +53,6 @@ class CsvFormatAdapterArchitecturalTest < Minitest::Test
       architectural_analysis: { cross_namespace_cycles: cross_namespace_cycles }
     )
 
-    lines = result.split("\n")
     csv_data = CSV.parse(result, headers: true)
     
     # Find the row for the cross-namespace dependency
