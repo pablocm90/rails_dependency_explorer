@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "rails_dependency_explorer/version"
+require_relative "rails_dependency_explorer/utils"
 require_relative "rails_dependency_explorer/analysis/analyzer_interface"
 require_relative "rails_dependency_explorer/analysis/cycle_detection_interface"
 require_relative "rails_dependency_explorer/analysis/statistics_interface"
