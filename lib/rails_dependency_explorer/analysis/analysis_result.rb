@@ -9,6 +9,8 @@ require_relative "dependency_statistics_calculator"
 require_relative "rails_component_analyzer"
 require_relative "activerecord_relationship_analyzer"
 require_relative "../architectural_analysis/cross_namespace_cycle_analyzer"
+require_relative "analysis_pipeline"
+require_relative "analysis_result_builder"
 
 module RailsDependencyExplorer
   # Analysis module provides core dependency analysis and coordination functionality.
@@ -50,22 +52,44 @@ module RailsDependencyExplorer
       def_delegator :formatter, :to_rails_graph
       def_delegator :formatter, :to_rails_dot
 
-      def initialize(dependency_data, analyzers: nil)
+      def initialize(dependency_data, analyzers: nil, use_pipeline: false)
         @dependency_data = dependency_data
         @injected_analyzers = validate_analyzers(analyzers || {})
+        @use_pipeline = use_pipeline
+        @pipeline_results = nil
       end
 
       # Factory method for creating AnalysisResult with default analyzers
       # @param dependency_data [Hash] The dependency data to analyze
       # @param container [DependencyContainer] Optional DI container for custom analyzers
+      # @param use_pipeline [Boolean] Whether to use pipeline architecture (default: false for backward compatibility)
       # @return [AnalysisResult] New instance with appropriate analyzers
-      def self.create(dependency_data, container: nil)
-        if container
+      def self.create(dependency_data, container: nil, use_pipeline: false)
+        if use_pipeline
+          create_with_pipeline(dependency_data, container: container)
+        elsif container
           analyzers = build_analyzers_from_container(dependency_data, container)
           new(dependency_data, analyzers: analyzers)
         else
           new(dependency_data)
         end
+      end
+
+      # Factory method for creating AnalysisResult using pipeline architecture
+      # @param dependency_data [Hash] The dependency data to analyze
+      # @param container [DependencyContainer] Optional DI container for custom analyzers
+      # @return [AnalysisResult] New instance using pipeline internally
+      def self.create_with_pipeline(dependency_data, container: nil)
+        # Create pipeline with default analyzers
+        analyzers = build_pipeline_analyzers(dependency_data, container)
+        pipeline = AnalysisPipeline.new(analyzers, container: container)
+
+        # Execute pipeline
+        pipeline_results = pipeline.analyze(dependency_data)
+
+        # Build result using pipeline results
+        builder = AnalysisResultBuilder.new(dependency_data)
+        builder.build_from_pipeline_results(pipeline_results)
       end
 
       def rails_configuration_dependencies
@@ -143,6 +167,83 @@ module RailsDependencyExplorer
         end
 
         analyzers
+      end
+
+      # Build analyzers for pipeline execution
+      def self.build_pipeline_analyzers(dependency_data, container)
+        analyzers = []
+
+        # Add default analyzers (create simple adapter classes for pipeline)
+        analyzers << PipelineAnalyzerAdapter.new(:statistics, DependencyStatisticsCalculator.new(dependency_data))
+        analyzers << PipelineAnalyzerAdapter.new(:circular_dependencies, CircularDependencyAnalyzer.new(dependency_data))
+        analyzers << PipelineAnalyzerAdapter.new(:dependency_depth, DependencyDepthAnalyzer.new(dependency_data))
+        analyzers << PipelineAnalyzerAdapter.new(:rails_components, RailsComponentAnalyzer.new(dependency_data))
+        analyzers << PipelineAnalyzerAdapter.new(:activerecord_relationships, ActiveRecordRelationshipAnalyzer.new(dependency_data))
+        analyzers << PipelineAnalyzerAdapter.new(:cross_namespace_cycles, ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(dependency_data))
+
+        # Add container-based analyzers if available
+        if container
+          ANALYZER_KEYS.each do |key|
+            if container.registered?(key)
+              custom_analyzer = container.resolve(key, dependency_data)
+              analyzers << PipelineAnalyzerAdapter.new(key, custom_analyzer)
+            end
+          end
+        end
+
+        analyzers
+      end
+    end
+
+    # Adapter class to make existing analyzers work with pipeline
+    class PipelineAnalyzerAdapter
+      # Mapping of analyzer keys to their expected methods and result keys
+      ANALYZER_METHODS = {
+        statistics: { method: :calculate_statistics, result_key: :statistics },
+        circular_dependencies: { method: :find_cycles, result_key: :circular_dependencies },
+        dependency_depth: { method: :calculate_depth, result_key: :dependency_depth },
+        rails_components: { method: :categorize_components, result_key: :rails_components },
+        activerecord_relationships: { method: :analyze_relationships, result_key: :activerecord_relationships },
+        cross_namespace_cycles: { method: :find_cross_namespace_cycles, result_key: :cross_namespace_cycles }
+      }.freeze
+
+      def initialize(key, analyzer)
+        @key = key
+        @analyzer = analyzer
+      end
+
+      def analyze(dependency_data)
+        if ANALYZER_METHODS.key?(@key)
+          method_info = ANALYZER_METHODS[@key]
+          result = @analyzer.send(method_info[:method])
+          { method_info[:result_key] => result }
+        else
+          # For custom analyzers, try to call the expected method
+          method_name = expected_method_for_analyzer(@key)
+          if @analyzer.respond_to?(method_name)
+            { @key => @analyzer.send(method_name) }
+          else
+            { @key => @analyzer.call(dependency_data) }
+          end
+        end
+      end
+
+      def analyzer_key
+        @key
+      end
+
+      private
+
+      def expected_method_for_analyzer(analyzer_key)
+        case analyzer_key
+        when :circular_analyzer then :find_cycles
+        when :depth_analyzer then :calculate_depth
+        when :statistics_calculator then :calculate_statistics
+        when :rails_component_analyzer then :categorize_components
+        when :activerecord_relationship_analyzer then :analyze_relationships
+        when :cross_namespace_cycle_analyzer then :find_cross_namespace_cycles
+        else :call
+        end
       end
     end
   end
