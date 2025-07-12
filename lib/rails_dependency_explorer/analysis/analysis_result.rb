@@ -22,6 +22,16 @@ module RailsDependencyExplorer
     class AnalysisResult
       extend Forwardable
 
+      # Supported analyzer types for dependency injection
+      ANALYZER_KEYS = [
+        :circular_analyzer,
+        :depth_analyzer,
+        :statistics_calculator,
+        :rails_component_analyzer,
+        :activerecord_relationship_analyzer,
+        :cross_namespace_cycle_analyzer
+      ].freeze
+
       # Analysis coordination delegations
       def_delegator :statistics_calculator, :calculate_statistics, :statistics
       def_delegator :circular_analyzer, :find_cycles, :circular_dependencies
@@ -40,8 +50,22 @@ module RailsDependencyExplorer
       def_delegator :formatter, :to_rails_graph
       def_delegator :formatter, :to_rails_dot
 
-      def initialize(dependency_data)
+      def initialize(dependency_data, analyzers: nil)
         @dependency_data = dependency_data
+        @injected_analyzers = validate_analyzers(analyzers || {})
+      end
+
+      # Factory method for creating AnalysisResult with default analyzers
+      # @param dependency_data [Hash] The dependency data to analyze
+      # @param container [DependencyContainer] Optional DI container for custom analyzers
+      # @return [AnalysisResult] New instance with appropriate analyzers
+      def self.create(dependency_data, container: nil)
+        if container
+          analyzers = build_analyzers_from_container(dependency_data, container)
+          new(dependency_data, analyzers: analyzers)
+        else
+          new(dependency_data)
+        end
       end
 
       def rails_configuration_dependencies
@@ -59,27 +83,66 @@ module RailsDependencyExplorer
       end
 
       def circular_analyzer
-        @circular_analyzer ||= CircularDependencyAnalyzer.new(@dependency_data)
+        @circular_analyzer ||= @injected_analyzers[:circular_analyzer] || CircularDependencyAnalyzer.new(@dependency_data)
       end
 
       def depth_analyzer
-        @depth_analyzer ||= DependencyDepthAnalyzer.new(@dependency_data)
+        @depth_analyzer ||= @injected_analyzers[:depth_analyzer] || DependencyDepthAnalyzer.new(@dependency_data)
       end
 
       def statistics_calculator
-        @statistics_calculator ||= DependencyStatisticsCalculator.new(@dependency_data)
+        @statistics_calculator ||= @injected_analyzers[:statistics_calculator] || DependencyStatisticsCalculator.new(@dependency_data)
       end
 
       def rails_component_analyzer
-        @rails_component_analyzer ||= RailsComponentAnalyzer.new(@dependency_data)
+        @rails_component_analyzer ||= @injected_analyzers[:rails_component_analyzer] || RailsComponentAnalyzer.new(@dependency_data)
       end
 
       def activerecord_relationship_analyzer
-        @activerecord_relationship_analyzer ||= ActiveRecordRelationshipAnalyzer.new(@dependency_data)
+        @activerecord_relationship_analyzer ||= @injected_analyzers[:activerecord_relationship_analyzer] || ActiveRecordRelationshipAnalyzer.new(@dependency_data)
       end
 
       def cross_namespace_cycle_analyzer
-        @cross_namespace_cycle_analyzer ||= ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(@dependency_data)
+        @cross_namespace_cycle_analyzer ||= @injected_analyzers[:cross_namespace_cycle_analyzer] || ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(@dependency_data)
+      end
+
+      # Validate injected analyzers
+      def validate_analyzers(analyzers)
+        return {} unless analyzers.is_a?(Hash)
+
+        analyzers.each do |key, analyzer|
+          unless analyzer.respond_to?(:call) || analyzer.respond_to?(expected_method_for_analyzer(key))
+            raise ArgumentError, "Invalid analyzer for #{key}: must respond to expected methods"
+          end
+        end
+
+        analyzers
+      end
+
+      # Get expected method name for analyzer type
+      def expected_method_for_analyzer(analyzer_key)
+        case analyzer_key
+        when :circular_analyzer then :find_cycles
+        when :depth_analyzer then :calculate_depth
+        when :statistics_calculator then :calculate_statistics
+        when :rails_component_analyzer then :categorize_components
+        when :activerecord_relationship_analyzer then :analyze_relationships
+        when :cross_namespace_cycle_analyzer then :find_cross_namespace_cycles
+        else :call
+        end
+      end
+
+      # Build analyzers from dependency container
+      def self.build_analyzers_from_container(dependency_data, container)
+        analyzers = {}
+
+        ANALYZER_KEYS.each do |key|
+          if container.registered?(key)
+            analyzers[key] = container.resolve(key, dependency_data)
+          end
+        end
+
+        analyzers
       end
     end
   end
