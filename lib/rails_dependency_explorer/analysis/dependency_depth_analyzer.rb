@@ -2,6 +2,7 @@
 
 require "set"
 require_relative "base_analyzer"
+require_relative "graph_analyzer_interface"
 require_relative "depth_calculation_state"
 
 module RailsDependencyExplorer
@@ -10,6 +11,7 @@ module RailsDependencyExplorer
     # Depth represents how many layers of dependencies a class has, helping identify
     # classes that are deeply nested in the dependency hierarchy.
     class DependencyDepthAnalyzer < BaseAnalyzer
+      include GraphAnalyzerInterface
 
       # Implementation of BaseAnalyzer template method
       def perform_analysis
