@@ -6,35 +6,52 @@ module RailsDependencyExplorer
     # Provides automatic discovery and metadata extraction for pluggable analyzer system.
     # Part of Phase 3.2 pluggable analyzer system implementation.
     class AnalyzerDiscovery
-      def initialize(namespace: "RailsDependencyExplorer::Analysis")
+      def initialize(namespace: "RailsDependencyExplorer::Analysis", plugin_interface: nil)
         @namespace = namespace
+        @plugin_interface = plugin_interface
       end
 
       # Discover all analyzer classes implementing AnalyzerInterface
       def discover_analyzers(category: nil)
+        # Discover built-in analyzers
         analyzer_classes = find_analyzer_classes
-        
         result = {}
+
         analyzer_classes.each do |analyzer_class|
           key = class_name_to_key(analyzer_class.name)
-          
+
           # Filter by category if specified
           if category
             metadata = extract_metadata(analyzer_class)
             next unless metadata[:category] == category
           end
-          
+
           result[key] = analyzer_class
         end
-        
+
+        # Add plugin analyzers if plugin interface is available
+        if @plugin_interface
+          plugin_analyzers = @plugin_interface.registered_plugins
+          plugin_analyzers.each do |key, analyzer_class|
+            # Filter by category if specified
+            if category
+              metadata = extract_metadata(analyzer_class)
+              next unless metadata[:category] == category
+            end
+
+            result[key] = analyzer_class
+          end
+        end
+
         result
       end
 
       # Discover analyzers with their metadata
       def discover_analyzers_with_metadata
+        # Discover built-in analyzers
         analyzer_classes = find_analyzer_classes
-        
         result = {}
+
         analyzer_classes.each do |analyzer_class|
           key = class_name_to_key(analyzer_class.name)
           result[key] = {
@@ -42,7 +59,18 @@ module RailsDependencyExplorer
             metadata: extract_metadata(analyzer_class)
           }
         end
-        
+
+        # Add plugin analyzers if plugin interface is available
+        if @plugin_interface
+          plugin_analyzers = @plugin_interface.registered_plugins
+          plugin_analyzers.each do |key, analyzer_class|
+            result[key] = {
+              class: analyzer_class,
+              metadata: extract_metadata(analyzer_class)
+            }
+          end
+        end
+
         result
       end
 
