@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require "set"
-require_relative "analyzer_interface"
-require_relative "graph_builder"
+require_relative "base_analyzer"
 require_relative "depth_calculation_state"
 
 module RailsDependencyExplorer
@@ -10,14 +9,10 @@ module RailsDependencyExplorer
     # Calculates the dependency depth for each class in a Rails application.
     # Depth represents how many layers of dependencies a class has, helping identify
     # classes that are deeply nested in the dependency hierarchy.
-    class DependencyDepthAnalyzer
-      include AnalyzerInterface
-      def initialize(dependency_data)
-        @dependency_data = dependency_data
-      end
+    class DependencyDepthAnalyzer < BaseAnalyzer
 
-      # Implementation of AnalyzerInterface
-      def analyze
+      # Implementation of BaseAnalyzer template method
+      def perform_analysis
         calculate_depth
       end
 
@@ -33,10 +28,6 @@ module RailsDependencyExplorer
         all_nodes.each_with_object({}) do |node, depths|
           depths[node] = state.calculate_node_depth(node)
         end
-      end
-
-      def build_adjacency_list
-        GraphBuilder.build_adjacency_list(@dependency_data)
       end
 
       def extract_all_nodes(graph)
