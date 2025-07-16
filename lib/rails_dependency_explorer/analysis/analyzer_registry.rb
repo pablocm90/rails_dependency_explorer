@@ -92,17 +92,65 @@ module RailsDependencyExplorer
         true
       end
 
+      # Create a new registry with only analyzers enabled by configuration
+      def create_configured_registry(configuration)
+        configured_registry = self.class.new
+
+        # Apply configuration logic to registry analyzers
+        registry_analyzers = list_registered
+
+        registry_analyzers.each do |key|
+          if should_include_analyzer?(key, configuration)
+            analyzer_class = @analyzers[key]
+            original_metadata = get_analyzer_metadata(key)
+            configured_registry.register(key, analyzer_class, metadata: original_metadata)
+          end
+        end
+
+        configured_registry
+      end
+
       # Create registry with default analyzers
       def self.create_with_defaults
         registry = new
-        
+
         # Register default analyzers if available
         registry.register_if_available(:statistics, "RailsDependencyExplorer::Analysis::StatisticsAnalyzer")
         registry.register_if_available(:circular_dependencies, "RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer")
         registry.register_if_available(:dependency_depth, "RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer")
         registry.register_if_available(:rails_components, "RailsDependencyExplorer::Analysis::RailsComponentAnalyzer")
-        
+
         registry
+      end
+
+      private
+
+      # Determine if analyzer should be included based on configuration
+      def should_include_analyzer?(key, configuration)
+        return false unless analyzer_enabled_by_specific_rules?(key, configuration)
+        return false unless analyzer_enabled_by_category_rules?(key, configuration)
+
+        true
+      end
+
+      # Check if analyzer is enabled by specific analyzer rules
+      def analyzer_enabled_by_specific_rules?(key, configuration)
+        # Use configuration's public interface instead of accessing private state
+        configuration.analyzer_enabled?(key)
+      end
+
+      # Check if analyzer is enabled by category rules
+      def analyzer_enabled_by_category_rules?(key, configuration)
+        metadata = get_analyzer_metadata(key)
+        category = metadata[:category]
+
+        # If no category, assume enabled
+        return true unless category
+
+        # Use configuration's public interface for category checking
+        # For now, we'll assume enabled since we don't have a public category API
+        # This could be improved by adding category_enabled? method to configuration
+        true
       end
     end
   end
