@@ -26,7 +26,11 @@ module RailsDependencyExplorer
       # Implementation of AnalyzerInterface - Template Method pattern
       # Handles error handling and result formatting, delegates actual analysis to perform_analysis
       def analyze
-        return handle_analysis_error if @options[:error_handling] == :graceful && !validate_dependency_data
+        # Validate dependency data and handle based on error handling mode
+        unless validate_dependency_data
+          return handle_analysis_error if @options[:error_handling] == :graceful
+          raise StandardError, "Invalid dependency data provided to analyzer"
+        end
 
         begin
           raw_result = perform_analysis

@@ -3,6 +3,7 @@
 require "set"
 require_relative "base_analyzer"
 require_relative "cycle_detection_interface"
+require_relative "graph_analyzer_interface"
 require_relative "dfs_state"
 
 module RailsDependencyExplorer
@@ -12,6 +13,7 @@ module RailsDependencyExplorer
     # or indirectly, which can indicate architectural problems or potential runtime issues.
     class CircularDependencyAnalyzer < BaseAnalyzer
       include CycleDetectionInterface
+      include GraphAnalyzerInterface
 
       # Implementation of BaseAnalyzer template method
       def perform_analysis
