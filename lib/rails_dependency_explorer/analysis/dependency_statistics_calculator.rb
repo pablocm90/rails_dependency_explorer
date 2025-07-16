@@ -2,6 +2,7 @@
 
 require_relative "base_analyzer"
 require_relative "statistics_interface"
+require_relative "statistics_analyzer_interface"
 
 module RailsDependencyExplorer
   module Analysis
@@ -10,6 +11,7 @@ module RailsDependencyExplorer
     # distribution statistics, and other metrics useful for code quality assessment.
     class DependencyStatisticsCalculator < BaseAnalyzer
       include StatisticsInterface
+      include StatisticsAnalyzerInterface
 
       # Implementation of BaseAnalyzer template method
       def perform_analysis
