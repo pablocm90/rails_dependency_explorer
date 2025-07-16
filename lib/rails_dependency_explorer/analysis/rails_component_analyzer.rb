@@ -1,20 +1,16 @@
 # frozen_string_literal: true
 
-require_relative "analyzer_interface"
+require_relative "base_analyzer"
 
 module RailsDependencyExplorer
   module Analysis
     # Analyzes and categorizes Rails components based on class names and inheritance patterns.
     # Identifies models, controllers, services, and other Rails-specific component types
     # to provide better organization and understanding of Rails application structure.
-    class RailsComponentAnalyzer
-      include AnalyzerInterface
-      def initialize(dependency_data)
-        @dependency_data = dependency_data
-      end
+    class RailsComponentAnalyzer < BaseAnalyzer
 
-      # Implementation of AnalyzerInterface
-      def analyze
+      # Implementation of BaseAnalyzer template method
+      def perform_analysis
         categorize_components
       end
 
