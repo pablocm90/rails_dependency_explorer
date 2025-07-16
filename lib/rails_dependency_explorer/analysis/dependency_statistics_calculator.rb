@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "analyzer_interface"
+require_relative "base_analyzer"
 require_relative "statistics_interface"
 
 module RailsDependencyExplorer
@@ -8,26 +8,21 @@ module RailsDependencyExplorer
     # Calculates statistical metrics for dependency analysis results.
     # Provides insights into dependency patterns, including dependency counts,
     # distribution statistics, and other metrics useful for code quality assessment.
-    class DependencyStatisticsCalculator
-      include AnalyzerInterface
+    class DependencyStatisticsCalculator < BaseAnalyzer
       include StatisticsInterface
-      def initialize(dependency_data)
-        @dependency_data = dependency_data
-      end
 
-      # Implementation of AnalyzerInterface
-      def analyze
+      # Implementation of BaseAnalyzer template method
+      def perform_analysis
         calculate_statistics
       end
 
       def calculate_statistics
         dependency_counts = calculate_dependency_counts
-        most_used = dependency_counts.max_by { |_, count| count }
 
         {
           total_classes: @dependency_data.keys.count,
           total_dependencies: dependency_counts.keys.count,
-          most_used_dependency: most_used ? most_used[0] : nil,
+          most_used_dependency: find_most_used_dependency(dependency_counts),
           dependency_counts: dependency_counts
         }
       end
@@ -39,6 +34,12 @@ module RailsDependencyExplorer
       end
 
       private
+
+      # Find the most frequently used dependency
+      def find_most_used_dependency(dependency_counts)
+        most_used = dependency_counts.max_by { |_, count| count }
+        most_used ? most_used[0] : nil
+      end
 
       def calculate_dependency_counts
         counts = Hash.new(0)
