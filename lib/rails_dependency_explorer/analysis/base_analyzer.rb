@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "analyzer_interface"
+require_relative "../error_handler"
 require_relative "graph_builder"
 
 module RailsDependencyExplorer
@@ -25,7 +26,8 @@ module RailsDependencyExplorer
 
       # Implementation of AnalyzerInterface - Template Method pattern
       # Handles error handling and result formatting, delegates actual analysis to perform_analysis
-      def analyze
+      # @param dependency_data [Hash] Optional dependency data for pipeline compatibility (ignored, uses instance data)
+      def analyze(dependency_data = nil)
         # Validate dependency data and handle based on error handling mode
         unless validate_dependency_data
           return handle_analysis_error if @options[:error_handling] == :graceful
@@ -106,24 +108,39 @@ module RailsDependencyExplorer
       def handle_analysis_exception(exception)
         return raise exception if strict_error_handling?
 
-        create_error_result(exception.message, exception.class.name, exception.backtrace&.first(5))
+        # Use standardized error handling
+        context_name = if self.class.name
+                        self.class.name.split("::").last
+                      else
+                        "AnonymousAnalyzer"
+                      end
+
+        RailsDependencyExplorer::ErrorHandler.create_error_result(
+          exception,
+          context: context_name,
+          operation: "perform_analysis"
+        )
       end
 
       # Handle case where dependency data validation fails
       def handle_analysis_error
-        create_error_result("Invalid dependency data provided to analyzer", "ValidationError")
+        validation_error = StandardError.new("Invalid dependency data provided to analyzer")
+        context_name = if self.class.name
+                        self.class.name.split("::").last
+                      else
+                        "AnonymousAnalyzer"
+                      end
+
+        RailsDependencyExplorer::ErrorHandler.create_error_result(
+          validation_error,
+          context: context_name,
+          operation: "validate_dependency_data"
+        )
       end
 
       # Check if strict error handling is enabled
       def strict_error_handling?
         @options[:error_handling] == :strict
-      end
-
-      # Create standardized error result structure
-      def create_error_result(message, type, backtrace = nil)
-        error_data = { message: message, type: type }
-        error_data[:backtrace] = backtrace if backtrace
-        { error: error_data }
       end
     end
   end

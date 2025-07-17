@@ -176,8 +176,8 @@ class AnalysisInterfaceTest < Minitest::Test
     assert_respond_to analyzer, :analyze,
       "Analyzer should respond to analyze method"
 
-    # analyze method should accept no parameters (uses instance data)
-    assert_equal 0, analyzer.method(:analyze).arity,
-      "analyze method should accept no parameters"
+    # analyze method should accept optional dependency_data parameter for pipeline compatibility
+    assert_equal(-1, analyzer.method(:analyze).arity,
+      "analyze method should accept optional dependency_data parameter")
   end
 end

@@ -49,6 +49,7 @@ class NamespaceConsistencyTest < Minitest::Test
           "lib/rails_dependency_explorer/analysis/circular_dependency_analyzer.rb", # Uses Set + internal files
           "lib/rails_dependency_explorer/analysis/dependency_depth_analyzer.rb", # Uses Set + internal files
           "lib/rails_dependency_explorer/analysis/analyzer_configuration.rb", # Uses Set + internal files
+          "lib/rails_dependency_explorer/analysis/analysis_pipeline.rb", # Uses Thread + internal files
           "lib/rails_dependency_explorer/output/dependency_visualizer.rb" # Uses Set + internal files
         ]
 

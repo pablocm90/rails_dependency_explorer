@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "base_analyzer"
+require_relative "component_analyzer_interface"
 
 module RailsDependencyExplorer
   module Analysis
@@ -8,10 +9,16 @@ module RailsDependencyExplorer
     # Identifies models, controllers, services, and other Rails-specific component types
     # to provide better organization and understanding of Rails application structure.
     class RailsComponentAnalyzer < BaseAnalyzer
+      include ComponentAnalyzerInterface
 
       # Implementation of BaseAnalyzer template method
       def perform_analysis
         categorize_components
+      end
+
+      # Pipeline integration - specify the key for pipeline results
+      def analyzer_key
+        :rails_components
       end
 
       def categorize_components
@@ -58,7 +65,7 @@ module RailsDependencyExplorer
 
       def inherits_from_application_record?(dependencies)
         dependencies.any? do |dep|
-          dep.is_a?(Hash) && dep.key?("ApplicationRecord")
+          dep.is_a?(Hash) && (dep.key?("ApplicationRecord") || dep.key?("ActiveRecord::Base"))
         end
       end
 
@@ -104,8 +111,8 @@ module RailsDependencyExplorer
       end
 
       def rails_model_name?(class_name)
-        # Common Rails model patterns - could be expanded
-        %w[ApplicationRecord ActiveRecord].include?(class_name)
+        # Common Rails model patterns - should match ComponentAnalyzerInterface
+        %w[ApplicationRecord ActiveRecord ActiveRecord::Base].include?(class_name)
       end
     end
   end

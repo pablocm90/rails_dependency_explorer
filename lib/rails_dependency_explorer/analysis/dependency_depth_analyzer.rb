@@ -18,6 +18,11 @@ module RailsDependencyExplorer
         calculate_depth
       end
 
+      # Pipeline integration - specify the key for pipeline results
+      def analyzer_key
+        :dependency_depth
+      end
+
       def calculate_depth
         graph = build_adjacency_list
         reverse_graph = build_reverse_adjacency_list(graph)

@@ -173,20 +173,26 @@ module RailsDependencyExplorer
       def self.build_pipeline_analyzers(dependency_data, container)
         analyzers = []
 
-        # Add default analyzers (create simple adapter classes for pipeline)
-        analyzers << PipelineAnalyzerAdapter.new(:statistics, DependencyStatisticsCalculator.new(dependency_data))
-        analyzers << PipelineAnalyzerAdapter.new(:circular_dependencies, CircularDependencyAnalyzer.new(dependency_data))
-        analyzers << PipelineAnalyzerAdapter.new(:dependency_depth, DependencyDepthAnalyzer.new(dependency_data))
-        analyzers << PipelineAnalyzerAdapter.new(:rails_components, RailsComponentAnalyzer.new(dependency_data))
-        analyzers << PipelineAnalyzerAdapter.new(:activerecord_relationships, ActiveRecordRelationshipAnalyzer.new(dependency_data))
-        analyzers << PipelineAnalyzerAdapter.new(:cross_namespace_cycles, ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(dependency_data))
+        # Add default analyzers directly (no adapter needed)
+        # Configure analyzers to return raw results (not metadata-wrapped) for pipeline use
+
+        # BaseAnalyzer-based analyzers support include_metadata option
+        analyzers << DependencyStatisticsCalculator.new(dependency_data, include_metadata: false)
+        analyzers << CircularDependencyAnalyzer.new(dependency_data, include_metadata: false)
+        analyzers << DependencyDepthAnalyzer.new(dependency_data, include_metadata: false)
+        analyzers << RailsComponentAnalyzer.new(dependency_data, include_metadata: false)
+        analyzers << ActiveRecordRelationshipAnalyzer.new(dependency_data, include_metadata: false)
+
+        # CrossNamespaceCycleAnalyzer has different constructor signature (doesn't inherit from BaseAnalyzer)
+        # It returns raw results by default, so no configuration needed
+        analyzers << ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(dependency_data)
 
         # Add container-based analyzers if available
         if container
           ANALYZER_KEYS.each do |key|
             if container.registered?(key)
               custom_analyzer = container.resolve(key, dependency_data)
-              analyzers << PipelineAnalyzerAdapter.new(key, custom_analyzer)
+              analyzers << custom_analyzer
             end
           end
         end
@@ -195,56 +201,6 @@ module RailsDependencyExplorer
       end
     end
 
-    # Adapter class to make existing analyzers work with pipeline
-    class PipelineAnalyzerAdapter
-      # Mapping of analyzer keys to their expected methods and result keys
-      ANALYZER_METHODS = {
-        statistics: { method: :calculate_statistics, result_key: :statistics },
-        circular_dependencies: { method: :find_cycles, result_key: :circular_dependencies },
-        dependency_depth: { method: :calculate_depth, result_key: :dependency_depth },
-        rails_components: { method: :categorize_components, result_key: :rails_components },
-        activerecord_relationships: { method: :analyze_relationships, result_key: :activerecord_relationships },
-        cross_namespace_cycles: { method: :find_cross_namespace_cycles, result_key: :cross_namespace_cycles }
-      }.freeze
 
-      def initialize(key, analyzer)
-        @key = key
-        @analyzer = analyzer
-      end
-
-      def analyze(dependency_data)
-        if ANALYZER_METHODS.key?(@key)
-          method_info = ANALYZER_METHODS[@key]
-          result = @analyzer.send(method_info[:method])
-          { method_info[:result_key] => result }
-        else
-          # For custom analyzers, try to call the expected method
-          method_name = expected_method_for_analyzer(@key)
-          if @analyzer.respond_to?(method_name)
-            { @key => @analyzer.send(method_name) }
-          else
-            { @key => @analyzer.call(dependency_data) }
-          end
-        end
-      end
-
-      def analyzer_key
-        @key
-      end
-
-      private
-
-      def expected_method_for_analyzer(analyzer_key)
-        case analyzer_key
-        when :circular_analyzer then :find_cycles
-        when :depth_analyzer then :calculate_depth
-        when :statistics_calculator then :calculate_statistics
-        when :rails_component_analyzer then :categorize_components
-        when :activerecord_relationship_analyzer then :analyze_relationships
-        when :cross_namespace_cycle_analyzer then :find_cross_namespace_cycles
-        else :call
-        end
-      end
-    end
   end
 end

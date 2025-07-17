@@ -37,6 +37,16 @@ module RailsDependencyExplorer
         ArchitecturalCycleFormatter.format_cycles(cross_namespace_cycles)
       end
 
+      # Pipeline integration - specify the key for pipeline results
+      def analyzer_key
+        :cross_namespace_cycles
+      end
+
+      # Pipeline integration - implement analyze method for BaseAnalyzer compatibility
+      def analyze(dependency_data = nil)
+        find_cross_namespace_cycles
+      end
+
       private
 
       def find_all_cycles

@@ -18,6 +18,11 @@ module RailsDependencyExplorer
         calculate_statistics
       end
 
+      # Pipeline integration - specify the key for pipeline results
+      def analyzer_key
+        :statistics
+      end
+
       def calculate_statistics
         dependency_counts = calculate_dependency_counts
 

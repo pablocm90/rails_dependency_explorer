@@ -46,7 +46,11 @@ class AnalysisPipelineTest < Minitest::Test
     
     # Should handle analyzer failures gracefully
     assert_includes results.keys, :errors
-    assert_includes results[:errors], "MockFailingAnalyzer execution failed"
+    # Error should now be a structured error object, not a string
+    error = results[:errors].first
+    assert_kind_of Hash, error
+    assert_includes error.keys, :error
+    assert_equal "MockFailingAnalyzer execution failed", error[:error][:message]
     
     # Should still execute working analyzers
     assert_includes results.keys, :statistics
@@ -100,9 +104,9 @@ class AnalysisPipelineTest < Minitest::Test
     pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new([analyzer1, analyzer2])
     results = pipeline.analyze(@dependency_data)
     
-    # Should aggregate all analyzer results
-    assert_equal "value1", results[:key1]
-    assert_equal "value2", results[:key2]
+    # Should aggregate all analyzer results under their analyzer keys
+    assert_equal({ key1: "value1" }, results[:key1])
+    assert_equal({ key2: "value2" }, results[:key2])
   end
 
   def test_analysis_pipeline_with_dependency_injection

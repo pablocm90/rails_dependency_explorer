@@ -120,10 +120,10 @@ class ComponentAnalyzerInterfaceTest < Minitest::Test
     assert_includes relationships.keys, :service_to_service
     
     # Should identify specific relationships
-    assert_includes relationships[:controller_to_model], ["UserController", "User"]
-    assert_includes relationships[:controller_to_service], ["UserController", "UserService"]
-    assert_includes relationships[:service_to_model], ["UserService", "User"]
-    assert_includes relationships[:service_to_service], ["UserService", "EmailService"]
+    assert_equal ["User"], relationships[:controller_to_model]["UserController"]
+    assert_equal ["UserService"], relationships[:controller_to_service]["UserController"]
+    assert_equal ["User"], relationships[:service_to_model]["UserService"]
+    assert_equal ["EmailService"], relationships[:service_to_service]["UserService"]
   end
 
   def test_component_analyzer_interface_provides_component_metrics
@@ -152,11 +152,12 @@ class ComponentAnalyzerInterfaceTest < Minitest::Test
     assert_includes metrics.keys, :coupling_by_type
     assert_includes metrics.keys, :layering_violations
     
-    # Should count components by type
+    # Should count components by type (including referenced classes)
     counts = metrics[:component_counts]
-    assert_equal 1, counts[:controllers]
-    assert_equal 1, counts[:models]
-    assert_equal 2, counts[:services]
+    assert_equal 1, counts[:controllers]  # UserController only
+    assert_equal 2, counts[:models]       # User + ActiveRecord::Base (referenced)
+    assert_equal 2, counts[:services]     # UserService + EmailService
+    assert_equal 1, counts[:other]        # ActionMailer::Base (referenced)
     
     # Should analyze coupling by component type
     coupling = metrics[:coupling_by_type]
@@ -182,12 +183,13 @@ class ComponentAnalyzerInterfaceTest < Minitest::Test
     
     relationships = instance.analyze_component_relationships
     expected_relationships = {
-      controller_to_model: [],
-      controller_to_service: [],
-      service_to_model: [],
-      service_to_service: [],
-      model_to_model: [],
-      other_relationships: []
+      controller_to_model: {},
+      controller_to_service: {},
+      service_to_model: {},
+      service_to_service: {},
+      model_to_model: {},
+      other_relationships: {},
+      cross_layer_dependencies: []
     }
     assert_equal expected_relationships, relationships
     

@@ -20,6 +20,11 @@ module RailsDependencyExplorer
         find_cycles
       end
 
+      # Pipeline integration - specify the key for pipeline results
+      def analyzer_key
+        :circular_dependencies
+      end
+
       def find_cycles
         graph = build_adjacency_list
         state = DfsState.new
