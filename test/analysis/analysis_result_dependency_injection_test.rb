@@ -21,7 +21,7 @@ class AnalysisResultDependencyInjectionTest < Minitest::Test
       cross_namespace_cycle_analyzer: create_mock_cross_namespace_analyzer
     }
     
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(@dependency_data, analyzers: analyzers)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(@dependency_data, analyzers: analyzers)
     
     # Verify injected dependencies are used
     assert_same analyzers[:circular_analyzer], result.send(:circular_analyzer)
@@ -39,27 +39,27 @@ class AnalysisResultDependencyInjectionTest < Minitest::Test
       statistics_calculator: create_mock_statistics_calculator
     }
     
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(@dependency_data, analyzers: analyzers)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(@dependency_data, analyzers: analyzers)
     
     # Verify injected dependencies are used
     assert_same analyzers[:circular_analyzer], result.send(:circular_analyzer)
     assert_same analyzers[:statistics_calculator], result.send(:statistics_calculator)
     
     # Verify default analyzers are created for non-injected ones
-    assert_instance_of RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer, result.send(:depth_analyzer)
-    assert_instance_of RailsDependencyExplorer::Analysis::RailsComponentAnalyzer, result.send(:rails_component_analyzer)
+    assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer, result.send(:depth_analyzer)
+    assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer, result.send(:rails_component_analyzer)
   end
 
   def test_analysis_result_backward_compatibility
     # Test that old API still works without analyzers parameter
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(@dependency_data)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(@dependency_data)
     
     # Should create default analyzers
-    assert_instance_of RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer, result.send(:circular_analyzer)
-    assert_instance_of RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer, result.send(:depth_analyzer)
-    assert_instance_of RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator, result.send(:statistics_calculator)
-    assert_instance_of RailsDependencyExplorer::Analysis::RailsComponentAnalyzer, result.send(:rails_component_analyzer)
-    assert_instance_of RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer, result.send(:activerecord_relationship_analyzer)
+    assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer, result.send(:circular_analyzer)
+    assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer, result.send(:depth_analyzer)
+    assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator, result.send(:statistics_calculator)
+    assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer, result.send(:rails_component_analyzer)
+    assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer, result.send(:activerecord_relationship_analyzer)
     assert_instance_of RailsDependencyExplorer::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer, result.send(:cross_namespace_cycle_analyzer)
   end
 
@@ -75,7 +75,7 @@ class AnalysisResultDependencyInjectionTest < Minitest::Test
       statistics_calculator: mock_stats
     }
     
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(@dependency_data, analyzers: analyzers)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(@dependency_data, analyzers: analyzers)
     
     # Test delegated methods call the injected analyzers
     result.circular_dependencies
@@ -90,30 +90,30 @@ class AnalysisResultDependencyInjectionTest < Minitest::Test
 
   def test_analysis_result_factory_method
     # Test factory method for creating AnalysisResult with default analyzers
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.create(@dependency_data)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.create(@dependency_data)
     
     # Should create default analyzers
-    assert_instance_of RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer, result.send(:circular_analyzer)
-    assert_instance_of RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer, result.send(:depth_analyzer)
-    assert_instance_of RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator, result.send(:statistics_calculator)
+    assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer, result.send(:circular_analyzer)
+    assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer, result.send(:depth_analyzer)
+    assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator, result.send(:statistics_calculator)
   end
 
   def test_analysis_result_factory_method_with_container
     # Test factory method with dependency container
-    container = RailsDependencyExplorer::Analysis::DependencyContainer.new
+    container = RailsDependencyExplorer::Analysis::Configuration::DependencyContainer.new
     
     # Register custom analyzers in container
     container.register(:circular_analyzer) { |data| create_mock_circular_analyzer }
     container.register(:statistics_calculator) { |data| create_mock_statistics_calculator }
     
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.create(@dependency_data, container: container)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.create(@dependency_data, container: container)
     
     # Should use analyzers from container
     assert_kind_of MockCircularAnalyzer, result.send(:circular_analyzer)
     assert_kind_of MockStatisticsCalculator, result.send(:statistics_calculator)
     
     # Should create default for non-registered analyzers
-    assert_instance_of RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer, result.send(:depth_analyzer)
+    assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer, result.send(:depth_analyzer)
   end
 
   def test_analysis_result_invalid_analyzer_injection
@@ -123,17 +123,17 @@ class AnalysisResultDependencyInjectionTest < Minitest::Test
     }
     
     assert_raises(ArgumentError) do
-      RailsDependencyExplorer::Analysis::AnalysisResult.new(@dependency_data, analyzers: analyzers)
+      RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(@dependency_data, analyzers: analyzers)
     end
   end
 
   def test_analysis_result_nil_analyzers_parameter
     # Test that nil analyzers parameter works like no parameter
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(@dependency_data, analyzers: nil)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(@dependency_data, analyzers: nil)
     
     # Should create default analyzers
-    assert_instance_of RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer, result.send(:circular_analyzer)
-    assert_instance_of RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer, result.send(:depth_analyzer)
+    assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer, result.send(:circular_analyzer)
+    assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer, result.send(:depth_analyzer)
   end
 
   private

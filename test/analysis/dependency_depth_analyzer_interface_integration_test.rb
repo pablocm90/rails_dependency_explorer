@@ -12,12 +12,12 @@ class DependencyDepthAnalyzerInterfaceIntegrationTest < Minitest::Test
       "E" => [{"F" => ["method4"]}],
       "F" => []
     }
-    @analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(@dependency_data)
+    @analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(@dependency_data)
   end
 
   def test_dependency_depth_analyzer_includes_graph_analyzer_interface
     # Should include GraphAnalyzerInterface
-    assert @analyzer.class.included_modules.include?(RailsDependencyExplorer::Analysis::GraphAnalyzerInterface)
+    assert @analyzer.class.included_modules.include?(RailsDependencyExplorer::Analysis::Interfaces::GraphAnalyzerInterface)
   end
 
   def test_dependency_depth_analyzer_responds_to_graph_interface_methods
@@ -109,7 +109,7 @@ class DependencyDepthAnalyzerInterfaceIntegrationTest < Minitest::Test
   end
 
   def test_dependency_depth_analyzer_interface_methods_work_with_empty_data
-    empty_analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new({})
+    empty_analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new({})
     
     # Graph interface methods should handle empty data
     adjacency_list = empty_analyzer.build_adjacency_list
@@ -130,7 +130,7 @@ class DependencyDepthAnalyzerInterfaceIntegrationTest < Minitest::Test
       "C" => [{"A" => ["method3"]}]  # Creates cycle A -> B -> C -> A
     }
     
-    cyclic_analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(cyclic_data)
+    cyclic_analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(cyclic_data)
     
     # Graph interface should detect cycles
     structure = cyclic_analyzer.analyze_graph_structure

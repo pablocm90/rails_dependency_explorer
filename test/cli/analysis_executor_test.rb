@@ -47,7 +47,7 @@ class AnalysisExecutorTest < Minitest::Test
   def test_analyze_single_file_returns_analysis_result
     with_test_file do |file|
       result = @executor.analyze_single_file(file.path)
-      assert_instance_of RailsDependencyExplorer::Analysis::AnalysisResult, result
+      assert_instance_of RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult, result
     end
   end
 
@@ -56,7 +56,7 @@ class AnalysisExecutorTest < Minitest::Test
       create_test_file_in_directory(dir, "test.rb", "class TestClass; end")
       capture_io do
         result = @executor.analyze_directory_files(dir)
-        assert_instance_of RailsDependencyExplorer::Analysis::AnalysisResult, result
+        assert_instance_of RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult, result
       end
     end
   end

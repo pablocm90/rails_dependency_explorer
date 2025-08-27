@@ -1,22 +1,22 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require_relative '../../lib/rails_dependency_explorer/analysis/analyzer_registry'
-require_relative '../../lib/rails_dependency_explorer/analysis/analyzer_configuration'
-require_relative '../../lib/rails_dependency_explorer/analysis/analyzer_discovery'
-require_relative '../../lib/rails_dependency_explorer/analysis/analyzer_plugin_interface'
-require_relative '../../lib/rails_dependency_explorer/analysis/analysis_pipeline'
+require_relative '../../lib/rails_dependency_explorer/analysis/pipeline/analyzer_registry'
+require_relative '../../lib/rails_dependency_explorer/analysis/configuration/analyzer_configuration'
+require_relative '../../lib/rails_dependency_explorer/analysis/configuration/analyzer_discovery'
+require_relative '../../lib/rails_dependency_explorer/analysis/interfaces/analyzer_plugin_interface'
+require_relative '../../lib/rails_dependency_explorer/analysis/pipeline/analysis_pipeline'
 
 class AnalyzerRegistryIntegrationTest < Minitest::Test
   def setup
-    @registry = RailsDependencyExplorer::Analysis::AnalyzerRegistry.new
+    @registry = RailsDependencyExplorer::Analysis::Pipeline::AnalyzerRegistry.new
 
     # Register some test analyzers
     register_test_analyzers
 
     # Create a mock discovery that includes our test analyzers
     @discovery = create_mock_discovery
-    @configuration = RailsDependencyExplorer::Analysis::AnalyzerConfiguration.new(discovery: @discovery)
+    @configuration = RailsDependencyExplorer::Analysis::Configuration::AnalyzerConfiguration.new(discovery: @discovery)
   end
 
   def test_registry_respects_configuration_enabled_analyzers
@@ -74,7 +74,7 @@ class AnalyzerRegistryIntegrationTest < Minitest::Test
     configured_registry = @registry.create_configured_registry(@configuration)
     
     # Create pipeline from configured registry
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.from_registry(configured_registry)
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.from_registry(configured_registry)
     
     # Pipeline should only have configured analyzers
     # We can test this by running the pipeline and checking results
@@ -103,10 +103,10 @@ class AnalyzerRegistryIntegrationTest < Minitest::Test
 
   def test_registry_integration_with_plugin_interface
     # Create plugin interface and register a plugin
-    plugin_interface = RailsDependencyExplorer::Analysis::AnalyzerPluginInterface.new
+    plugin_interface = RailsDependencyExplorer::Analysis::Interfaces::AnalyzerPluginInterface.new
     
     custom_analyzer = Class.new do
-      include RailsDependencyExplorer::Analysis::AnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::AnalyzerInterface
       
       def self.name
         "CustomPluginAnalyzer"
@@ -129,7 +129,7 @@ class AnalyzerRegistryIntegrationTest < Minitest::Test
     def mock_discovery_with_plugin.discover_analyzers
       {
         custom_plugin_analyzer: Class.new do
-          include RailsDependencyExplorer::Analysis::AnalyzerInterface
+          include RailsDependencyExplorer::Analysis::Interfaces::AnalyzerInterface
           def self.name
             "CustomPluginAnalyzer"
           end
@@ -150,7 +150,7 @@ class AnalyzerRegistryIntegrationTest < Minitest::Test
     end
 
     # Create configuration with plugin-aware discovery
-    config_with_plugins = RailsDependencyExplorer::Analysis::AnalyzerConfiguration.new(discovery: mock_discovery_with_plugin)
+    config_with_plugins = RailsDependencyExplorer::Analysis::Configuration::AnalyzerConfiguration.new(discovery: mock_discovery_with_plugin)
 
     # Configure to only enable the plugin
     config_with_plugins.disable_all
@@ -185,7 +185,7 @@ class AnalyzerRegistryIntegrationTest < Minitest::Test
 
   def test_registry_configuration_with_empty_configuration
     # Empty configuration should include all available analyzers
-    empty_config = RailsDependencyExplorer::Analysis::AnalyzerConfiguration.new(discovery: @discovery)
+    empty_config = RailsDependencyExplorer::Analysis::Configuration::AnalyzerConfiguration.new(discovery: @discovery)
     
     configured_registry = @registry.create_configured_registry(empty_config)
     
@@ -207,19 +207,19 @@ class AnalyzerRegistryIntegrationTest < Minitest::Test
     def mock_discovery.discover_analyzers
       {
         test_analyzer_one: Class.new do
-          include RailsDependencyExplorer::Analysis::AnalyzerInterface
+          include RailsDependencyExplorer::Analysis::Interfaces::AnalyzerInterface
           def analyze(dependencies)
             { test_one_analysis: "result one" }
           end
         end,
         test_analyzer_two: Class.new do
-          include RailsDependencyExplorer::Analysis::AnalyzerInterface
+          include RailsDependencyExplorer::Analysis::Interfaces::AnalyzerInterface
           def analyze(dependencies)
             { test_two_analysis: "result two" }
           end
         end,
         test_analyzer_three: Class.new do
-          include RailsDependencyExplorer::Analysis::AnalyzerInterface
+          include RailsDependencyExplorer::Analysis::Interfaces::AnalyzerInterface
           def analyze(dependencies)
             { test_three_analysis: "result three" }
           end
@@ -250,7 +250,7 @@ class AnalyzerRegistryIntegrationTest < Minitest::Test
   def register_test_analyzers
     # Register test analyzers with different categories
     test_analyzer_one = Class.new do
-      include RailsDependencyExplorer::Analysis::AnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::AnalyzerInterface
       
       def analyze(dependencies)
         { test_one_analysis: "result one" }
@@ -258,7 +258,7 @@ class AnalyzerRegistryIntegrationTest < Minitest::Test
     end
     
     test_analyzer_two = Class.new do
-      include RailsDependencyExplorer::Analysis::AnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::AnalyzerInterface
       
       def analyze(dependencies)
         { test_two_analysis: "result two" }
@@ -266,7 +266,7 @@ class AnalyzerRegistryIntegrationTest < Minitest::Test
     end
     
     test_analyzer_three = Class.new do
-      include RailsDependencyExplorer::Analysis::AnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::AnalyzerInterface
       
       def analyze(dependencies)
         { test_three_analysis: "result three" }

@@ -47,12 +47,12 @@ class ActiveRecordRelationshipAnalyzerInterfaceIntegrationTest < Minitest::Test
       ]
     }
     
-    @analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(@dependency_data)
+    @analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(@dependency_data)
   end
 
   def test_activerecord_analyzer_includes_component_analyzer_interface
     # Should include ComponentAnalyzerInterface
-    assert @analyzer.class.included_modules.include?(RailsDependencyExplorer::Analysis::ComponentAnalyzerInterface)
+    assert @analyzer.class.included_modules.include?(RailsDependencyExplorer::Analysis::Interfaces::ComponentAnalyzerInterface)
   end
 
   def test_activerecord_analyzer_responds_to_component_interface_methods
@@ -212,7 +212,7 @@ class ActiveRecordRelationshipAnalyzerInterfaceIntegrationTest < Minitest::Test
   end
 
   def test_activerecord_analyzer_interface_methods_work_with_empty_data
-    empty_analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new({})
+    empty_analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new({})
     
     # Component interface methods should handle empty data
     classification = empty_analyzer.classify_components
@@ -244,7 +244,7 @@ class ActiveRecordRelationshipAnalyzerInterfaceIntegrationTest < Minitest::Test
       ]
     }
     
-    single_analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(single_component_data)
+    single_analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(single_component_data)
     
     # Should handle single component correctly
     classification = single_analyzer.classify_components

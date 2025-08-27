@@ -11,12 +11,12 @@ class CircularDependencyAnalyzerInterfaceIntegrationTest < Minitest::Test
       "D" => [{"E" => ["method4"]}],
       "E" => []
     }
-    @analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(@dependency_data)
+    @analyzer = RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new(@dependency_data)
   end
 
   def test_circular_dependency_analyzer_includes_graph_analyzer_interface
     # Should include GraphAnalyzerInterface
-    assert @analyzer.class.included_modules.include?(RailsDependencyExplorer::Analysis::GraphAnalyzerInterface)
+    assert @analyzer.class.included_modules.include?(RailsDependencyExplorer::Analysis::Interfaces::GraphAnalyzerInterface)
   end
 
   def test_circular_dependency_analyzer_responds_to_graph_interface_methods
@@ -87,7 +87,7 @@ class CircularDependencyAnalyzerInterfaceIntegrationTest < Minitest::Test
   end
 
   def test_circular_dependency_analyzer_interface_methods_work_with_empty_data
-    empty_analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new({})
+    empty_analyzer = RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new({})
     
     # Graph interface methods should handle empty data
     adjacency_list = empty_analyzer.build_adjacency_list

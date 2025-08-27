@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
-require_relative "../../lib/rails_dependency_explorer/analysis/analysis_pipeline"
+require_relative "../../lib/rails_dependency_explorer/analysis/pipeline/analysis_pipeline"
 
 # Tests for AnalysisPipeline class implementing composable analyzer architecture.
 # Replaces AnalysisResult coordination with pluggable pipeline for better separation of concerns.
@@ -22,7 +22,7 @@ class AnalysisPipelineTest < Minitest::Test
       MockDepthAnalyzer.new
     ]
     
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new(analyzers)
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new(analyzers)
     results = pipeline.analyze(@dependency_data)
     
     # Should execute all analyzers and collect results
@@ -41,7 +41,7 @@ class AnalysisPipelineTest < Minitest::Test
     failing_analyzer = MockFailingAnalyzer.new
     working_analyzer = MockStatisticsAnalyzer.new
     
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new([failing_analyzer, working_analyzer])
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new([failing_analyzer, working_analyzer])
     results = pipeline.analyze(@dependency_data)
     
     # Should handle analyzer failures gracefully
@@ -59,7 +59,7 @@ class AnalysisPipelineTest < Minitest::Test
 
   def test_analysis_pipeline_empty_analyzers
     # Test pipeline with no analyzers
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new([])
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new([])
     results = pipeline.analyze(@dependency_data)
     
     # Should return empty results without errors
@@ -69,11 +69,11 @@ class AnalysisPipelineTest < Minitest::Test
 
   def test_analysis_pipeline_with_analyzer_registry
     # Test pipeline creation from analyzer registry
-    registry = RailsDependencyExplorer::Analysis::AnalyzerRegistry.new
+    registry = RailsDependencyExplorer::Analysis::Pipeline::AnalyzerRegistry.new
     registry.register(:statistics, MockStatisticsAnalyzer)
     registry.register(:circular, MockCircularDependencyAnalyzer)
     
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.from_registry(registry)
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.from_registry(registry)
     results = pipeline.analyze(@dependency_data)
     
     # Should create analyzers from registry and execute them
@@ -89,7 +89,7 @@ class AnalysisPipelineTest < Minitest::Test
     analyzer2 = MockOrderedAnalyzer.new("second", execution_order)
     analyzer3 = MockOrderedAnalyzer.new("third", execution_order)
     
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new([analyzer1, analyzer2, analyzer3])
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new([analyzer1, analyzer2, analyzer3])
     pipeline.analyze(@dependency_data)
     
     # Should execute in specified order
@@ -101,7 +101,7 @@ class AnalysisPipelineTest < Minitest::Test
     analyzer1 = MockResultAnalyzer.new(:key1, "value1")
     analyzer2 = MockResultAnalyzer.new(:key2, "value2")
     
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new([analyzer1, analyzer2])
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new([analyzer1, analyzer2])
     results = pipeline.analyze(@dependency_data)
     
     # Should aggregate all analyzer results under their analyzer keys
@@ -111,10 +111,10 @@ class AnalysisPipelineTest < Minitest::Test
 
   def test_analysis_pipeline_with_dependency_injection
     # Test pipeline with dependency injection container
-    container = RailsDependencyExplorer::Analysis::DependencyContainer.new
+    container = RailsDependencyExplorer::Analysis::Configuration::DependencyContainer.new
     container.register(:mock_analyzer) { |data| MockStatisticsAnalyzer.new }
     
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new([], container: container)
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new([], container: container)
     pipeline.add_analyzer_from_container(:mock_analyzer)
     
     results = pipeline.analyze(@dependency_data)
@@ -131,7 +131,7 @@ class AnalysisPipelineTest < Minitest::Test
       timeout: 30
     }
     
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new([], config: config)
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new([], config: config)
     
     # Should store configuration
     assert_equal false, pipeline.config[:parallel_execution]

@@ -26,20 +26,23 @@ module RailsDependencyExplorer
       def parse_format_option
         format_value = @extractor.extract_format_option
         validation_result = @validator.validate_format(format_value)
-
-        if validation_result[:valid]
-          validation_result[:value]
-        else
-          print_validation_error(validation_result[:error])
-          nil
-        end
+        handle_validation_result(validation_result, nil)
       end
 
       private
 
+      def handle_validation_result(validation_result, error_return_value)
+        if validation_result[:valid]
+          validation_result[:value]
+        else
+          print_validation_error(validation_result[:error])
+          error_return_value
+        end
+      end
+
       def print_validation_error(error)
         puts error[:message]
-        puts error[:details] if error[:details]
+        puts error[:details] if error.key?(:details) && error[:details]
       end
 
       public
@@ -47,13 +50,7 @@ module RailsDependencyExplorer
       def parse_output_option
         output_value = @extractor.extract_output_option
         validation_result = @validator.validate_output(output_value)
-
-        if validation_result[:valid]
-          validation_result[:value]
-        else
-          print_validation_error(validation_result[:error])
-          :error
-        end
+        handle_validation_result(validation_result, :error)
       end
 
       def has_help_option?
@@ -79,8 +76,7 @@ module RailsDependencyExplorer
       def get_directory_path
         directory_value = @extractor.extract_directory_option
         validation_result = @validator.validate_directory(directory_value)
-
-        validation_result[:valid] ? validation_result[:value] : nil
+        handle_validation_result(validation_result, nil)
       end
 
       def has_stats_option?

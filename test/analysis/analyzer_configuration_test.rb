@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require_relative '../../lib/rails_dependency_explorer/analysis/analyzer_configuration'
+require_relative '../../lib/rails_dependency_explorer/analysis/configuration/analyzer_configuration'
 
 class AnalyzerConfigurationTest < Minitest::Test
   def setup
-    @config = RailsDependencyExplorer::Analysis::AnalyzerConfiguration.new
+    @config = RailsDependencyExplorer::Analysis::Configuration::AnalyzerConfiguration.new
   end
 
   def test_enables_all_analyzers_by_default
@@ -102,7 +102,7 @@ class AnalyzerConfigurationTest < Minitest::Test
     refute_includes enabled_classes.keys, :dependency_statistics_calculator
     
     # Should return actual class references
-    assert_equal RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer,
+    assert_equal RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer,
                  enabled_classes[:circular_dependency_analyzer]
   end
 

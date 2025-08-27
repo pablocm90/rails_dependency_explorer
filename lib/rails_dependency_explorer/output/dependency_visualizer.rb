@@ -48,25 +48,16 @@ module RailsDependencyExplorer
       end
 
       # Create a strategy object for the specified format
-      # Convenience method for creating strategy objects
+      # Convenience method for creating strategy objects using strategy registry
       # @param format [Symbol] The output format (:json, :html, :dot, :csv, :console)
       # @return [OutputStrategy] Strategy object for the specified format
       def create_strategy(format)
-        case format
-        when :json
-          JsonOutputStrategy.new
-        when :html
-          HtmlOutputStrategy.new
-        when :dot
-          DotOutputStrategy.new
-        when :csv
-          CsvOutputStrategy.new
-        when :console
-          ConsoleOutputStrategy.new
-        else
-          raise ArgumentError, "Unknown output format: #{format}"
-        end
+        strategy_class = strategy_registry[format]
+        raise ArgumentError, "Unknown output format: #{format}" unless strategy_class
+
+        strategy_class.new
       end
+
       def to_graph(dependency_data)
         graph_adapter.to_graph(dependency_data)
       end
@@ -151,6 +142,16 @@ module RailsDependencyExplorer
 
       def csv_adapter
         @csv_adapter ||= CsvFormatAdapter.new
+      end
+
+      def strategy_registry
+        @strategy_registry ||= {
+          json: JsonOutputStrategy,
+          html: HtmlOutputStrategy,
+          dot: DotOutputStrategy,
+          csv: CsvOutputStrategy,
+          console: ConsoleOutputStrategy
+        }
       end
     end
   end

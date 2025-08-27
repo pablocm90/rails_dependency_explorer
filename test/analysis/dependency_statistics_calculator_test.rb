@@ -10,7 +10,7 @@ class DependencyStatisticsCalculatorTest < Minitest::Test
       "Enemy" => [{"Weapon" => ["damage"]}]
     }
 
-    calculator = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(dependency_data)
+    calculator = RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator.new(dependency_data)
     stats = calculator.calculate_statistics
 
     assert_equal 2, stats[:total_classes]
@@ -26,7 +26,7 @@ class DependencyStatisticsCalculatorTest < Minitest::Test
       "Player" => [{"Weapon" => ["damage"]}]
     }
 
-    calculator = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(dependency_data)
+    calculator = RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator.new(dependency_data)
     stats = calculator.calculate_statistics
 
     assert_equal 1, stats[:total_classes]
@@ -42,7 +42,7 @@ class DependencyStatisticsCalculatorTest < Minitest::Test
       "Player" => [{"Weapon" => ["damage", "reload", "aim"]}]
     }
 
-    calculator = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(dependency_data)
+    calculator = RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator.new(dependency_data)
     stats = calculator.calculate_statistics
 
     assert_equal 1, stats[:total_classes]
@@ -62,7 +62,7 @@ class DependencyStatisticsCalculatorTest < Minitest::Test
       "Enemy" => [{"Rare" => ["method"]}]
     }
 
-    calculator = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(dependency_data)
+    calculator = RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator.new(dependency_data)
     stats = calculator.calculate_statistics
 
     assert_equal 4, stats[:total_classes]
@@ -76,7 +76,7 @@ class DependencyStatisticsCalculatorTest < Minitest::Test
   def test_handles_empty_dependency_data
     dependency_data = {}
 
-    calculator = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(dependency_data)
+    calculator = RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator.new(dependency_data)
     stats = calculator.calculate_statistics
 
     assert_equal 0, stats[:total_classes]
@@ -90,7 +90,7 @@ class DependencyStatisticsCalculatorTest < Minitest::Test
       "Standalone" => []
     }
 
-    calculator = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(dependency_data)
+    calculator = RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator.new(dependency_data)
     stats = calculator.calculate_statistics
 
     assert_equal 1, stats[:total_classes]
@@ -105,7 +105,7 @@ class DependencyStatisticsCalculatorTest < Minitest::Test
       "Standalone" => []
     }
 
-    calculator = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(dependency_data)
+    calculator = RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator.new(dependency_data)
     stats = calculator.calculate_statistics
 
     assert_equal 2, stats[:total_classes]

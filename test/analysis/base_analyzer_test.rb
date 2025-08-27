@@ -21,7 +21,7 @@ class BaseAnalyzerTest < Minitest::Test
     analyzer = RailsDependencyExplorer::Analysis::BaseAnalyzer.new(@dependency_data)
     
     # Should include AnalyzerInterface
-    assert_includes analyzer.class.ancestors, RailsDependencyExplorer::Analysis::AnalyzerInterface
+    assert_includes analyzer.class.ancestors, RailsDependencyExplorer::Analysis::Interfaces::AnalyzerInterface
   end
 
   def test_base_analyzer_provides_default_analyze_implementation

@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 require "test_helper"
-require_relative "../../lib/rails_dependency_explorer/analysis/analyzer_registry"
+require_relative "../../lib/rails_dependency_explorer/analysis/pipeline/analyzer_registry"
 
 # Tests for AnalyzerRegistry class for managing analyzer registration and discovery.
 # Provides pluggable analyzer system for pipeline architecture.
 # Part of Phase 3.1 pipeline architecture implementation (TDD - Behavioral changes).
 class AnalyzerRegistryTest < Minitest::Test
   def setup
-    @registry = RailsDependencyExplorer::Analysis::AnalyzerRegistry.new
+    @registry = RailsDependencyExplorer::Analysis::Pipeline::AnalyzerRegistry.new
   end
 
   def test_analyzer_registry_basic_registration
@@ -106,21 +106,21 @@ class AnalyzerRegistryTest < Minitest::Test
     # Test handling requests for non-existent analyzers
     refute @registry.registered?(:nonexistent)
     
-    assert_raises(RailsDependencyExplorer::Analysis::AnalyzerRegistry::AnalyzerNotFoundError) do
+    assert_raises(RailsDependencyExplorer::Analysis::Pipeline::AnalyzerRegistry::AnalyzerNotFoundError) do
       @registry.get_analyzer_class(:nonexistent)
     end
     
-    assert_raises(RailsDependencyExplorer::Analysis::AnalyzerRegistry::AnalyzerNotFoundError) do
+    assert_raises(RailsDependencyExplorer::Analysis::Pipeline::AnalyzerRegistry::AnalyzerNotFoundError) do
       @registry.create_analyzer(:nonexistent)
     end
   end
 
   def test_analyzer_registry_default_analyzers
     # Test registry with default analyzers pre-registered
-    registry = RailsDependencyExplorer::Analysis::AnalyzerRegistry.create_with_defaults
+    registry = RailsDependencyExplorer::Analysis::Pipeline::AnalyzerRegistry.create_with_defaults
 
     # Should create registry (analyzers may not be available yet in this phase)
-    assert_instance_of RailsDependencyExplorer::Analysis::AnalyzerRegistry, registry
+    assert_instance_of RailsDependencyExplorer::Analysis::Pipeline::AnalyzerRegistry, registry
 
     # Test that it attempts to register default analyzers (even if they don't exist yet)
     # This is acceptable during pipeline architecture development

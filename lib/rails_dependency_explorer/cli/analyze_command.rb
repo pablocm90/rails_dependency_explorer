@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../analysis/dependency_explorer"
-require_relative "error_handler"
+require_relative "../analysis/pipeline/dependency_explorer"
 require_relative "analysis_coordinator"
 
 module RailsDependencyExplorer
@@ -31,12 +30,12 @@ module RailsDependencyExplorer
 
       def self.analyze_single_file(file_path)
         ruby_code = File.read(file_path)
-        explorer = Analysis::DependencyExplorer.new
+        explorer = Analysis::Pipeline::DependencyExplorer.new
         explorer.analyze_code(ruby_code)
       end
 
       def self.analyze_directory_files(directory_path)
-        explorer = Analysis::DependencyExplorer.new
+        explorer = Analysis::Pipeline::DependencyExplorer.new
         explorer.analyze_directory(directory_path)
       end
 

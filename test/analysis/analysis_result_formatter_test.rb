@@ -81,7 +81,7 @@ class AnalysisResultFormatterTest < Minitest::Test
   end
 
   def test_formatter_handles_empty_dependency_data
-    formatter = RailsDependencyExplorer::Analysis::AnalysisResultFormatter.new({})
+    formatter = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultFormatter.new({})
 
     expected = {
       nodes: [],
@@ -98,7 +98,7 @@ class AnalysisResultFormatterTest < Minitest::Test
       {total_classes: 1, total_dependencies: 1}
     end
 
-    formatter = RailsDependencyExplorer::Analysis::AnalysisResultFormatter.new(
+    formatter = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultFormatter.new(
       simple_dependency_data,
       stats_provider
     )
@@ -111,7 +111,7 @@ class AnalysisResultFormatterTest < Minitest::Test
   end
 
   def test_formatter_works_without_statistics_provider
-    formatter = RailsDependencyExplorer::Analysis::AnalysisResultFormatter.new(simple_dependency_data)
+    formatter = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultFormatter.new(simple_dependency_data)
 
     json_output = formatter.to_json
     parsed_json = JSON.parse(json_output)
@@ -124,15 +124,15 @@ class AnalysisResultFormatterTest < Minitest::Test
   private
 
   def create_simple_formatter
-    RailsDependencyExplorer::Analysis::AnalysisResultFormatter.new(simple_dependency_data)
+    RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultFormatter.new(simple_dependency_data)
   end
 
   def create_complex_formatter
-    RailsDependencyExplorer::Analysis::AnalysisResultFormatter.new(complex_dependency_data)
+    RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultFormatter.new(complex_dependency_data)
   end
 
   def create_rails_formatter
-    RailsDependencyExplorer::Analysis::AnalysisResultFormatter.new(rails_dependency_data)
+    RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultFormatter.new(rails_dependency_data)
   end
 
   def assert_simple_graph_structure_for_formatter(formatter)

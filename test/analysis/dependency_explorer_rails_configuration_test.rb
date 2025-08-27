@@ -28,7 +28,7 @@ class DependencyExplorerRailsConfigurationTest < Minitest::Test
       end
     RUBY
 
-    explorer = RailsDependencyExplorer::Analysis::DependencyExplorer.new
+    explorer = RailsDependencyExplorer::Analysis::Pipeline::DependencyExplorer.new
     result = explorer.analyze_code(ruby_code)
 
     # Should track Rails configuration dependencies

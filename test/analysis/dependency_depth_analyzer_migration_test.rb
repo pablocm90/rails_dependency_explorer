@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require_relative '../../lib/rails_dependency_explorer/analysis/dependency_depth_analyzer'
+require_relative '../../lib/rails_dependency_explorer/analysis/analyzers/dependency_depth_analyzer'
 require_relative '../../lib/rails_dependency_explorer/analysis/base_analyzer'
 
 class DependencyDepthAnalyzerMigrationTest < Minitest::Test
@@ -14,14 +14,14 @@ class DependencyDepthAnalyzerMigrationTest < Minitest::Test
   end
 
   def test_depth_analyzer_inherits_from_base_analyzer
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(@dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(@dependency_data)
     
     # Should inherit from BaseAnalyzer
     assert_includes analyzer.class.ancestors, RailsDependencyExplorer::Analysis::BaseAnalyzer
   end
 
   def test_depth_analyzer_maintains_existing_api
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(@dependency_data, include_metadata: false)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(@dependency_data, include_metadata: false)
     
     # Should still respond to existing methods
     assert_respond_to analyzer, :calculate_depth
@@ -36,7 +36,7 @@ class DependencyDepthAnalyzerMigrationTest < Minitest::Test
 
   def test_depth_analyzer_supports_base_analyzer_options
     # Should support error handling options
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(
       @dependency_data, 
       error_handling: :strict,
       include_metadata: false
@@ -47,7 +47,7 @@ class DependencyDepthAnalyzerMigrationTest < Minitest::Test
   end
 
   def test_depth_analyzer_provides_metadata_when_requested
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(
       @dependency_data, 
       include_metadata: true
     )
@@ -61,13 +61,13 @@ class DependencyDepthAnalyzerMigrationTest < Minitest::Test
     
     # Metadata should include analyzer information
     metadata = result[:metadata]
-    assert_equal "RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer", metadata[:analyzer_class]
+    assert_equal "RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer", metadata[:analyzer_class]
     assert_equal 3, metadata[:dependency_count]
     assert_kind_of Time, metadata[:analysis_timestamp]
   end
 
   def test_depth_analyzer_returns_raw_result_without_metadata
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(
       @dependency_data, 
       include_metadata: false
     )
@@ -89,7 +89,7 @@ class DependencyDepthAnalyzerMigrationTest < Minitest::Test
 
   def test_depth_analyzer_handles_errors_gracefully
     # Test with invalid dependency data
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(
       nil, 
       error_handling: :graceful
     )
@@ -104,7 +104,7 @@ class DependencyDepthAnalyzerMigrationTest < Minitest::Test
 
   def test_depth_analyzer_raises_errors_in_strict_mode
     # Test with invalid dependency data
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(
       nil, 
       error_handling: :strict,
       validate_on_init: false  # Don't validate on init to test analyze-time validation
@@ -117,7 +117,7 @@ class DependencyDepthAnalyzerMigrationTest < Minitest::Test
   end
 
   def test_depth_analyzer_maintains_backward_compatibility
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(@dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(@dependency_data)
 
     # Should maintain existing calculate_depth behavior
     depths = analyzer.calculate_depth
@@ -130,7 +130,7 @@ class DependencyDepthAnalyzerMigrationTest < Minitest::Test
   end
 
   def test_depth_analyzer_implements_perform_analysis
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(@dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(@dependency_data)
     
     # Should implement perform_analysis method
     assert_respond_to analyzer, :perform_analysis

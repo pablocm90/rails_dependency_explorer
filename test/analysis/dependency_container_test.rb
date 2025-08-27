@@ -7,18 +7,18 @@ require "test_helper"
 # Part of Phase 2.1 dependency injection implementation (TDD - Behavioral changes).
 class DependencyContainerTest < Minitest::Test
   def setup
-    @container = RailsDependencyExplorer::Analysis::DependencyContainer.new
+    @container = RailsDependencyExplorer::Analysis::Configuration::DependencyContainer.new
     @dependency_data = { "TestClass" => ["Dependency1", "Dependency2"] }
   end
 
   def test_dependency_container_registration
     # Test basic service registration and resolution
     @container.register(:circular_analyzer) do |data|
-      RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(data)
+      RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new(data)
     end
     
     analyzer = @container.resolve(:circular_analyzer, @dependency_data)
-    assert_instance_of RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer, analyzer
+    assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer, analyzer
   end
 
   def test_dependency_container_lazy_loading
@@ -68,7 +68,7 @@ class DependencyContainerTest < Minitest::Test
 
   def test_dependency_container_unregistered_service
     # Test behavior when resolving unregistered service
-    assert_raises(RailsDependencyExplorer::Analysis::DependencyContainer::ServiceNotRegisteredError) do
+    assert_raises(RailsDependencyExplorer::Analysis::Configuration::DependencyContainer::ServiceNotRegisteredError) do
       @container.resolve(:unregistered_service)
     end
   end

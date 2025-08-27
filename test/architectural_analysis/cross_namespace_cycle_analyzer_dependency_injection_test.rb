@@ -104,7 +104,7 @@ class CrossNamespaceCycleAnalyzerDependencyInjectionTest < Minitest::Test
 
   def test_cross_namespace_analyzer_factory_with_container
     # Test factory method with dependency container
-    container = RailsDependencyExplorer::Analysis::DependencyContainer.new
+    container = RailsDependencyExplorer::Analysis::Configuration::DependencyContainer.new
     
     # Register custom circular analyzer in container
     container.register(:circular_analyzer) { |data| create_mock_circular_analyzer }

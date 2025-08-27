@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "../analysis/dependency_explorer"
-require_relative "error_handler"
+require_relative "../analysis/pipeline/dependency_explorer"
+require_relative "../error_handler"
 
 module RailsDependencyExplorer
   module CLI
@@ -18,7 +18,8 @@ module RailsDependencyExplorer
         write_analysis_output(result, format, output_file, output_options)
         0
       rescue => e
-        ErrorHandler.handle_analysis_error("file", e)
+        RailsDependencyExplorer::ErrorHandler.log_error(e, context: "AnalysisExecutor", level: :error)
+        1
       end
 
       def perform_directory_analysis(directory_path, format, output_file, output_options)
@@ -26,17 +27,18 @@ module RailsDependencyExplorer
         write_analysis_output(result, format, output_file, output_options)
         0
       rescue => e
-        ErrorHandler.handle_analysis_error("directory", e)
+        RailsDependencyExplorer::ErrorHandler.log_error(e, context: "AnalysisExecutor", level: :error)
+        1
       end
 
       def analyze_single_file(file_path)
         ruby_code = File.read(file_path)
-        explorer = Analysis::DependencyExplorer.new
+        explorer = Analysis::Pipeline::DependencyExplorer.new
         explorer.analyze_code(ruby_code)
       end
 
       def analyze_directory_files(directory_path)
-        explorer = Analysis::DependencyExplorer.new
+        explorer = Analysis::Pipeline::DependencyExplorer.new
         explorer.analyze_directory(directory_path)
       end
 

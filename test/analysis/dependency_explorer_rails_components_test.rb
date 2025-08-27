@@ -5,7 +5,7 @@ require_relative "../test_helper"
 
 class DependencyExplorerRailsComponentsTest < Minitest::Test
   def setup
-    @explorer = RailsDependencyExplorer::Analysis::DependencyExplorer.new
+    @explorer = RailsDependencyExplorer::Analysis::Pipeline::DependencyExplorer.new
   end
 
   def test_dependency_explorer_identifies_rails_components

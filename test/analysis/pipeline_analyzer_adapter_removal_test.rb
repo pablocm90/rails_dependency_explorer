@@ -36,8 +36,8 @@ class PipelineAnalyzerAdapterRemovalTest < Minitest::Test
 
   def test_pipeline_works_directly_with_statistics_analyzer
     # Test that DependencyStatisticsCalculator can work directly with pipeline
-    analyzer = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(@dependency_data, include_metadata: false)
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new([analyzer])
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator.new(@dependency_data, include_metadata: false)
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new([analyzer])
 
     results = pipeline.analyze(@dependency_data)
 
@@ -52,8 +52,8 @@ class PipelineAnalyzerAdapterRemovalTest < Minitest::Test
 
   def test_pipeline_works_directly_with_circular_dependency_analyzer
     # Test that CircularDependencyAnalyzer can work directly with pipeline
-    analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(@dependency_data, include_metadata: false)
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new([analyzer])
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new(@dependency_data, include_metadata: false)
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new([analyzer])
 
     results = pipeline.analyze(@dependency_data)
 
@@ -66,8 +66,8 @@ class PipelineAnalyzerAdapterRemovalTest < Minitest::Test
 
   def test_pipeline_works_directly_with_dependency_depth_analyzer
     # Test that DependencyDepthAnalyzer can work directly with pipeline
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(@dependency_data)
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new([analyzer])
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(@dependency_data)
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new([analyzer])
     
     results = pipeline.analyze(@dependency_data)
     
@@ -78,8 +78,8 @@ class PipelineAnalyzerAdapterRemovalTest < Minitest::Test
 
   def test_pipeline_works_directly_with_rails_component_analyzer
     # Test that RailsComponentAnalyzer can work directly with pipeline
-    analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(@dependency_data)
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new([analyzer])
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer.new(@dependency_data)
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new([analyzer])
     
     results = pipeline.analyze(@dependency_data)
     
@@ -90,8 +90,8 @@ class PipelineAnalyzerAdapterRemovalTest < Minitest::Test
 
   def test_pipeline_works_directly_with_activerecord_relationship_analyzer
     # Test that ActiveRecordRelationshipAnalyzer can work directly with pipeline
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(@dependency_data)
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new([analyzer])
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(@dependency_data)
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new([analyzer])
     
     results = pipeline.analyze(@dependency_data)
     
@@ -103,7 +103,7 @@ class PipelineAnalyzerAdapterRemovalTest < Minitest::Test
   def test_pipeline_works_directly_with_cross_namespace_cycle_analyzer
     # Test that CrossNamespaceCycleAnalyzer can work directly with pipeline
     analyzer = RailsDependencyExplorer::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(@dependency_data)
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new([analyzer])
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new([analyzer])
 
     results = pipeline.analyze(@dependency_data)
 
@@ -115,13 +115,13 @@ class PipelineAnalyzerAdapterRemovalTest < Minitest::Test
   def test_pipeline_works_with_multiple_analyzers_directly
     # Test that pipeline can work with multiple analyzers directly without adapter
     analyzers = [
-      RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(@dependency_data, include_metadata: false),
-      RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(@dependency_data, include_metadata: false),
-      RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(@dependency_data, include_metadata: false),
-      RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(@dependency_data, include_metadata: false)
+      RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator.new(@dependency_data, include_metadata: false),
+      RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new(@dependency_data, include_metadata: false),
+      RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer.new(@dependency_data, include_metadata: false),
+      RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(@dependency_data, include_metadata: false)
     ]
 
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new(analyzers)
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new(analyzers)
     results = pipeline.analyze(@dependency_data)
 
     # Should produce all expected results
@@ -144,7 +144,7 @@ class PipelineAnalyzerAdapterRemovalTest < Minitest::Test
 
   def test_analysis_result_build_pipeline_analyzers_without_adapter
     # Test that build_pipeline_analyzers method can create analyzers without adapter
-    analyzers = RailsDependencyExplorer::Analysis::AnalysisResult.send(:build_pipeline_analyzers, @dependency_data, nil)
+    analyzers = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.send(:build_pipeline_analyzers, @dependency_data, nil)
 
     # Should create analyzers directly, not wrapped in adapters
     analyzers.each do |analyzer|
@@ -154,17 +154,17 @@ class PipelineAnalyzerAdapterRemovalTest < Minitest::Test
 
     # Should have expected analyzer types
     analyzer_classes = analyzers.map(&:class)
-    assert_includes analyzer_classes, RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator
-    assert_includes analyzer_classes, RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer
-    assert_includes analyzer_classes, RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer
-    assert_includes analyzer_classes, RailsDependencyExplorer::Analysis::RailsComponentAnalyzer
-    assert_includes analyzer_classes, RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer
+    assert_includes analyzer_classes, RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator
+    assert_includes analyzer_classes, RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer
+    assert_includes analyzer_classes, RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer
+    assert_includes analyzer_classes, RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer
+    assert_includes analyzer_classes, RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer
     assert_includes analyzer_classes, RailsDependencyExplorer::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer
   end
 
   def test_build_pipeline_analyzers_creates_analyzers_with_raw_results
     # Test that build_pipeline_analyzers creates analyzers configured to return raw results
-    analyzers = RailsDependencyExplorer::Analysis::AnalysisResult.send(:build_pipeline_analyzers, @dependency_data, nil)
+    analyzers = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.send(:build_pipeline_analyzers, @dependency_data, nil)
 
     # Each analyzer should be configured to return raw results (not metadata-wrapped)
     analyzers.each do |analyzer|
@@ -194,7 +194,7 @@ class PipelineAnalyzerAdapterRemovalTest < Minitest::Test
     # Test that PipelineAnalyzerAdapter class should be removed
     # This test should fail in RED phase (adapter still exists) and pass in GREEN phase (adapter removed)
     assert_raises(NameError) do
-      RailsDependencyExplorer::Analysis::AnalysisResult::PipelineAnalyzerAdapter
+      RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult::PipelineAnalyzerAdapter
     end
   end
 end

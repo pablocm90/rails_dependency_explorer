@@ -1,5 +1,5 @@
 require "test_helper"
-require "rails_dependency_explorer/analysis/graph_builder"
+require "rails_dependency_explorer/analysis/utilities/graph_builder"
 
 module RailsDependencyExplorer
   module Analysis
@@ -16,7 +16,7 @@ module RailsDependencyExplorer
           ]
         }
 
-        graph = GraphBuilder.build_adjacency_list(dependency_data)
+        graph = Utilities::GraphBuilder.build_adjacency_list(dependency_data)
 
         expected_graph = {
           "UserService" => ["User", "Database"],
@@ -34,7 +34,7 @@ module RailsDependencyExplorer
           ]
         }
 
-        graph = GraphBuilder.build_adjacency_list(dependency_data)
+        graph = Utilities::GraphBuilder.build_adjacency_list(dependency_data)
 
         expected_graph = {
           "TestClass" => ["Helper"]
@@ -46,7 +46,7 @@ module RailsDependencyExplorer
       def test_build_adjacency_list_with_empty_data
         dependency_data = {}
 
-        graph = GraphBuilder.build_adjacency_list(dependency_data)
+        graph = Utilities::GraphBuilder.build_adjacency_list(dependency_data)
 
         assert_equal({}, graph)
       end
@@ -60,7 +60,7 @@ module RailsDependencyExplorer
           ]
         }
 
-        graph = GraphBuilder.build_adjacency_list(dependency_data)
+        graph = Utilities::GraphBuilder.build_adjacency_list(dependency_data)
 
         expected_graph = {
           "TestClass" => ["ValidDep"]

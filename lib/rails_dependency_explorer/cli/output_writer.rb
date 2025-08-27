@@ -1,11 +1,17 @@
 # frozen_string_literal: true
 
+require_relative "format_strategy_registry"
+
 module RailsDependencyExplorer
   module CLI
     # Handles output writing and formatting for the Rails dependency explorer CLI.
     # Coordinates with format adapters to generate output in various formats (console, JSON, HTML, DOT, CSV)
     # and manages writing to files or standard output based on user preferences.
+    # Refactored to use strategy pattern instead of case statements (A2: Replace Complex Conditionals).
     class OutputWriter
+      def initialize
+        @format_registry = FormatStrategyRegistry.new
+      end
       def write_output(content, output_file)
         if output_file.nil?
           # Write to stdout
@@ -22,18 +28,8 @@ module RailsDependencyExplorer
       end
 
       def format_output(result, format, options = {})
-        case format
-        when "dot"
-          result.to_dot
-        when "json"
-          result.to_json
-        when "html"
-          result.to_html
-        when "csv"
-          result.to_csv
-        else
-          format_console_output(result, options)
-        end
+        strategy = @format_registry.get_strategy(format)
+        strategy.call(result, options)
       end
 
       def self.format_statistics(stats)
@@ -64,24 +60,6 @@ module RailsDependencyExplorer
       end
 
       private
-
-      def format_console_output(result, options)
-        output = result.to_console
-
-        if options[:include_stats]
-          output += format_statistics(result.statistics)
-        end
-
-        if options[:include_circular]
-          output += format_circular_dependencies(result.circular_dependencies)
-        end
-
-        if options[:include_depth]
-          output += format_dependency_depth(result.dependency_depth)
-        end
-
-        output
-      end
 
       def format_statistics(stats)
         self.class.format_statistics(stats)

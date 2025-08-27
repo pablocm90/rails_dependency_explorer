@@ -7,6 +7,7 @@ require "minitest/autorun"
 require_relative "support/file_test_helpers"
 require_relative "support/dependency_explorer_test_helpers"
 require_relative "support/analysis_result_test_helpers"
+require_relative "support/test_data_factory"
 
 # Include shared test helpers in all test classes
 class Minitest::Test
@@ -14,4 +15,5 @@ class Minitest::Test
   include DependencyExplorerTestHelpers
   include AnalysisResultTestHelpers
   include IOTestHelpers
+  include TestDataFactory
 end

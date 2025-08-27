@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require_relative '../../lib/rails_dependency_explorer/analysis/activerecord_relationship_analyzer'
+require_relative '../../lib/rails_dependency_explorer/analysis/analyzers/activerecord_relationship_analyzer'
 require_relative '../../lib/rails_dependency_explorer/analysis/base_analyzer'
 
 class ActiveRecordRelationshipAnalyzerMigrationTest < Minitest::Test
@@ -15,14 +15,14 @@ class ActiveRecordRelationshipAnalyzerMigrationTest < Minitest::Test
   end
 
   def test_activerecord_analyzer_inherits_from_base_analyzer
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(@dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(@dependency_data)
     
     # Should inherit from BaseAnalyzer
     assert_includes analyzer.class.ancestors, RailsDependencyExplorer::Analysis::BaseAnalyzer
   end
 
   def test_activerecord_analyzer_maintains_existing_api
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(@dependency_data, include_metadata: false)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(@dependency_data, include_metadata: false)
     
     # Should still respond to existing methods
     assert_respond_to analyzer, :analyze_relationships
@@ -37,7 +37,7 @@ class ActiveRecordRelationshipAnalyzerMigrationTest < Minitest::Test
 
   def test_activerecord_analyzer_supports_base_analyzer_options
     # Should support error handling options
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(
       @dependency_data, 
       error_handling: :strict,
       include_metadata: false
@@ -48,7 +48,7 @@ class ActiveRecordRelationshipAnalyzerMigrationTest < Minitest::Test
   end
 
   def test_activerecord_analyzer_provides_metadata_when_requested
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(
       @dependency_data, 
       include_metadata: true
     )
@@ -62,13 +62,13 @@ class ActiveRecordRelationshipAnalyzerMigrationTest < Minitest::Test
     
     # Metadata should include analyzer information
     metadata = result[:metadata]
-    assert_equal "RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer", metadata[:analyzer_class]
+    assert_equal "RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer", metadata[:analyzer_class]
     assert_equal 4, metadata[:dependency_count]
     assert_kind_of Time, metadata[:analysis_timestamp]
   end
 
   def test_activerecord_analyzer_returns_raw_result_without_metadata
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(
       @dependency_data, 
       include_metadata: false
     )
@@ -91,7 +91,7 @@ class ActiveRecordRelationshipAnalyzerMigrationTest < Minitest::Test
 
   def test_activerecord_analyzer_handles_errors_gracefully
     # Test with invalid dependency data
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(
       nil, 
       error_handling: :graceful
     )
@@ -106,7 +106,7 @@ class ActiveRecordRelationshipAnalyzerMigrationTest < Minitest::Test
 
   def test_activerecord_analyzer_raises_errors_in_strict_mode
     # Test with invalid dependency data
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(
       nil, 
       error_handling: :strict,
       validate_on_init: false  # Don't validate on init to test analyze-time validation
@@ -119,7 +119,7 @@ class ActiveRecordRelationshipAnalyzerMigrationTest < Minitest::Test
   end
 
   def test_activerecord_analyzer_maintains_backward_compatibility
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(@dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(@dependency_data)
     
     # Should maintain existing analyze_relationships behavior
     relationships = analyzer.analyze_relationships
@@ -151,7 +151,7 @@ class ActiveRecordRelationshipAnalyzerMigrationTest < Minitest::Test
   end
 
   def test_activerecord_analyzer_implements_perform_analysis
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(@dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(@dependency_data)
     
     # Should implement perform_analysis method
     assert_respond_to analyzer, :perform_analysis
@@ -164,7 +164,7 @@ class ActiveRecordRelationshipAnalyzerMigrationTest < Minitest::Test
   end
 
   def test_activerecord_analyzer_maintains_relationship_analysis
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(@dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(@dependency_data)
 
     # Should still be able to analyze relationships
     assert_respond_to analyzer, :analyze_relationships

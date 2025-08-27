@@ -4,7 +4,7 @@ require "minitest/autorun"
 require_relative "../test_helper"
 require_relative "../support/file_test_helpers"
 require_relative "../../lib/rails_dependency_explorer/cli/output_writer"
-require_relative "../../lib/rails_dependency_explorer/analysis/analysis_result"
+require_relative "../../lib/rails_dependency_explorer/analysis/pipeline/analysis_result"
 
 class OutputWriterTest < Minitest::Test
   include IOTestHelpers
@@ -75,7 +75,7 @@ class OutputWriterTest < Minitest::Test
         {"DataValidator" => ["validate"]}
       ]
     }
-    RailsDependencyExplorer::Analysis::AnalysisResult.new(dependencies)
+    RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(dependencies)
   end
 
   def assert_format_output_includes(format, expected_content)

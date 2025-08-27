@@ -144,26 +144,28 @@ class ASTVisitorTest < Minitest::Test
   end
 
   # Test to ensure behavior remains identical after removing static method duplication
-  def test_instance_methods_work_without_static_delegation
-    # Test that all instance methods work correctly without delegating to static methods
+  def test_refactored_visitor_delegates_to_handlers_correctly
+    # Test that the refactored visitor correctly delegates to extracted handlers
     parser = Parser::CurrentRuby
 
-    # Test primitive_type? instance method
+    # Test primitive_type? instance method still works
     assert_equal true, @visitor.send(:primitive_type?, "string")
     assert_equal true, @visitor.send(:primitive_type?, :symbol)
     assert_equal true, @visitor.send(:primitive_type?, 42)
 
-    # Test direct_constant_call? instance method
-    const_node = parser.parse("Enemy.health").children[0]
-    assert_equal true, @visitor.send(:direct_constant_call?, const_node)
+    # Test that const nodes are handled by ConstNodeHandler
+    const_node = parser.parse("Enemy")
+    result = @visitor.visit(const_node)
+    assert_equal "Enemy", result
 
-    # Test chained_constant_call? instance method
-    chained_node = parser.parse("GameState.current.update")
-    send_node = chained_node.children[0] # The GameState.current part
-    assert_equal true, @visitor.send(:chained_constant_call?, send_node)
+    # Test that send nodes are handled by SendNodeHandler
+    send_node = parser.parse("Enemy.health")
+    result = @visitor.visit(send_node)
+    assert_equal({"Enemy" => ["health"]}, result)
 
-    # Test activerecord_relationship_call? instance method
+    # Test that ActiveRecord relationships are handled correctly
     ar_node = parser.parse("belongs_to :account")
-    assert_equal true, @visitor.send(:activerecord_relationship_call?, nil, ar_node)
+    result = @visitor.visit(ar_node)
+    assert_equal({"ActiveRecord::belongs_to" => ["Account"]}, result)
   end
 end

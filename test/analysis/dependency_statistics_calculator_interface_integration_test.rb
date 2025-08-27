@@ -14,12 +14,12 @@ class DependencyStatisticsCalculatorInterfaceIntegrationTest < Minitest::Test
       "ValidationRules" => [],
       "Crypto" => []
     }
-    @analyzer = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(@dependency_data)
+    @analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator.new(@dependency_data)
   end
 
   def test_dependency_statistics_calculator_includes_statistics_analyzer_interface
     # Should include StatisticsAnalyzerInterface
-    assert @analyzer.class.included_modules.include?(RailsDependencyExplorer::Analysis::StatisticsAnalyzerInterface)
+    assert @analyzer.class.included_modules.include?(RailsDependencyExplorer::Analysis::Interfaces::StatisticsAnalyzerInterface)
   end
 
   def test_dependency_statistics_calculator_responds_to_statistics_interface_methods
@@ -148,7 +148,7 @@ class DependencyStatisticsCalculatorInterfaceIntegrationTest < Minitest::Test
   end
 
   def test_dependency_statistics_calculator_interface_methods_work_with_empty_data
-    empty_analyzer = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new({})
+    empty_analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator.new({})
     
     # Statistics interface methods should handle empty data
     basic_stats = empty_analyzer.calculate_basic_statistics
@@ -165,7 +165,7 @@ class DependencyStatisticsCalculatorInterfaceIntegrationTest < Minitest::Test
 
   def test_dependency_statistics_calculator_interface_methods_work_with_single_class
     single_class_data = {"SingleClass" => []}
-    single_analyzer = RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(single_class_data)
+    single_analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator.new(single_class_data)
     
     # Statistics interface should handle single class data
     basic_stats = single_analyzer.calculate_basic_statistics

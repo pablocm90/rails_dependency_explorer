@@ -14,7 +14,7 @@ class ArchitecturalAnalysisIntegrationTest < Minitest::Test
   end
 
   def test_end_to_end_architectural_analysis_through_analysis_result
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(@dependency_data)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(@dependency_data)
     
     # Verify cross-namespace cycles are detected
     cross_namespace_cycles = result.cross_namespace_cycles
@@ -25,7 +25,7 @@ class ArchitecturalAnalysisIntegrationTest < Minitest::Test
   end
 
   def test_architectural_analysis_appears_in_json_output
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(@dependency_data)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(@dependency_data)
     json_output = result.to_json
     parsed = JSON.parse(json_output)
 
@@ -40,7 +40,7 @@ class ArchitecturalAnalysisIntegrationTest < Minitest::Test
   end
 
   def test_architectural_analysis_appears_in_html_output
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(@dependency_data)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(@dependency_data)
     html_output = result.to_html
 
     # Should include architectural analysis section
@@ -51,7 +51,7 @@ class ArchitecturalAnalysisIntegrationTest < Minitest::Test
   end
 
   def test_architectural_analysis_appears_in_console_output
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(@dependency_data)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(@dependency_data)
     console_output = result.to_console
 
     # Should include architectural analysis section
@@ -62,7 +62,7 @@ class ArchitecturalAnalysisIntegrationTest < Minitest::Test
   end
 
   def test_architectural_analysis_appears_in_dot_output
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(@dependency_data)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(@dependency_data)
     dot_output = result.to_dot
 
     # Should include architectural styling for cross-namespace cycles
@@ -73,7 +73,7 @@ class ArchitecturalAnalysisIntegrationTest < Minitest::Test
   end
 
   def test_architectural_analysis_appears_in_csv_output
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(@dependency_data)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(@dependency_data)
     csv_output = result.to_csv
 
     # Should include architectural analysis columns
@@ -95,7 +95,7 @@ class ArchitecturalAnalysisIntegrationTest < Minitest::Test
       "UserService" => [{"Database" => ["query"]}]
     }
     
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(clean_dependency_data)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(clean_dependency_data)
     
     # Should have no cross-namespace cycles
     cross_namespace_cycles = result.cross_namespace_cycles

@@ -6,7 +6,7 @@ require_relative "../test_helper"
 
 class DependencyExplorerParsingTest < Minitest::Test
   def setup
-    @explorer = RailsDependencyExplorer::Analysis::DependencyExplorer.new
+    @explorer = RailsDependencyExplorer::Analysis::Pipeline::DependencyExplorer.new
   end
 
   def test_dependency_explorer_detects_require_relative_dependencies

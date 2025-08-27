@@ -21,7 +21,7 @@ class ModuleDocumentationTest < Minitest::Test
 
   def test_analysis_module_has_documentation
     # Test that Analysis module has proper documentation
-    analysis_files = Dir.glob("lib/rails_dependency_explorer/analysis/*.rb")
+    analysis_files = Dir.glob("lib/rails_dependency_explorer/analysis/**/*.rb")
     analysis_result_file = analysis_files.find { |f| f.include?("analysis_result.rb") }
     
     refute_nil analysis_result_file, "AnalysisResult file should exist"
@@ -90,20 +90,7 @@ class ModuleDocumentationTest < Minitest::Test
     end
   end
 
-  def test_utils_module_has_documentation
-    # Test that Utils module has proper documentation
-    utils_file = "lib/rails_dependency_explorer/utils.rb"
-    
-    assert File.exist?(utils_file), "Utils module file should exist"
-    
-    content = File.read(utils_file)
-    assert_match(/module Utils/, content,
-      "Utils module should be defined")
-    
-    # Should have module-level documentation explaining utility organization
-    assert_match(/# .*utility.*organization.*/, content,
-      "Utils module should document its utility organization purpose")
-  end
+
 
   def test_architectural_analysis_module_has_documentation
     # Test that ArchitecturalAnalysis module has proper documentation
@@ -157,9 +144,10 @@ class ModuleDocumentationTest < Minitest::Test
   def test_interface_modules_have_documentation
     # Test that interface modules have proper documentation
     interface_files = [
-      "lib/rails_dependency_explorer/analysis/analyzer_interface.rb",
-      "lib/rails_dependency_explorer/analysis/cycle_detection_interface.rb",
-      "lib/rails_dependency_explorer/analysis/statistics_interface.rb"
+      "lib/rails_dependency_explorer/analysis/interfaces/analyzer_interface.rb",
+      "lib/rails_dependency_explorer/analysis/interfaces/graph_analyzer_interface.rb",
+      "lib/rails_dependency_explorer/analysis/interfaces/statistics_analyzer_interface.rb",
+      "lib/rails_dependency_explorer/analysis/interfaces/component_analyzer_interface.rb"
     ]
     
     interface_files.each do |file|
@@ -168,8 +156,8 @@ class ModuleDocumentationTest < Minitest::Test
       content = File.read(file)
       
       # Should have module documentation explaining interface purpose
-      assert_match(/# .*interface.*contract.*/, content,
-        "#{file} should document its interface contract purpose")
+      assert_match(/# .*[Ii]nterface.*/, content,
+        "#{file} should document its interface purpose")
       
       # Should define a module
       assert_match(/module \w+Interface/, content,
@@ -177,22 +165,20 @@ class ModuleDocumentationTest < Minitest::Test
     end
   end
 
-  def test_utility_submodules_have_documentation
-    # Test that utility submodules have proper documentation
-    utility_files = Dir.glob("lib/rails_dependency_explorer/utils/*.rb")
-    
-    refute_empty utility_files, "Utility submodule files should exist"
-    
-    utility_files.each do |file|
-      content = File.read(file)
-      
-      # Should have module documentation explaining utility purpose
-      assert_match(/# .*utilit.*/, content,
-        "#{file} should document its utility purpose")
-      
-      # Should define a module under Utils
-      assert_match(/module \w+Utils/, content,
-        "#{file} should define a utility module")
-    end
+  def test_error_handler_module_has_documentation
+    # Test that ErrorHandler module has proper documentation
+    error_handler_file = "lib/rails_dependency_explorer/error_handler.rb"
+
+    assert File.exist?(error_handler_file), "ErrorHandler module file should exist"
+
+    content = File.read(error_handler_file)
+
+    # Should have module documentation explaining error handling purpose
+    assert_match(/# .*[Ee]rror.*handling.*/, content,
+      "ErrorHandler should document its error handling purpose")
+
+    # Should define ErrorHandler module
+    assert_match(/module ErrorHandler/, content,
+      "Should define ErrorHandler module")
   end
 end

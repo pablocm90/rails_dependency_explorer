@@ -1,23 +1,23 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require_relative '../../lib/rails_dependency_explorer/analysis/statistics_analyzer_interface'
+require_relative '../../lib/rails_dependency_explorer/analysis/interfaces/statistics_analyzer_interface'
 
 class StatisticsAnalyzerInterfaceTest < Minitest::Test
   def test_statistics_analyzer_interface_exists
     # Interface should be defined
-    assert_kind_of Module, RailsDependencyExplorer::Analysis::StatisticsAnalyzerInterface
+    assert_kind_of Module, RailsDependencyExplorer::Analysis::Interfaces::StatisticsAnalyzerInterface
   end
 
   def test_statistics_analyzer_interface_defines_required_methods
-    interface = RailsDependencyExplorer::Analysis::StatisticsAnalyzerInterface
+    interface = RailsDependencyExplorer::Analysis::Interfaces::StatisticsAnalyzerInterface
     
     # Should define method requirements for statistics analysis
     assert_respond_to interface, :included
     
     # When included, should add required methods
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::StatisticsAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::StatisticsAnalyzerInterface
     end
     
     instance = test_class.new
@@ -34,7 +34,7 @@ class StatisticsAnalyzerInterfaceTest < Minitest::Test
 
   def test_statistics_analyzer_interface_provides_basic_statistics
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::StatisticsAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::StatisticsAnalyzerInterface
       
       def initialize(dependency_data)
         @dependency_data = dependency_data
@@ -70,7 +70,7 @@ class StatisticsAnalyzerInterfaceTest < Minitest::Test
 
   def test_statistics_analyzer_interface_provides_distribution_analysis
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::StatisticsAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::StatisticsAnalyzerInterface
       
       def initialize(dependency_data)
         @dependency_data = dependency_data
@@ -108,7 +108,7 @@ class StatisticsAnalyzerInterfaceTest < Minitest::Test
 
   def test_statistics_analyzer_interface_provides_summary_metrics
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::StatisticsAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::StatisticsAnalyzerInterface
       
       def initialize(dependency_data)
         @dependency_data = dependency_data
@@ -150,7 +150,7 @@ class StatisticsAnalyzerInterfaceTest < Minitest::Test
 
   def test_statistics_analyzer_interface_handles_empty_data
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::StatisticsAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::StatisticsAnalyzerInterface
       
       def initialize(dependency_data)
         @dependency_data = dependency_data
@@ -174,7 +174,7 @@ class StatisticsAnalyzerInterfaceTest < Minitest::Test
 
   def test_statistics_analyzer_interface_calculates_percentiles_correctly
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::StatisticsAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::StatisticsAnalyzerInterface
       
       def initialize(dependency_data)
         @dependency_data = dependency_data

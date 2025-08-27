@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require_relative '../../lib/rails_dependency_explorer/analysis/analyzer_plugin_interface'
-require_relative '../../lib/rails_dependency_explorer/analysis/analyzer_discovery'
+require_relative '../../lib/rails_dependency_explorer/analysis/interfaces/analyzer_plugin_interface'
+require_relative '../../lib/rails_dependency_explorer/analysis/configuration/analyzer_discovery'
 
 class AnalyzerPluginInterfaceTest < Minitest::Test
   def setup
-    @plugin_interface = RailsDependencyExplorer::Analysis::AnalyzerPluginInterface.new
+    @plugin_interface = RailsDependencyExplorer::Analysis::Interfaces::AnalyzerPluginInterface.new
   end
 
   def test_registers_custom_analyzer_plugin
     # Create a mock custom analyzer class
     custom_analyzer = Class.new do
-      include RailsDependencyExplorer::Analysis::AnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::AnalyzerInterface
       
       def self.name
         "CustomTestAnalyzer"
@@ -49,7 +49,7 @@ class AnalyzerPluginInterfaceTest < Minitest::Test
     # Create a temporary plugin file
     plugin_content = <<~RUBY
       class TestFileAnalyzer
-        include RailsDependencyExplorer::Analysis::AnalyzerInterface
+        include RailsDependencyExplorer::Analysis::Interfaces::AnalyzerInterface
         
         def analyze(dependencies)
           { file_analysis: "loaded from file" }
@@ -95,7 +95,7 @@ class AnalyzerPluginInterfaceTest < Minitest::Test
   def test_integrates_with_analyzer_discovery
     # Register a custom plugin
     custom_analyzer = Class.new do
-      include RailsDependencyExplorer::Analysis::AnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::AnalyzerInterface
       
       def self.name
         "IntegrationTestAnalyzer"
@@ -109,7 +109,7 @@ class AnalyzerPluginInterfaceTest < Minitest::Test
     @plugin_interface.register_plugin(:integration_test_analyzer, custom_analyzer)
     
     # Test that it appears in discovery with plugins enabled
-    discovery = RailsDependencyExplorer::Analysis::AnalyzerDiscovery.new(
+    discovery = RailsDependencyExplorer::Analysis::Configuration::AnalyzerDiscovery.new(
       plugin_interface: @plugin_interface
     )
     
@@ -120,7 +120,7 @@ class AnalyzerPluginInterfaceTest < Minitest::Test
 
   def test_plugin_metadata_extraction
     custom_analyzer = Class.new do
-      include RailsDependencyExplorer::Analysis::AnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::AnalyzerInterface
       
       def self.name
         "MetadataTestAnalyzer"
@@ -134,7 +134,7 @@ class AnalyzerPluginInterfaceTest < Minitest::Test
     @plugin_interface.register_plugin(:metadata_test_analyzer, custom_analyzer)
     
     # Test metadata extraction for plugins
-    discovery = RailsDependencyExplorer::Analysis::AnalyzerDiscovery.new(
+    discovery = RailsDependencyExplorer::Analysis::Configuration::AnalyzerDiscovery.new(
       plugin_interface: @plugin_interface
     )
     
@@ -149,7 +149,7 @@ class AnalyzerPluginInterfaceTest < Minitest::Test
 
   def test_unregisters_plugin
     custom_analyzer = Class.new do
-      include RailsDependencyExplorer::Analysis::AnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::AnalyzerInterface
       
       def self.name
         "UnregisterTestAnalyzer"
@@ -186,7 +186,7 @@ class AnalyzerPluginInterfaceTest < Minitest::Test
 
   def create_mock_analyzer(name)
     Class.new do
-      include RailsDependencyExplorer::Analysis::AnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::AnalyzerInterface
       
       define_singleton_method(:name) { name }
       
@@ -212,7 +212,7 @@ class AnalyzerPluginInterfaceTest < Minitest::Test
   def create_plugin_file(dir, filename, class_name, result_value)
     plugin_content = <<~RUBY
       class #{class_name}
-        include RailsDependencyExplorer::Analysis::AnalyzerInterface
+        include RailsDependencyExplorer::Analysis::Interfaces::AnalyzerInterface
         
         def analyze(dependencies)
           { result: "#{result_value}" }

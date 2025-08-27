@@ -1,23 +1,23 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require_relative '../../lib/rails_dependency_explorer/analysis/graph_analyzer_interface'
+require_relative '../../lib/rails_dependency_explorer/analysis/interfaces/graph_analyzer_interface'
 
 class GraphAnalyzerInterfaceTest < Minitest::Test
   def test_graph_analyzer_interface_exists
     # Interface should be defined
-    assert_kind_of Module, RailsDependencyExplorer::Analysis::GraphAnalyzerInterface
+    assert_kind_of Module, RailsDependencyExplorer::Analysis::Interfaces::GraphAnalyzerInterface
   end
 
   def test_graph_analyzer_interface_defines_required_methods
-    interface = RailsDependencyExplorer::Analysis::GraphAnalyzerInterface
+    interface = RailsDependencyExplorer::Analysis::Interfaces::GraphAnalyzerInterface
     
     # Should define method requirements for graph analysis
     assert_respond_to interface, :included
     
     # When included, should add required methods
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::GraphAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::GraphAnalyzerInterface
     end
     
     instance = test_class.new
@@ -31,7 +31,7 @@ class GraphAnalyzerInterfaceTest < Minitest::Test
 
   def test_graph_analyzer_interface_provides_graph_utilities
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::GraphAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::GraphAnalyzerInterface
       
       def initialize(dependency_data)
         @dependency_data = dependency_data
@@ -57,7 +57,7 @@ class GraphAnalyzerInterfaceTest < Minitest::Test
 
   def test_graph_analyzer_interface_provides_structure_analysis
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::GraphAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::GraphAnalyzerInterface
       
       def initialize(dependency_data)
         @dependency_data = dependency_data
@@ -88,7 +88,7 @@ class GraphAnalyzerInterfaceTest < Minitest::Test
 
   def test_graph_analyzer_interface_handles_empty_data
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::GraphAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::GraphAnalyzerInterface
       
       def initialize(dependency_data)
         @dependency_data = dependency_data
@@ -109,7 +109,7 @@ class GraphAnalyzerInterfaceTest < Minitest::Test
 
   def test_graph_analyzer_interface_detects_cycles
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::GraphAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::GraphAnalyzerInterface
       
       def initialize(dependency_data)
         @dependency_data = dependency_data
@@ -133,7 +133,7 @@ class GraphAnalyzerInterfaceTest < Minitest::Test
 
   def test_graph_analyzer_interface_identifies_strongly_connected_components
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::GraphAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::GraphAnalyzerInterface
       
       def initialize(dependency_data)
         @dependency_data = dependency_data

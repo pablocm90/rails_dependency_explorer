@@ -6,7 +6,7 @@ require_relative "../test_helper"
 
 class DependencyExplorerDirectoryTest < Minitest::Test
   def setup
-    @explorer = RailsDependencyExplorer::Analysis::DependencyExplorer.new
+    @explorer = RailsDependencyExplorer::Analysis::Pipeline::DependencyExplorer.new
   end
 
   def test_analyze_directory_finds_files_in_nested_subdirectories

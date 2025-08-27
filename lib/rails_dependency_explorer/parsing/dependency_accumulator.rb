@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../analysis/dependency_collection"
+require_relative "../analysis/configuration/dependency_collection"
 
 module RailsDependencyExplorer
   module Parsing
@@ -11,7 +11,7 @@ module RailsDependencyExplorer
       attr_reader :collection
 
       def initialize
-        @collection = Analysis::DependencyCollection.new
+        @collection = Analysis::Configuration::DependencyCollection.new
       end
 
       def record_method_call(constant_name, method_name)

@@ -1,100 +1,52 @@
 # frozen_string_literal: true
 
+require_relative "test_data_factory"
+
 module DependencyExplorerTestHelpers
+  include TestDataFactory
   # Provides shared setup for dependency explorer tests
   def setup_dependency_explorer
-    @explorer = RailsDependencyExplorer::Analysis::DependencyExplorer.new
+    @explorer = RailsDependencyExplorer::Analysis::Pipeline::DependencyExplorer.new
   end
 
   # Common Ruby code templates used across tests
+  # Consolidated to use TestDataFactory to eliminate duplication
   def player_code
-    <<~RUBY
-      class Player
-        def attack
-          Enemy.health -= 10
-        end
-      end
-    RUBY
+    RubyCodeFactory.player_class
   end
 
   def game_code
-    <<~RUBY
-      class Game
-        def start
-          Player.new
-          Logger.info("Game started")
-        end
-      end
-    RUBY
+    RubyCodeFactory.game_class
   end
 
   def user_code
-    <<~RUBY
-      class User
-        def validate
-          UserValidator.check(self)
-        end
-      end
-    RUBY
+    RubyCodeFactory.user_class
   end
 
   def complex_player_code
-    <<~RUBY
-      class Player
-        def complex_attack
-          Enemy.take_damage(10)
-          Enemy.health -= 5
-          GameState.current.update
-          max_health = Config::MAX_HEALTH
-          Logger.info("Attack completed")
-        end
-      end
-    RUBY
+    RubyCodeFactory.complex_player_class
   end
 
   def user_validator_code
-    <<~RUBY
-      module UserValidator
-        def self.check(user)
-          Logger.info("Validating user")
-        end
-      end
-    RUBY
+    RubyCodeFactory.user_validator_module
   end
 
   def email_service_code
-    <<~RUBY
-      class EmailService
-        def send_notification
-          Logger.info("Sending email")
-        end
-      end
-    RUBY
+    RubyCodeFactory.email_service_class
   end
 
   # Common dependency data structures
+  # Consolidated to use TestDataFactory to eliminate duplication
   def simple_dependency_data
-    {"Player" => [{"Enemy" => ["health"]}]}
+    DependencyDataFactory.simple_dependency_data
   end
 
   def complex_dependency_data
-    {
-      "Player" => [
-        {"Enemy" => ["take_damage", "health"]},
-        {"GameState" => ["current"]},
-        {"Logger" => ["info"]}
-      ]
-    }
+    DependencyDataFactory.complex_dependency_data
   end
 
   def rails_dependency_data
-    {
-      "User" => [
-        {"ApplicationRecord" => [[]]},
-        {"ActiveRecord::belongs_to" => ["Account"]},
-        {"ActiveRecord::has_many" => ["Post"]}
-      ]
-    }
+    DependencyDataFactory.activerecord_relationships_data
   end
 
   # Common expected results

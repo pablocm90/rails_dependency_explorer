@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "error_handler"
+require_relative "../error_handler"
 
 module RailsDependencyExplorer
   module CLI
@@ -16,12 +16,12 @@ module RailsDependencyExplorer
 
       def validate_directory_path(directory_path)
         if directory_path.nil?
-          ErrorHandler.handle_missing_path_error(:directory)
+          puts "Error: --directory option requires a directory path"
           return 1
         end
 
         unless File.directory?(directory_path)
-          ErrorHandler.handle_not_found_error(:directory, directory_path)
+          puts "Error: Directory not found: #{directory_path}"
           1
         end
       end
@@ -30,13 +30,14 @@ module RailsDependencyExplorer
 
       def check_file_path_provided(file_path)
         return true unless file_path.nil?
-        ErrorHandler.handle_missing_path_error(:file)
+        puts "Error: analyze command requires a file path"
+        puts "Usage: rails_dependency_explorer analyze <path>"
         false
       end
 
       def check_file_exists(file_path)
         return true if File.exist?(file_path)
-        ErrorHandler.handle_not_found_error(:file, file_path)
+        puts "Error: File not found: #{file_path}"
         false
       end
     end

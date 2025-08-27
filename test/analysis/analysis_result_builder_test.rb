@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
-require_relative "../../lib/rails_dependency_explorer/analysis/analysis_result_builder"
+require_relative "../../lib/rails_dependency_explorer/analysis/pipeline/analysis_result_builder"
 
 # Tests for AnalysisResultBuilder class for composing analysis results from pipeline.
 # Handles result aggregation, error collection, and AnalysisResult facade creation.
@@ -23,12 +23,12 @@ class AnalysisResultBuilderTest < Minitest::Test
 
   def test_analysis_result_builder_basic_construction
     # Test basic AnalysisResult construction from pipeline results
-    builder = RailsDependencyExplorer::Analysis::AnalysisResultBuilder.new(@dependency_data)
+    builder = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultBuilder.new(@dependency_data)
     
     result = builder.build_from_pipeline_results(@pipeline_results)
     
     # Should create AnalysisResult with proper delegation
-    assert_instance_of RailsDependencyExplorer::Analysis::AnalysisResult, result
+    assert_instance_of RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult, result
     assert_equal @pipeline_results[:statistics], result.statistics
     assert_equal @pipeline_results[:circular_dependencies], result.circular_dependencies
     assert_equal @pipeline_results[:dependency_depth], result.dependency_depth
@@ -40,7 +40,7 @@ class AnalysisResultBuilderTest < Minitest::Test
       errors: ["Analyzer X failed", "Analyzer Y timed out"]
     )
     
-    builder = RailsDependencyExplorer::Analysis::AnalysisResultBuilder.new(@dependency_data)
+    builder = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultBuilder.new(@dependency_data)
     result = builder.build_from_pipeline_results(results_with_errors)
     
     # Should include error information in result
@@ -55,7 +55,7 @@ class AnalysisResultBuilderTest < Minitest::Test
       errors: ["CircularDependencyAnalyzer failed"]
     }
     
-    builder = RailsDependencyExplorer::Analysis::AnalysisResultBuilder.new(@dependency_data)
+    builder = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultBuilder.new(@dependency_data)
     result = builder.build_from_pipeline_results(partial_results)
     
     # Should handle partial results gracefully
@@ -66,7 +66,7 @@ class AnalysisResultBuilderTest < Minitest::Test
 
   def test_analysis_result_builder_result_merging
     # Test merging multiple result sets
-    builder = RailsDependencyExplorer::Analysis::AnalysisResultBuilder.new(@dependency_data)
+    builder = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultBuilder.new(@dependency_data)
     
     results1 = { statistics: { total_classes: 2 } }
     results2 = { circular_dependencies: [] }
@@ -82,7 +82,7 @@ class AnalysisResultBuilderTest < Minitest::Test
 
   def test_analysis_result_builder_error_aggregation
     # Test aggregation of errors from multiple analyzers
-    builder = RailsDependencyExplorer::Analysis::AnalysisResultBuilder.new(@dependency_data)
+    builder = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultBuilder.new(@dependency_data)
     
     results_with_errors = [
       { statistics: { total: 1 }, errors: ["Error 1"] },
@@ -100,7 +100,7 @@ class AnalysisResultBuilderTest < Minitest::Test
     # Test builder provides sensible defaults for missing analysis results
     empty_results = {}
     
-    builder = RailsDependencyExplorer::Analysis::AnalysisResultBuilder.new(@dependency_data)
+    builder = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultBuilder.new(@dependency_data)
     result = builder.build_from_pipeline_results(empty_results)
     
     # Should provide defaults for all expected methods
@@ -112,7 +112,7 @@ class AnalysisResultBuilderTest < Minitest::Test
 
   def test_analysis_result_builder_custom_result_processor
     # Test builder with custom result processing
-    builder = RailsDependencyExplorer::Analysis::AnalysisResultBuilder.new(@dependency_data)
+    builder = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultBuilder.new(@dependency_data)
     
     # Add custom processor for statistics
     builder.add_result_processor(:statistics) do |stats|
@@ -128,7 +128,7 @@ class AnalysisResultBuilderTest < Minitest::Test
 
   def test_analysis_result_builder_validation
     # Test builder validates pipeline results structure
-    builder = RailsDependencyExplorer::Analysis::AnalysisResultBuilder.new(@dependency_data)
+    builder = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultBuilder.new(@dependency_data)
     
     invalid_results = "not_a_hash"
     
@@ -147,7 +147,7 @@ class AnalysisResultBuilderTest < Minitest::Test
       }
     )
     
-    builder = RailsDependencyExplorer::Analysis::AnalysisResultBuilder.new(@dependency_data)
+    builder = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultBuilder.new(@dependency_data)
     result = builder.build_from_pipeline_results(results_with_metadata)
     
     # Should preserve metadata
@@ -158,7 +158,7 @@ class AnalysisResultBuilderTest < Minitest::Test
 
   def test_analysis_result_builder_backward_compatibility
     # Test that built results maintain backward compatibility with existing AnalysisResult API
-    builder = RailsDependencyExplorer::Analysis::AnalysisResultBuilder.new(@dependency_data)
+    builder = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultBuilder.new(@dependency_data)
     result = builder.build_from_pipeline_results(@pipeline_results)
     
     # Should respond to all expected AnalysisResult methods

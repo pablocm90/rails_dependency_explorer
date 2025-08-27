@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative "analyzer_interface"
+require_relative "interfaces/analyzer_interface"
 require_relative "../error_handler"
-require_relative "graph_builder"
+require_relative "utilities/graph_builder"
 
 module RailsDependencyExplorer
   module Analysis
@@ -11,7 +11,7 @@ module RailsDependencyExplorer
     # while the base class handles common concerns like error handling, validation,
     # and result formatting.
     class BaseAnalyzer
-      include AnalyzerInterface
+      include Interfaces::AnalyzerInterface
 
       attr_reader :dependency_data, :options
 
@@ -51,7 +51,7 @@ module RailsDependencyExplorer
       # Build adjacency list representation of dependency graph
       # @return [Hash] Adjacency list where keys are classes and values are arrays of dependencies
       def build_adjacency_list
-        GraphBuilder.build_adjacency_list(@dependency_data)
+        Utilities::GraphBuilder.build_adjacency_list(@dependency_data)
       end
 
       # Validate that dependency data is in expected format

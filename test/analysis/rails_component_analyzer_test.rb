@@ -5,7 +5,7 @@ require_relative "../test_helper"
 
 class RailsComponentAnalyzerTest < Minitest::Test
   def setup
-    @analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new({})
+    @analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer.new({})
   end
 
   def test_categorize_components_identifies_models_by_inheritance
@@ -13,7 +13,7 @@ class RailsComponentAnalyzerTest < Minitest::Test
       "User" => [{"ApplicationRecord" => [[]]}],
       "Post" => [{"ApplicationRecord" => [[]]}]
     }
-    analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer.new(dependency_data)
 
     result = analyzer.categorize_components
 
@@ -26,7 +26,7 @@ class RailsComponentAnalyzerTest < Minitest::Test
       "UsersController" => [{"ApplicationController" => [[]]}],
       "PostsController" => [{"ApplicationController" => [[]]}]
     }
-    analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer.new(dependency_data)
 
     result = analyzer.categorize_components
 
@@ -39,7 +39,7 @@ class RailsComponentAnalyzerTest < Minitest::Test
       "AdminController" => [],
       "ApiController" => []
     }
-    analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer.new(dependency_data)
 
     result = analyzer.categorize_components
 
@@ -53,7 +53,7 @@ class RailsComponentAnalyzerTest < Minitest::Test
       "EmailService" => [],
       "PaymentService" => []
     }
-    analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer.new(dependency_data)
 
     result = analyzer.categorize_components
 
@@ -68,7 +68,7 @@ class RailsComponentAnalyzerTest < Minitest::Test
       "Redis" => [],
       "CustomClass" => []
     }
-    analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer.new(dependency_data)
 
     result = analyzer.categorize_components
 
@@ -84,7 +84,7 @@ class RailsComponentAnalyzerTest < Minitest::Test
         {"Redis" => ["new"]}
       ]
     }
-    analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer.new(dependency_data)
 
     result = analyzer.categorize_components
 
@@ -95,7 +95,7 @@ class RailsComponentAnalyzerTest < Minitest::Test
 
   def test_categorize_components_handles_empty_dependency_data
     dependency_data = {}
-    analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer.new(dependency_data)
 
     result = analyzer.categorize_components
 
@@ -109,7 +109,7 @@ class RailsComponentAnalyzerTest < Minitest::Test
     dependency_data = {
       "UserService" => [{"UserService" => ["call"]}] # Self-reference
     }
-    analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer.new(dependency_data)
 
     result = analyzer.categorize_components
 

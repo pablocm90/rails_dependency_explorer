@@ -12,7 +12,7 @@ class RailsConfigurationAnalyzerTest < Minitest::Test
       ]
     }
 
-    analyzer = RailsDependencyExplorer::Analysis::RailsConfigurationAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsConfigurationAnalyzer.new(dependency_data)
     result = analyzer.analyze_configuration_dependencies
 
     expected = {
@@ -31,7 +31,7 @@ class RailsConfigurationAnalyzerTest < Minitest::Test
       "EmptyService" => []
     }
 
-    analyzer = RailsDependencyExplorer::Analysis::RailsConfigurationAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsConfigurationAnalyzer.new(dependency_data)
     result = analyzer.analyze_configuration_dependencies
 
     expected = {
@@ -53,7 +53,7 @@ class RailsConfigurationAnalyzerTest < Minitest::Test
       ]
     }
 
-    analyzer = RailsDependencyExplorer::Analysis::RailsConfigurationAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsConfigurationAnalyzer.new(dependency_data)
     result = analyzer.analyze_configuration_dependencies
 
     expected = {
@@ -77,7 +77,7 @@ class RailsConfigurationAnalyzerTest < Minitest::Test
       ]
     }
 
-    analyzer = RailsDependencyExplorer::Analysis::RailsConfigurationAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsConfigurationAnalyzer.new(dependency_data)
     result = analyzer.analyze_configuration_dependencies
 
     expected = {

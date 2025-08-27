@@ -10,7 +10,7 @@ class DependencyDepthAnalyzerTest < Minitest::Test
       "Weapon" => []
     }
 
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(dependency_data)
     depths = analyzer.calculate_depth
 
     expected_depths = {
@@ -28,7 +28,7 @@ class DependencyDepthAnalyzerTest < Minitest::Test
       "Config" => []
     }
 
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(dependency_data)
     depths = analyzer.calculate_depth
 
     expected_depths = {
@@ -47,7 +47,7 @@ class DependencyDepthAnalyzerTest < Minitest::Test
       "Weapon" => []
     }
 
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(dependency_data)
     depths = analyzer.calculate_depth
 
     expected_depths = {
@@ -66,7 +66,7 @@ class DependencyDepthAnalyzerTest < Minitest::Test
       "Weapon" => []
     }
 
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(dependency_data)
     depths = analyzer.calculate_depth
 
     expected_depths = {
@@ -81,7 +81,7 @@ class DependencyDepthAnalyzerTest < Minitest::Test
   def test_handles_empty_dependency_data
     dependency_data = {}
 
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(dependency_data)
     depths = analyzer.calculate_depth
 
     assert_equal({}, depths)
@@ -92,7 +92,7 @@ class DependencyDepthAnalyzerTest < Minitest::Test
       "Standalone" => []
     }
 
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(dependency_data)
     depths = analyzer.calculate_depth
 
     expected_depths = {

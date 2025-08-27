@@ -15,10 +15,10 @@ class AnalysisResultPipelineIntegrationTest < Minitest::Test
 
   def test_analysis_result_create_with_pipeline_flag
     # Test creating AnalysisResult with pipeline architecture
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.create(@dependency_data, use_pipeline: true)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.create(@dependency_data, use_pipeline: true)
     
     # Should create AnalysisResult instance
-    assert_instance_of RailsDependencyExplorer::Analysis::AnalysisResult, result
+    assert_instance_of RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult, result
     
     # Should respond to all expected methods
     assert_respond_to result, :statistics
@@ -31,7 +31,7 @@ class AnalysisResultPipelineIntegrationTest < Minitest::Test
 
   def test_analysis_result_create_with_pipeline_produces_results
     # Test that pipeline-created AnalysisResult produces actual analysis results
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.create(@dependency_data, use_pipeline: true)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.create(@dependency_data, use_pipeline: true)
     
     # Should produce statistics
     statistics = result.statistics
@@ -52,10 +52,10 @@ class AnalysisResultPipelineIntegrationTest < Minitest::Test
 
   def test_analysis_result_backward_compatibility_without_pipeline
     # Test that existing AnalysisResult creation still works (backward compatibility)
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.create(@dependency_data)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.create(@dependency_data)
     
     # Should create AnalysisResult instance
-    assert_instance_of RailsDependencyExplorer::Analysis::AnalysisResult, result
+    assert_instance_of RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult, result
     
     # Should respond to all expected methods
     assert_respond_to result, :statistics
@@ -66,8 +66,8 @@ class AnalysisResultPipelineIntegrationTest < Minitest::Test
 
   def test_analysis_result_pipeline_vs_traditional_consistency
     # Test that pipeline and traditional approaches produce consistent results
-    traditional_result = RailsDependencyExplorer::Analysis::AnalysisResult.create(@dependency_data)
-    pipeline_result = RailsDependencyExplorer::Analysis::AnalysisResult.create(@dependency_data, use_pipeline: true)
+    traditional_result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.create(@dependency_data)
+    pipeline_result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.create(@dependency_data, use_pipeline: true)
     
     # Statistics should be consistent
     assert_equal traditional_result.statistics.keys.sort, pipeline_result.statistics.keys.sort
@@ -81,12 +81,12 @@ class AnalysisResultPipelineIntegrationTest < Minitest::Test
 
   def test_analysis_result_pipeline_with_container
     # Test pipeline with dependency injection container
-    container = RailsDependencyExplorer::Analysis::DependencyContainer.new
+    container = RailsDependencyExplorer::Analysis::Configuration::DependencyContainer.new
     
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.create(@dependency_data, container: container, use_pipeline: true)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.create(@dependency_data, container: container, use_pipeline: true)
     
     # Should create result successfully
-    assert_instance_of RailsDependencyExplorer::Analysis::AnalysisResult, result
+    assert_instance_of RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult, result
     
     # Should produce expected results
     assert_respond_to result, :statistics
@@ -95,7 +95,7 @@ class AnalysisResultPipelineIntegrationTest < Minitest::Test
 
   def test_analysis_result_pipeline_error_handling
     # Test that pipeline handles errors gracefully
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.create(@dependency_data, use_pipeline: true)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.create(@dependency_data, use_pipeline: true)
     
     # Should have errors method available
     assert_respond_to result, :errors
@@ -107,7 +107,7 @@ class AnalysisResultPipelineIntegrationTest < Minitest::Test
 
   def test_analysis_result_pipeline_metadata
     # Test that pipeline results include metadata
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.create(@dependency_data, use_pipeline: true)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.create(@dependency_data, use_pipeline: true)
     
     # Should have metadata method available
     assert_respond_to result, :metadata
@@ -119,10 +119,10 @@ class AnalysisResultPipelineIntegrationTest < Minitest::Test
 
   def test_analysis_result_create_with_pipeline_factory_method
     # Test the dedicated pipeline factory method
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.create_with_pipeline(@dependency_data)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.create_with_pipeline(@dependency_data)
     
     # Should create AnalysisResult instance
-    assert_instance_of RailsDependencyExplorer::Analysis::AnalysisResult, result
+    assert_instance_of RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult, result
     
     # Should have pipeline-specific methods
     assert_respond_to result, :errors
@@ -135,7 +135,7 @@ class AnalysisResultPipelineIntegrationTest < Minitest::Test
 
   def test_analysis_result_output_methods_work_with_pipeline
     # Test that output formatting methods work with pipeline results
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.create(@dependency_data, use_pipeline: true)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.create(@dependency_data, use_pipeline: true)
     
     # Should respond to output methods
     assert_respond_to result, :to_json

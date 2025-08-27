@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../analysis/circular_dependency_analyzer"
+require_relative "../analysis/analyzers/circular_dependency_analyzer"
 require_relative "cross_namespace_cycle_filter"
 require_relative "architectural_cycle_formatter"
 
@@ -54,7 +54,7 @@ module RailsDependencyExplorer
       end
 
       def circular_analyzer
-        @circular_analyzer ||= @injected_circular_analyzer || RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(@dependency_data)
+        @circular_analyzer ||= @injected_circular_analyzer || RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new(@dependency_data)
       end
 
       # Validate injected circular analyzer

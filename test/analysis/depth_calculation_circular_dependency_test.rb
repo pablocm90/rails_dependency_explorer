@@ -12,7 +12,7 @@ class DepthCalculationCircularDependencyTest < Minitest::Test
       "A" => ["B"],  # B depends on A
       "B" => ["A"]   # A depends on B
     }
-    state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
+    state = RailsDependencyExplorer::Analysis::State::DepthCalculationState.new(reverse_graph)
 
     # This should not cause stack overflow
     depth_a = state.calculate_node_depth("A")
@@ -33,7 +33,7 @@ class DepthCalculationCircularDependencyTest < Minitest::Test
       "B" => ["A"],  # A depends on B  
       "C" => ["B"]   # B depends on C
     }
-    state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
+    state = RailsDependencyExplorer::Analysis::State::DepthCalculationState.new(reverse_graph)
 
     # This should not cause stack overflow
     depth_a = state.calculate_node_depth("A")
@@ -54,7 +54,7 @@ class DepthCalculationCircularDependencyTest < Minitest::Test
     reverse_graph = {
       "A" => ["A"]  # A depends on A
     }
-    state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
+    state = RailsDependencyExplorer::Analysis::State::DepthCalculationState.new(reverse_graph)
 
     # This should not cause stack overflow
     depth_a = state.calculate_node_depth("A")
@@ -75,7 +75,7 @@ class DepthCalculationCircularDependencyTest < Minitest::Test
       "E" => ["D"],       # D depends on E
       "F" => []           # Nothing depends on F
     }
-    state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
+    state = RailsDependencyExplorer::Analysis::State::DepthCalculationState.new(reverse_graph)
 
     # Calculate depths for all nodes - should not cause stack overflow
     depth_a = state.calculate_node_depth("A")
@@ -108,7 +108,7 @@ class DepthCalculationCircularDependencyTest < Minitest::Test
       "C" => ["D"],       # D depends on C
       "D" => ["C"]        # C depends on D
     }
-    state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
+    state = RailsDependencyExplorer::Analysis::State::DepthCalculationState.new(reverse_graph)
 
     # Calculate depths - should not cause stack overflow
     depth_a = state.calculate_node_depth("A")
@@ -134,7 +134,7 @@ class DepthCalculationCircularDependencyTest < Minitest::Test
       "Admin" => [{"User" => ["manage"]}]      # Admin -> User (acyclic branch)
     }
 
-    analyzer = RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(dependency_data)
 
     # This should complete without stack overflow
     depths = analyzer.calculate_depth
@@ -163,7 +163,7 @@ class DepthCalculationCircularDependencyTest < Minitest::Test
       "B" => ["A"],  # A depends on B (circular)
       "C" => []      # C has no dependents (acyclic)
     }
-    state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
+    state = RailsDependencyExplorer::Analysis::State::DepthCalculationState.new(reverse_graph)
 
     # Calculate depth multiple times - should use memoization
     depth_a1 = state.calculate_node_depth("A")

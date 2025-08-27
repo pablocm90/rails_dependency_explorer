@@ -146,7 +146,7 @@ class StandardizedErrorHandlingTest < Minitest::Test
       end
     end.new
     
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new([failing_analyzer])
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new([failing_analyzer])
     results = pipeline.analyze(@dependency_data)
     
     # Should use standardized error format in errors array

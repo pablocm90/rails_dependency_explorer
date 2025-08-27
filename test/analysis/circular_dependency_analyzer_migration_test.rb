@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require_relative '../../lib/rails_dependency_explorer/analysis/circular_dependency_analyzer'
+require_relative '../../lib/rails_dependency_explorer/analysis/analyzers/circular_dependency_analyzer'
 require_relative '../../lib/rails_dependency_explorer/analysis/base_analyzer'
 
 class CircularDependencyAnalyzerMigrationTest < Minitest::Test
@@ -14,14 +14,14 @@ class CircularDependencyAnalyzerMigrationTest < Minitest::Test
   end
 
   def test_circular_analyzer_inherits_from_base_analyzer
-    analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(@dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new(@dependency_data)
     
     # Should inherit from BaseAnalyzer
     assert_includes analyzer.class.ancestors, RailsDependencyExplorer::Analysis::BaseAnalyzer
   end
 
   def test_circular_analyzer_maintains_existing_api
-    analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(@dependency_data, include_metadata: false)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new(@dependency_data, include_metadata: false)
     
     # Should still respond to existing methods
     assert_respond_to analyzer, :find_cycles
@@ -36,7 +36,7 @@ class CircularDependencyAnalyzerMigrationTest < Minitest::Test
 
   def test_circular_analyzer_supports_base_analyzer_options
     # Should support error handling options
-    analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new(
       @dependency_data, 
       error_handling: :strict,
       include_metadata: false
@@ -47,7 +47,7 @@ class CircularDependencyAnalyzerMigrationTest < Minitest::Test
   end
 
   def test_circular_analyzer_provides_metadata_when_requested
-    analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new(
       @dependency_data, 
       include_metadata: true
     )
@@ -61,13 +61,13 @@ class CircularDependencyAnalyzerMigrationTest < Minitest::Test
     
     # Metadata should include analyzer information
     metadata = result[:metadata]
-    assert_equal "RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer", metadata[:analyzer_class]
+    assert_equal "RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer", metadata[:analyzer_class]
     assert_equal 3, metadata[:dependency_count]
     assert_kind_of Time, metadata[:analysis_timestamp]
   end
 
   def test_circular_analyzer_returns_raw_result_without_metadata
-    analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new(
       @dependency_data, 
       include_metadata: false
     )
@@ -83,7 +83,7 @@ class CircularDependencyAnalyzerMigrationTest < Minitest::Test
 
   def test_circular_analyzer_handles_errors_gracefully
     # Test with invalid dependency data
-    analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new(
       nil, 
       error_handling: :graceful
     )
@@ -98,7 +98,7 @@ class CircularDependencyAnalyzerMigrationTest < Minitest::Test
 
   def test_circular_analyzer_raises_errors_in_strict_mode
     # Test with invalid dependency data
-    analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new(
       nil, 
       error_handling: :strict,
       validate_on_init: false  # Don't validate on init to test analyze-time validation
@@ -111,7 +111,7 @@ class CircularDependencyAnalyzerMigrationTest < Minitest::Test
   end
 
   def test_circular_analyzer_maintains_backward_compatibility
-    analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(@dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new(@dependency_data)
     
     # Should maintain existing find_cycles behavior
     cycles = analyzer.find_cycles
@@ -127,7 +127,7 @@ class CircularDependencyAnalyzerMigrationTest < Minitest::Test
   end
 
   def test_circular_analyzer_implements_perform_analysis
-    analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(@dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new(@dependency_data)
     
     # Should implement perform_analysis method
     assert_respond_to analyzer, :perform_analysis
@@ -139,10 +139,10 @@ class CircularDependencyAnalyzerMigrationTest < Minitest::Test
     assert_equal cycles_result, perform_result
   end
 
-  def test_circular_analyzer_includes_cycle_detection_interface
-    analyzer = RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(@dependency_data)
-    
-    # Should still include CycleDetectionInterface
-    assert_includes analyzer.class.included_modules, RailsDependencyExplorer::Analysis::CycleDetectionInterface
+  def test_circular_analyzer_includes_graph_analyzer_interface
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new(@dependency_data)
+
+    # Should include GraphAnalyzerInterface (new interface)
+    assert_includes analyzer.class.included_modules, RailsDependencyExplorer::Analysis::Interfaces::GraphAnalyzerInterface
   end
 end

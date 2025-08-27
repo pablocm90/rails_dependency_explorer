@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require_relative '../../lib/rails_dependency_explorer/analysis/analyzer_discovery'
+require_relative '../../lib/rails_dependency_explorer/analysis/configuration/analyzer_discovery'
 
 class AnalyzerDiscoveryTest < Minitest::Test
   def setup
-    @discovery = RailsDependencyExplorer::Analysis::AnalyzerDiscovery.new
+    @discovery = RailsDependencyExplorer::Analysis::Configuration::AnalyzerDiscovery.new
   end
 
   def test_discovers_analyzer_classes_implementing_interface
@@ -18,7 +18,7 @@ class AnalyzerDiscoveryTest < Minitest::Test
     assert_includes discovered.keys, :rails_component_analyzer
     
     # Should return class references
-    assert_equal RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer, 
+    assert_equal RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer, 
                  discovered[:circular_dependency_analyzer]
   end
 
@@ -45,7 +45,7 @@ class AnalyzerDiscoveryTest < Minitest::Test
 
     # Should find statistics analyzer
     assert_includes discovered.keys, :dependency_statistics_calculator
-    assert_equal RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator,
+    assert_equal RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator,
                  discovered[:dependency_statistics_calculator]
   end
 
@@ -54,7 +54,7 @@ class AnalyzerDiscoveryTest < Minitest::Test
     
     # Should find ActiveRecord relationship analyzer
     assert_includes discovered.keys, :active_record_relationship_analyzer
-    assert_equal RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer,
+    assert_equal RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer,
                  discovered[:active_record_relationship_analyzer]
   end
 
@@ -69,7 +69,7 @@ class AnalyzerDiscoveryTest < Minitest::Test
 
   def test_returns_empty_hash_when_no_analyzers_found
     # Create discovery instance that looks in empty namespace
-    empty_discovery = RailsDependencyExplorer::Analysis::AnalyzerDiscovery.new(namespace: "NonExistent")
+    empty_discovery = RailsDependencyExplorer::Analysis::Configuration::AnalyzerDiscovery.new(namespace: "NonExistent")
     
     discovered = empty_discovery.discover_analyzers
     assert_empty discovered

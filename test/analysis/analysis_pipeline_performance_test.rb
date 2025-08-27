@@ -20,7 +20,7 @@ class AnalysisPipelinePerformanceTest < Minitest::Test
     # This establishes our performance baseline before optimizations
     
     analyzers = create_default_analyzers(@medium_dependency_data)
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new(analyzers)
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new(analyzers)
     
     # Measure execution time
     execution_time = Benchmark.realtime do
@@ -60,7 +60,7 @@ class AnalysisPipelinePerformanceTest < Minitest::Test
     # This will be important for large codebases
     
     analyzers = create_default_analyzers(@large_dependency_data)
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new(analyzers)
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new(analyzers)
     
     # Measure memory usage (basic approach - can be enhanced later)
     memory_before = get_memory_usage
@@ -89,7 +89,7 @@ class AnalysisPipelinePerformanceTest < Minitest::Test
     }
 
     analyzers = create_default_analyzers(@medium_dependency_data)
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new(analyzers, config: performance_config)
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new(analyzers, config: performance_config)
 
     # Should accept performance configuration without errors
     assert_respond_to pipeline, :config
@@ -110,11 +110,11 @@ class AnalysisPipelinePerformanceTest < Minitest::Test
     analyzers = create_default_analyzers(@medium_dependency_data)
 
     # Get sequential results
-    sequential_pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new(analyzers, config: { parallel_execution: false })
+    sequential_pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new(analyzers, config: { parallel_execution: false })
     sequential_results = sequential_pipeline.analyze(@medium_dependency_data)
 
     # Get parallel results
-    parallel_pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new(analyzers, config: { parallel_execution: true })
+    parallel_pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new(analyzers, config: { parallel_execution: true })
     parallel_results = parallel_pipeline.analyze(@medium_dependency_data)
 
     # Results should be equivalent (same keys and structure)
@@ -136,13 +136,13 @@ class AnalysisPipelinePerformanceTest < Minitest::Test
     analyzers = create_default_analyzers(@medium_dependency_data)
 
     # Test without caching
-    no_cache_pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new(analyzers, config: { enable_caching: false })
+    no_cache_pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new(analyzers, config: { enable_caching: false })
     no_cache_time = Benchmark.realtime do
       2.times { no_cache_pipeline.analyze(@medium_dependency_data) }
     end
 
     # Test with caching
-    cached_pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new(analyzers, config: { enable_caching: true })
+    cached_pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new(analyzers, config: { enable_caching: true })
     cached_time = Benchmark.realtime do
       2.times { cached_pipeline.analyze(@medium_dependency_data) }
     end
@@ -181,18 +181,18 @@ class AnalysisPipelinePerformanceTest < Minitest::Test
   def create_default_analyzers(dependency_data)
     # Create the standard set of analyzers for performance testing
     [
-      RailsDependencyExplorer::Analysis::DependencyStatisticsCalculator.new(dependency_data, include_metadata: false),
-      RailsDependencyExplorer::Analysis::CircularDependencyAnalyzer.new(dependency_data, include_metadata: false),
-      RailsDependencyExplorer::Analysis::DependencyDepthAnalyzer.new(dependency_data, include_metadata: false),
-      RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(dependency_data, include_metadata: false),
-      RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(dependency_data, include_metadata: false)
+      RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator.new(dependency_data, include_metadata: false),
+      RailsDependencyExplorer::Analysis::Analyzers::CircularDependencyAnalyzer.new(dependency_data, include_metadata: false),
+      RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer.new(dependency_data, include_metadata: false),
+      RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer.new(dependency_data, include_metadata: false),
+      RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(dependency_data, include_metadata: false)
     ]
   end
 
   def measure_pipeline_execution(dependency_data)
     # Measure execution time for pipeline with given data
     analyzers = create_default_analyzers(dependency_data)
-    pipeline = RailsDependencyExplorer::Analysis::AnalysisPipeline.new(analyzers)
+    pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new(analyzers)
     
     Benchmark.realtime do
       pipeline.analyze(dependency_data)

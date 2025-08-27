@@ -5,11 +5,11 @@ require_relative "../test_helper"
 
 class ActiveRecordRelationshipAnalyzerTest < Minitest::Test
   def setup
-    @analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new({})
+    @analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new({})
   end
 
   def test_analyze_relationships_returns_empty_hash_for_empty_data
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new({})
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new({})
     result = analyzer.analyze_relationships
 
     assert_equal({}, result)
@@ -19,7 +19,7 @@ class ActiveRecordRelationshipAnalyzerTest < Minitest::Test
     dependency_data = {
       "User" => [{"ActiveRecord::belongs_to" => ["Account"]}]
     }
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(dependency_data)
 
     result = analyzer.analyze_relationships
 
@@ -33,7 +33,7 @@ class ActiveRecordRelationshipAnalyzerTest < Minitest::Test
     dependency_data = {
       "User" => [{"ActiveRecord::has_many" => ["Post", "Comment"]}]
     }
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(dependency_data)
 
     result = analyzer.analyze_relationships
 
@@ -47,7 +47,7 @@ class ActiveRecordRelationshipAnalyzerTest < Minitest::Test
     dependency_data = {
       "User" => [{"ActiveRecord::has_one" => ["Profile"]}]
     }
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(dependency_data)
 
     result = analyzer.analyze_relationships
 
@@ -61,7 +61,7 @@ class ActiveRecordRelationshipAnalyzerTest < Minitest::Test
     dependency_data = {
       "User" => [{"ActiveRecord::has_and_belongs_to_many" => ["Role"]}]
     }
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(dependency_data)
 
     result = analyzer.analyze_relationships
 
@@ -80,7 +80,7 @@ class ActiveRecordRelationshipAnalyzerTest < Minitest::Test
         {"ActiveRecord::has_and_belongs_to_many" => ["Role"]}
       ]
     }
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(dependency_data)
 
     result = analyzer.analyze_relationships
 
@@ -95,7 +95,7 @@ class ActiveRecordRelationshipAnalyzerTest < Minitest::Test
       "User" => [{"ActiveRecord::belongs_to" => ["Account"]}],
       "Post" => [{"ActiveRecord::belongs_to" => ["User"]}]
     }
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(dependency_data)
 
     result = analyzer.analyze_relationships
 
@@ -111,7 +111,7 @@ class ActiveRecordRelationshipAnalyzerTest < Minitest::Test
         {"Redis" => ["get"]}
       ]
     }
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(dependency_data)
 
     result = analyzer.analyze_relationships
 
@@ -126,7 +126,7 @@ class ActiveRecordRelationshipAnalyzerTest < Minitest::Test
       "User" => [{"Logger" => ["info"]}],
       "Post" => [{"ActiveRecord::belongs_to" => ["User"]}]
     }
-    analyzer = RailsDependencyExplorer::Analysis::ActiveRecordRelationshipAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer.new(dependency_data)
 
     result = analyzer.analyze_relationships
 

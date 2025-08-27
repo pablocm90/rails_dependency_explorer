@@ -1,23 +1,23 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require_relative '../../lib/rails_dependency_explorer/analysis/component_analyzer_interface'
+require_relative '../../lib/rails_dependency_explorer/analysis/interfaces/component_analyzer_interface'
 
 class ComponentAnalyzerInterfaceTest < Minitest::Test
   def test_component_analyzer_interface_exists
     # Interface should be defined
-    assert_kind_of Module, RailsDependencyExplorer::Analysis::ComponentAnalyzerInterface
+    assert_kind_of Module, RailsDependencyExplorer::Analysis::Interfaces::ComponentAnalyzerInterface
   end
 
   def test_component_analyzer_interface_defines_required_methods
-    interface = RailsDependencyExplorer::Analysis::ComponentAnalyzerInterface
+    interface = RailsDependencyExplorer::Analysis::Interfaces::ComponentAnalyzerInterface
     
     # Should define method requirements for component analysis
     assert_respond_to interface, :included
     
     # When included, should add required methods
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::ComponentAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::ComponentAnalyzerInterface
     end
     
     instance = test_class.new
@@ -34,7 +34,7 @@ class ComponentAnalyzerInterfaceTest < Minitest::Test
 
   def test_component_analyzer_interface_provides_component_categorization
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::ComponentAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::ComponentAnalyzerInterface
       
       def initialize(dependency_data)
         @dependency_data = dependency_data
@@ -70,7 +70,7 @@ class ComponentAnalyzerInterfaceTest < Minitest::Test
 
   def test_component_analyzer_interface_provides_component_classification
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::ComponentAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::ComponentAnalyzerInterface
       
       def initialize(dependency_data)
         @dependency_data = dependency_data
@@ -94,7 +94,7 @@ class ComponentAnalyzerInterfaceTest < Minitest::Test
 
   def test_component_analyzer_interface_analyzes_component_relationships
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::ComponentAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::ComponentAnalyzerInterface
       
       def initialize(dependency_data)
         @dependency_data = dependency_data
@@ -128,7 +128,7 @@ class ComponentAnalyzerInterfaceTest < Minitest::Test
 
   def test_component_analyzer_interface_provides_component_metrics
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::ComponentAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::ComponentAnalyzerInterface
       
       def initialize(dependency_data)
         @dependency_data = dependency_data
@@ -168,7 +168,7 @@ class ComponentAnalyzerInterfaceTest < Minitest::Test
 
   def test_component_analyzer_interface_handles_empty_data
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::ComponentAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::ComponentAnalyzerInterface
       
       def initialize(dependency_data)
         @dependency_data = dependency_data
@@ -201,7 +201,7 @@ class ComponentAnalyzerInterfaceTest < Minitest::Test
 
   def test_component_analyzer_interface_detects_layering_violations
     test_class = Class.new do
-      include RailsDependencyExplorer::Analysis::ComponentAnalyzerInterface
+      include RailsDependencyExplorer::Analysis::Interfaces::ComponentAnalyzerInterface
       
       def initialize(dependency_data)
         @dependency_data = dependency_data

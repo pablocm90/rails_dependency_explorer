@@ -1,35 +1,28 @@
 # frozen_string_literal: true
 
+require_relative "test_data_factory"
+
 module AnalysisResultTestHelpers
+  include TestDataFactory
   # Creates AnalysisResult instances with common test data
+  # Consolidated to use TestDataFactory to eliminate duplication
   def create_simple_analysis_result
-    dependency_data = {"Player" => [{"Enemy" => ["health"]}]}
-    RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
+    dependency_data = DependencyDataFactory.simple_dependency_data
+    AnalyzerFactory.create_analysis_result(dependency_data)
   end
 
   def create_complex_analysis_result
-    dependency_data = {
-      "Player" => [
-        {"Enemy" => ["take_damage", "health"]},
-        {"GameState" => ["current"]},
-        {"Logger" => ["info"]}
-      ]
-    }
-    RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
+    dependency_data = DependencyDataFactory.complex_dependency_data
+    AnalyzerFactory.create_analysis_result(dependency_data)
   end
 
   def create_rails_analysis_result
-    dependency_data = {
-      "User" => [
-        {"ApplicationRecord" => [[]]},
-        {"ActiveRecord::belongs_to" => ["Account"]},
-        {"ActiveRecord::has_many" => ["Post"]}
-      ]
-    }
-    RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
+    dependency_data = DependencyDataFactory.activerecord_relationships_data
+    AnalyzerFactory.create_analysis_result(dependency_data)
   end
 
   # Common assertions for analysis results
+  # Consolidated to use AssertionFactory for expected structures
   def assert_simple_graph_structure(result)
     expected = {
       nodes: ["Player", "Enemy"],

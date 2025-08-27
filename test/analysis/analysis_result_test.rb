@@ -23,26 +23,20 @@ class AnalysisResultTest < Minitest::Test
   end
 
   def test_analysis_result_handles_empty_dependency_data
-    dependency_data = {}
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
+    dependency_data = DependencyDataFactory.empty_dependency_data
+    result = AnalyzerFactory.create_analysis_result(dependency_data)
 
-    expected = {
-      nodes: [],
-      edges: []
-    }
+    expected = AssertionFactory.empty_graph_structure
 
     assert_equal expected, result.to_graph
   end
 
   def test_analysis_result_handles_class_with_no_dependencies
-    dependency_data = {"Standalone" => []}
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
+    dependency_data = DependencyDataFactory.standalone_class_data
+    result = AnalyzerFactory.create_analysis_result(dependency_data)
 
     graph = result.to_graph
-    expected_graph = {
-      nodes: ["Standalone"],
-      edges: []
-    }
+    expected_graph = AssertionFactory.standalone_graph_structure
     assert_equal expected_graph, graph
   end
 
@@ -52,7 +46,7 @@ class AnalysisResultTest < Minitest::Test
       "Enemy" => [{"Player" => ["take_damage"]}],
       "Game" => [{"Player" => ["new"]}]
     }
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(dependency_data)
     cycles = result.circular_dependencies
 
     expected_cycles = [["Player", "Enemy", "Player"]]
@@ -60,29 +54,23 @@ class AnalysisResultTest < Minitest::Test
   end
 
   def test_analysis_result_categorizes_rails_components
-    dependency_data = {
-      "User" => [{"ApplicationRecord" => [[]]}],
-      "UsersController" => [{"ApplicationController" => [[]]}],
-      "UserService" => [{"Logger" => ["info"]}]
-    }
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
+    dependency_data = DependencyDataFactory.rails_components_data
+    result = AnalyzerFactory.create_analysis_result(dependency_data)
     components = result.rails_components
 
-    assert_includes components[:models], "User"
-    assert_includes components[:controllers], "UsersController"
-    assert_includes components[:services], "UserService"
-    assert_includes components[:other], "Logger"
+    expected_categories = AssertionFactory.rails_component_categories
+    assert_includes components[:models], expected_categories[:models][0]
+    assert_includes components[:controllers], expected_categories[:controllers][0]
+    assert_includes components[:services], expected_categories[:services][0]
+    assert_includes components[:other], expected_categories[:other][0]
   end
 
   def test_analysis_result_handles_no_circular_dependencies
-    dependency_data = {
-      "Player" => [{"Enemy" => ["take_damage"]}],
-      "Game" => [{"Player" => ["new"]}]
-    }
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
+    dependency_data = DependencyDataFactory.acyclic_dependency_graph
+    result = AnalyzerFactory.create_analysis_result(dependency_data)
     cycles = result.circular_dependencies
 
-    assert_equal [], cycles
+    assert_equal AssertionFactory.no_cycles, cycles
   end
 
   def test_analysis_result_provides_rails_aware_graph
@@ -93,7 +81,7 @@ class AnalysisResultTest < Minitest::Test
         {"ActiveRecord::has_many" => ["Post"]}
       ]
     }
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(dependency_data)
     rails_graph = result.to_rails_graph
 
     expected_nodes = ["User", "ApplicationRecord", "Account", "Post"]
@@ -107,7 +95,7 @@ class AnalysisResultTest < Minitest::Test
     dependency_data = {
       "User" => [{"ActiveRecord::belongs_to" => ["Account"]}]
     }
-    result = RailsDependencyExplorer::Analysis::AnalysisResult.new(dependency_data)
+    result = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult.new(dependency_data)
     rails_dot = result.to_rails_dot
 
     expected = "digraph dependencies {\n  \"User\" -> \"Account\";\n}"
@@ -139,10 +127,10 @@ class AnalysisResultTest < Minitest::Test
 
     # Verify that AnalysisResult now uses AnalysisResultFormatter internally
     formatter = result.send(:formatter)
-    assert_instance_of RailsDependencyExplorer::Analysis::AnalysisResultFormatter, formatter
+    assert_instance_of RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultFormatter, formatter
 
     # Verify that the formatter can work independently
-    independent_formatter = RailsDependencyExplorer::Analysis::AnalysisResultFormatter.new(simple_dependency_data)
+    independent_formatter = RailsDependencyExplorer::Analysis::Pipeline::AnalysisResultFormatter.new(simple_dependency_data)
     assert_equal result.to_graph, independent_formatter.to_graph
 
     # This test verifies that AnalysisResult now follows SRP:

@@ -68,7 +68,7 @@ class IOTestHelpersTest < Minitest::Test
     # Verify the shared helpers actually work
     setup_dependency_explorer
     refute_nil @explorer
-    assert_instance_of RailsDependencyExplorer::Analysis::DependencyExplorer, @explorer
+    assert_instance_of RailsDependencyExplorer::Analysis::Pipeline::DependencyExplorer, @explorer
 
     # Verify shared code templates work
     assert_includes player_code, "class Player"
@@ -76,6 +76,6 @@ class IOTestHelpersTest < Minitest::Test
 
     # Verify shared analysis result creation works
     result = create_simple_analysis_result
-    assert_instance_of RailsDependencyExplorer::Analysis::AnalysisResult, result
+    assert_instance_of RailsDependencyExplorer::Analysis::Pipeline::AnalysisResult, result
   end
 end

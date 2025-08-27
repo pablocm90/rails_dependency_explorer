@@ -14,12 +14,12 @@ class RailsComponentAnalyzerInterfaceIntegrationTest < Minitest::Test
       "ValidationRules" => [],
       "Database" => []
     }
-    @analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(@dependency_data)
+    @analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer.new(@dependency_data)
   end
 
   def test_rails_component_analyzer_includes_component_analyzer_interface
     # Should include ComponentAnalyzerInterface
-    assert @analyzer.class.included_modules.include?(RailsDependencyExplorer::Analysis::ComponentAnalyzerInterface)
+    assert @analyzer.class.included_modules.include?(RailsDependencyExplorer::Analysis::Interfaces::ComponentAnalyzerInterface)
   end
 
   def test_rails_component_analyzer_responds_to_component_interface_methods
@@ -136,7 +136,7 @@ class RailsComponentAnalyzerInterfaceIntegrationTest < Minitest::Test
   end
 
   def test_rails_component_analyzer_interface_methods_work_with_empty_data
-    empty_analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new({})
+    empty_analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer.new({})
     
     # Component interface methods should handle empty data
     classification = empty_analyzer.classify_components
@@ -156,7 +156,7 @@ class RailsComponentAnalyzerInterfaceIntegrationTest < Minitest::Test
 
   def test_rails_component_analyzer_interface_methods_work_with_single_component
     single_component_data = {"UsersController" => [{"ApplicationController" => [[]]}]}
-    single_analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(single_component_data)
+    single_analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer.new(single_component_data)
     
     # Component interface should handle single component data
     classification = single_analyzer.classify_components
@@ -234,7 +234,7 @@ class RailsComponentAnalyzerInterfaceIntegrationTest < Minitest::Test
       "AuthService" => [{"User" => ["authenticate"]}] # Service->Model (OK)
     }
     
-    violation_analyzer = RailsDependencyExplorer::Analysis::RailsComponentAnalyzer.new(violation_data)
+    violation_analyzer = RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer.new(violation_data)
     violations = violation_analyzer.detect_layering_violations
     
     # Should detect the model->controller violation

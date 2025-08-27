@@ -2,14 +2,14 @@
 
 require "minitest/autorun"
 require_relative "../test_helper"
-require_relative "../../lib/rails_dependency_explorer/analysis/depth_calculation_state"
+require_relative "../../lib/rails_dependency_explorer/analysis/state/depth_calculation_state"
 
 # Tests for DepthCalculationState parameter object used in dependency depth analysis,
 # including memoization, depth calculation algorithms, and complex dependency trees.
 class DepthCalculationStateTest < Minitest::Test
   def test_calculates_depth_for_node_with_no_dependents
     reverse_graph = {"A" => []}
-    state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
+    state = RailsDependencyExplorer::Analysis::State::DepthCalculationState.new(reverse_graph)
 
     depth = state.calculate_node_depth("A")
 
@@ -18,7 +18,7 @@ class DepthCalculationStateTest < Minitest::Test
 
   def test_calculates_depth_for_node_with_single_dependent
     reverse_graph = {"A" => ["B"], "B" => []}
-    state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
+    state = RailsDependencyExplorer::Analysis::State::DepthCalculationState.new(reverse_graph)
 
     depth = state.calculate_node_depth("A")
 
@@ -27,7 +27,7 @@ class DepthCalculationStateTest < Minitest::Test
 
   def test_calculates_depth_for_node_with_multiple_dependents
     reverse_graph = {"A" => ["B", "C"], "B" => [], "C" => []}
-    state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
+    state = RailsDependencyExplorer::Analysis::State::DepthCalculationState.new(reverse_graph)
 
     depth = state.calculate_node_depth("A")
 
@@ -36,7 +36,7 @@ class DepthCalculationStateTest < Minitest::Test
 
   def test_calculates_depth_for_nested_dependencies
     reverse_graph = {"A" => ["B"], "B" => ["C"], "C" => []}
-    state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
+    state = RailsDependencyExplorer::Analysis::State::DepthCalculationState.new(reverse_graph)
 
     depth = state.calculate_node_depth("A")
 
@@ -45,7 +45,7 @@ class DepthCalculationStateTest < Minitest::Test
 
   def test_handles_missing_node_in_reverse_graph
     reverse_graph = {"A" => []}
-    state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
+    state = RailsDependencyExplorer::Analysis::State::DepthCalculationState.new(reverse_graph)
 
     depth = state.calculate_node_depth("B")
 
@@ -54,7 +54,7 @@ class DepthCalculationStateTest < Minitest::Test
 
   def test_memoizes_calculated_depths
     reverse_graph = {"A" => ["B"], "B" => []}
-    state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
+    state = RailsDependencyExplorer::Analysis::State::DepthCalculationState.new(reverse_graph)
 
     # Calculate depth twice
     depth1 = state.calculate_node_depth("A")
@@ -72,7 +72,7 @@ class DepthCalculationStateTest < Minitest::Test
       "D" => [],
       "E" => []
     }
-    state = RailsDependencyExplorer::Analysis::DepthCalculationState.new(reverse_graph)
+    state = RailsDependencyExplorer::Analysis::State::DepthCalculationState.new(reverse_graph)
 
     depth_a = state.calculate_node_depth("A")
     depth_b = state.calculate_node_depth("B")

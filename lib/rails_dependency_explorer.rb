@@ -12,19 +12,14 @@
 # - Utils: Utility classes organized by functional area
 
 require_relative "rails_dependency_explorer/version"
-require_relative "rails_dependency_explorer/utils"
-require_relative "rails_dependency_explorer/analysis/analyzer_interface"
-require_relative "rails_dependency_explorer/analysis/cycle_detection_interface"
-require_relative "rails_dependency_explorer/analysis/statistics_interface"
-require_relative "rails_dependency_explorer/analysis/dependency_container"
-require_relative "rails_dependency_explorer/analysis/dependency_explorer"
-require_relative "rails_dependency_explorer/analysis/analysis_result"
-require_relative "rails_dependency_explorer/analysis/dependency_collection"
-require_relative "rails_dependency_explorer/analysis/circular_dependency_analyzer"
-require_relative "rails_dependency_explorer/analysis/dependency_depth_analyzer"
-require_relative "rails_dependency_explorer/analysis/dependency_statistics_calculator"
-require_relative "rails_dependency_explorer/analysis/rails_component_analyzer"
-require_relative "rails_dependency_explorer/analysis/rails_configuration_analyzer"
+# Load organized analysis modules (new structure)
+require_relative "rails_dependency_explorer/analysis/interfaces"
+require_relative "rails_dependency_explorer/analysis/state"
+require_relative "rails_dependency_explorer/analysis/utilities"
+require_relative "rails_dependency_explorer/analysis/analyzers"
+require_relative "rails_dependency_explorer/analysis/configuration"
+require_relative "rails_dependency_explorer/analysis/pipeline"
+# All core analyzers now loaded via analyzers module: rails_configuration_analyzer, circular_dependency_analyzer, dependency_depth_analyzer, dependency_statistics_calculator, and rails_component_analyzer
 require_relative "rails_dependency_explorer/parsing/dependency_parser"
 require_relative "rails_dependency_explorer/parsing/ast_node_utils"
 require_relative "rails_dependency_explorer/parsing/namespace_builder"
