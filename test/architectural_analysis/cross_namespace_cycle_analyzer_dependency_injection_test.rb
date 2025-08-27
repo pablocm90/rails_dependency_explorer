@@ -17,7 +17,7 @@ class CrossNamespaceCycleAnalyzerDependencyInjectionTest < Minitest::Test
     # Test constructor injection with custom circular analyzer
     mock_circular_analyzer = create_mock_circular_analyzer
     
-    analyzer = RailsDependencyExplorer::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(
       @dependency_data, 
       circular_analyzer: mock_circular_analyzer
     )
@@ -37,7 +37,7 @@ class CrossNamespaceCycleAnalyzerDependencyInjectionTest < Minitest::Test
 
   def test_cross_namespace_analyzer_backward_compatibility
     # Test that old API still works without circular_analyzer parameter
-    analyzer = RailsDependencyExplorer::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(@dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(@dependency_data)
     
     result = analyzer.find_cross_namespace_cycles
     
@@ -50,7 +50,7 @@ class CrossNamespaceCycleAnalyzerDependencyInjectionTest < Minitest::Test
     # Test that injected analyzer must implement CycleDetectionInterface
     mock_analyzer = MockCycleDetectionAnalyzer.new
     
-    analyzer = RailsDependencyExplorer::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(
       @dependency_data,
       circular_analyzer: mock_analyzer
     )
@@ -72,7 +72,7 @@ class CrossNamespaceCycleAnalyzerDependencyInjectionTest < Minitest::Test
     invalid_analyzer = "not_an_analyzer"
     
     assert_raises(ArgumentError) do
-      RailsDependencyExplorer::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(
+      RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(
         @dependency_data,
         circular_analyzer: invalid_analyzer
       )
@@ -81,7 +81,7 @@ class CrossNamespaceCycleAnalyzerDependencyInjectionTest < Minitest::Test
 
   def test_cross_namespace_analyzer_nil_circular_analyzer
     # Test that nil circular_analyzer parameter works like no parameter
-    analyzer = RailsDependencyExplorer::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(
+    analyzer = RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(
       @dependency_data,
       circular_analyzer: nil
     )
@@ -94,7 +94,7 @@ class CrossNamespaceCycleAnalyzerDependencyInjectionTest < Minitest::Test
 
   def test_cross_namespace_analyzer_factory_method
     # Test factory method for creating analyzer with default circular analyzer
-    analyzer = RailsDependencyExplorer::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.create(@dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.create(@dependency_data)
     
     result = analyzer.find_cross_namespace_cycles
     
@@ -109,7 +109,7 @@ class CrossNamespaceCycleAnalyzerDependencyInjectionTest < Minitest::Test
     # Register custom circular analyzer in container
     container.register(:circular_analyzer) { |data| create_mock_circular_analyzer }
     
-    analyzer = RailsDependencyExplorer::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.create(
+    analyzer = RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.create(
       @dependency_data,
       container: container
     )

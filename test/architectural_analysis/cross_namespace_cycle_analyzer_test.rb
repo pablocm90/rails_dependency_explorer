@@ -2,7 +2,7 @@
 
 require "minitest/autorun"
 require_relative "../test_helper"
-require_relative "../../lib/rails_dependency_explorer/architectural_analysis/cross_namespace_cycle_analyzer"
+require_relative "../../lib/rails_dependency_explorer/analysis/architectural_analysis/cross_namespace_cycle_analyzer"
 
 # Tests for CrossNamespaceCycleAnalyzer focusing on detecting circular dependencies
 # that cross namespace/module boundaries, which are architectural red flags.
@@ -46,7 +46,7 @@ class CrossNamespaceCycleAnalyzerTest < Minitest::Test
   private
 
   def assert_cross_namespace_cycles(expected_cycles, dependency_data)
-    analyzer = RailsDependencyExplorer::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(dependency_data)
     cross_namespace_cycles = analyzer.find_cross_namespace_cycles
     assert_equal expected_cycles, cross_namespace_cycles
   end

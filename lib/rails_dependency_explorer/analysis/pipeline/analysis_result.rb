@@ -8,7 +8,8 @@ require_relative "../analyzers/dependency_depth_analyzer"
 require_relative "../analyzers/dependency_statistics_calculator"
 require_relative "../analyzers/rails_component_analyzer"
 require_relative "../analyzers/activerecord_relationship_analyzer"
-require_relative "../../architectural_analysis/cross_namespace_cycle_analyzer"
+require_relative "../architectural_analysis/cross_namespace_cycle_analyzer"
+require_relative "../architectural_analysis/namespace_boundary_analyzer"
 require_relative "analysis_pipeline"
 require_relative "analysis_result_builder"
 
@@ -32,7 +33,8 @@ module RailsDependencyExplorer
         :statistics_calculator,
         :rails_component_analyzer,
         :activerecord_relationship_analyzer,
-        :cross_namespace_cycle_analyzer
+        :cross_namespace_cycle_analyzer,
+        :namespace_boundary_analyzer
       ].freeze
 
       # Analysis coordination delegations
@@ -42,6 +44,8 @@ module RailsDependencyExplorer
       def_delegator :rails_component_analyzer, :categorize_components, :rails_components
       def_delegator :activerecord_relationship_analyzer, :analyze_relationships, :activerecord_relationships
       def_delegator :cross_namespace_cycle_analyzer, :find_cross_namespace_cycles, :cross_namespace_cycles
+      def_delegator :namespace_boundary_analyzer, :analyze, :namespace_boundary_violations
+      def_delegator :namespace_boundary_analyzer, :boundary_health_score, :boundary_health_score
 
       # Output formatting delegations
       def_delegator :formatter, :to_graph
@@ -128,7 +132,11 @@ module RailsDependencyExplorer
       end
 
       def cross_namespace_cycle_analyzer
-        @cross_namespace_cycle_analyzer ||= @injected_analyzers[:cross_namespace_cycle_analyzer] || ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(@dependency_data)
+        @cross_namespace_cycle_analyzer ||= @injected_analyzers[:cross_namespace_cycle_analyzer] || Analysis::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(@dependency_data)
+      end
+
+      def namespace_boundary_analyzer
+        @namespace_boundary_analyzer ||= @injected_analyzers[:namespace_boundary_analyzer] || Analysis::ArchitecturalAnalysis::NamespaceBoundaryAnalyzer.new(@dependency_data)
       end
 
       # Validate injected analyzers
@@ -153,6 +161,7 @@ module RailsDependencyExplorer
         when :rails_component_analyzer then :categorize_components
         when :activerecord_relationship_analyzer then :analyze_relationships
         when :cross_namespace_cycle_analyzer then :find_cross_namespace_cycles
+        when :namespace_boundary_analyzer then :analyze
         else :call
         end
       end

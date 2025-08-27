@@ -23,6 +23,10 @@ module RailsDependencyExplorer
           output << format_cross_namespace_cycles(architectural_data[:cross_namespace_cycles])
         end
 
+        if architectural_data[:namespace_boundary_violations]
+          output << format_namespace_boundary_violations(architectural_data[:namespace_boundary_violations], architectural_data[:boundary_health_score])
+        end
+
         output.join("\n")
       end
 
@@ -78,7 +82,36 @@ module RailsDependencyExplorer
         output
       end
 
-      private_class_method :build_output_lines, :build_header_lines, :build_title_section, :add_classes_section, :add_dependencies_header, :add_dependency_lines, :format_cross_namespace_cycles
+      def self.format_namespace_boundary_violations(violations, health_score = nil)
+        output = "Namespace Boundary Violations:\n"
+
+        if violations.empty?
+          output += "  ✅ None detected"
+        else
+          output += "  ⚠️  #{violations.size} violation(s) found:\n\n"
+
+          violations.each do |violation|
+            severity_icon = case violation[:severity]
+                           when "high" then "🔴"
+                           when "medium" then "🟡"
+                           else "🟢"
+                           end
+
+            output += "  #{severity_icon} #{violation[:source_namespace]}::#{violation[:source_class]} -> #{violation[:target_namespace]}::#{violation[:target_class]}\n"
+            output += "     Severity: #{violation[:severity].upcase}\n"
+            output += "     Recommendation: #{violation[:recommendation]}\n\n"
+          end
+        end
+
+        if health_score
+          health_icon = health_score >= 8.0 ? "✅" : health_score >= 5.0 ? "⚠️" : "🔴"
+          output += "\n  #{health_icon} Boundary Health Score: #{health_score.round(1)}/10.0"
+        end
+
+        output
+      end
+
+      private_class_method :build_output_lines, :build_header_lines, :build_title_section, :add_classes_section, :add_dependencies_header, :add_dependency_lines, :format_cross_namespace_cycles, :format_namespace_boundary_violations
     end
   end
 end

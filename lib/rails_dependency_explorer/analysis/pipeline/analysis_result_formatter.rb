@@ -94,6 +94,16 @@ module RailsDependencyExplorer
           architectural_analysis[:cross_namespace_cycles] = cross_namespace_cycles if cross_namespace_cycles&.any?
         end
 
+        if @statistics_provider&.respond_to?(:namespace_boundary_violations)
+          namespace_boundary_violations = @statistics_provider.namespace_boundary_violations
+          architectural_analysis[:namespace_boundary_violations] = namespace_boundary_violations if namespace_boundary_violations&.any?
+        end
+
+        if @statistics_provider&.respond_to?(:boundary_health_score)
+          boundary_health_score = @statistics_provider.boundary_health_score
+          architectural_analysis[:boundary_health_score] = boundary_health_score if boundary_health_score
+        end
+
         architectural_analysis
       end
     end

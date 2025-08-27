@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module RailsDependencyExplorer
-  module ArchitecturalAnalysis
+  module Analysis
+    module ArchitecturalAnalysis
     # Extracts namespace information from Ruby class names.
     # Handles both namespaced classes (App::Models::User) and root-level classes (User).
     class NamespaceExtractor
@@ -18,4 +19,5 @@ module RailsDependencyExplorer
       end
     end
   end
+end
 end

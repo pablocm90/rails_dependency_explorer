@@ -3,7 +3,8 @@
 require_relative "namespace_extractor"
 
 module RailsDependencyExplorer
-  module ArchitecturalAnalysis
+  module Analysis
+    module ArchitecturalAnalysis
     # Formats cycles into structured architectural analysis results.
     # Provides consistent formatting with cycle path, namespaces, and severity.
     class ArchitecturalCycleFormatter
@@ -26,4 +27,5 @@ module RailsDependencyExplorer
       end
     end
   end
+end
 end

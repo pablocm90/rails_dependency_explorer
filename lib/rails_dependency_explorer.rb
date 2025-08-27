@@ -19,6 +19,7 @@ require_relative "rails_dependency_explorer/analysis/utilities"
 require_relative "rails_dependency_explorer/analysis/analyzers"
 require_relative "rails_dependency_explorer/analysis/configuration"
 require_relative "rails_dependency_explorer/analysis/pipeline"
+require_relative "rails_dependency_explorer/architectural_analysis"
 # All core analyzers now loaded via analyzers module: rails_configuration_analyzer, circular_dependency_analyzer, dependency_depth_analyzer, dependency_statistics_calculator, and rails_component_analyzer
 require_relative "rails_dependency_explorer/parsing/dependency_parser"
 require_relative "rails_dependency_explorer/parsing/ast_node_utils"

@@ -102,7 +102,7 @@ class PipelineAnalyzerAdapterRemovalTest < Minitest::Test
 
   def test_pipeline_works_directly_with_cross_namespace_cycle_analyzer
     # Test that CrossNamespaceCycleAnalyzer can work directly with pipeline
-    analyzer = RailsDependencyExplorer::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(@dependency_data)
+    analyzer = RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer.new(@dependency_data)
     pipeline = RailsDependencyExplorer::Analysis::Pipeline::AnalysisPipeline.new([analyzer])
 
     results = pipeline.analyze(@dependency_data)
@@ -159,7 +159,7 @@ class PipelineAnalyzerAdapterRemovalTest < Minitest::Test
     assert_includes analyzer_classes, RailsDependencyExplorer::Analysis::Analyzers::DependencyDepthAnalyzer
     assert_includes analyzer_classes, RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer
     assert_includes analyzer_classes, RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer
-    assert_includes analyzer_classes, RailsDependencyExplorer::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer
+    assert_includes analyzer_classes, RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer
   end
 
   def test_build_pipeline_analyzers_creates_analyzers_with_raw_results

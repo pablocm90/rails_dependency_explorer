@@ -106,7 +106,7 @@ class ArchitecturalAnalysisIntegrationTest < Minitest::Test
     parsed = JSON.parse(json_output)
     
     # Should either not have the key or have empty array
-    if parsed.key?("architectural_analysis")
+    if parsed.key?("architectural_analysis") && parsed["architectural_analysis"]["cross_namespace_cycles"]
       assert_empty parsed["architectural_analysis"]["cross_namespace_cycles"]
     end
   end

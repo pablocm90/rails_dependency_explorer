@@ -60,7 +60,7 @@ class AnalysisResultDependencyInjectionTest < Minitest::Test
     assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::DependencyStatisticsCalculator, result.send(:statistics_calculator)
     assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::RailsComponentAnalyzer, result.send(:rails_component_analyzer)
     assert_instance_of RailsDependencyExplorer::Analysis::Analyzers::ActiveRecordRelationshipAnalyzer, result.send(:activerecord_relationship_analyzer)
-    assert_instance_of RailsDependencyExplorer::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer, result.send(:cross_namespace_cycle_analyzer)
+    assert_instance_of RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::CrossNamespaceCycleAnalyzer, result.send(:cross_namespace_cycle_analyzer)
   end
 
   def test_analysis_result_delegated_methods_with_injection

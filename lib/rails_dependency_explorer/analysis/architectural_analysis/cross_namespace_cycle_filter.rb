@@ -3,7 +3,8 @@
 require_relative "namespace_extractor"
 
 module RailsDependencyExplorer
-  module ArchitecturalAnalysis
+  module Analysis
+    module ArchitecturalAnalysis
     # Filters cycles to identify those that cross namespace boundaries.
     # Cross-namespace cycles indicate architectural problems where different
     # modules are tightly coupled, violating separation of concerns.
@@ -18,4 +19,5 @@ module RailsDependencyExplorer
       end
     end
   end
+end
 end

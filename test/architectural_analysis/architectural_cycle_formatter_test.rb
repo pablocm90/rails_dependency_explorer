@@ -2,7 +2,7 @@
 
 require "minitest/autorun"
 require_relative "../test_helper"
-require_relative "../../lib/rails_dependency_explorer/architectural_analysis/architectural_cycle_formatter"
+require_relative "../../lib/rails_dependency_explorer/analysis/architectural_analysis/architectural_cycle_formatter"
 
 # Tests for ArchitecturalCycleFormatter focusing on formatting cycles
 # into structured architectural analysis results.
@@ -10,7 +10,7 @@ class ArchitecturalCycleFormatterTest < Minitest::Test
   def test_format_single_cycle_with_default_severity
     cycle = ["App::Models::User", "Services::UserService", "App::Models::User"]
     
-    result = RailsDependencyExplorer::ArchitecturalAnalysis::ArchitecturalCycleFormatter.format_cycle(cycle)
+    result = RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::ArchitecturalCycleFormatter.format_cycle(cycle)
     
     expected_result = {
       cycle: ["App::Models::User", "Services::UserService", "App::Models::User"],
@@ -24,7 +24,7 @@ class ArchitecturalCycleFormatterTest < Minitest::Test
   def test_format_single_cycle_with_custom_severity
     cycle = ["App::Models::User", "Services::UserService", "App::Models::User"]
     
-    result = RailsDependencyExplorer::ArchitecturalAnalysis::ArchitecturalCycleFormatter.format_cycle(cycle, severity: "medium")
+    result = RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::ArchitecturalCycleFormatter.format_cycle(cycle, severity: "medium")
     
     expected_result = {
       cycle: ["App::Models::User", "Services::UserService", "App::Models::User"],
@@ -41,7 +41,7 @@ class ArchitecturalCycleFormatterTest < Minitest::Test
       ["User", "Services::UserService", "User"]
     ]
     
-    results = RailsDependencyExplorer::ArchitecturalAnalysis::ArchitecturalCycleFormatter.format_cycles(cycles)
+    results = RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::ArchitecturalCycleFormatter.format_cycles(cycles)
     
     expected_results = [
       {
@@ -65,7 +65,7 @@ class ArchitecturalCycleFormatterTest < Minitest::Test
       ["User", "Services::UserService", "User"]
     ]
     
-    results = RailsDependencyExplorer::ArchitecturalAnalysis::ArchitecturalCycleFormatter.format_cycles(cycles, severity: "low")
+    results = RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::ArchitecturalCycleFormatter.format_cycles(cycles, severity: "low")
     
     expected_results = [
       {
@@ -86,7 +86,7 @@ class ArchitecturalCycleFormatterTest < Minitest::Test
   def test_format_empty_cycles_array
     cycles = []
     
-    results = RailsDependencyExplorer::ArchitecturalAnalysis::ArchitecturalCycleFormatter.format_cycles(cycles)
+    results = RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::ArchitecturalCycleFormatter.format_cycles(cycles)
     
     assert_equal [], results
   end
@@ -94,7 +94,7 @@ class ArchitecturalCycleFormatterTest < Minitest::Test
   def test_format_complex_multi_namespace_cycle
     cycle = ["App::Models::User", "Services::UserService", "External::EmailService", "App::Models::User"]
     
-    result = RailsDependencyExplorer::ArchitecturalAnalysis::ArchitecturalCycleFormatter.format_cycle(cycle)
+    result = RailsDependencyExplorer::Analysis::ArchitecturalAnalysis::ArchitecturalCycleFormatter.format_cycle(cycle)
     
     expected_result = {
       cycle: ["App::Models::User", "Services::UserService", "External::EmailService", "App::Models::User"],
